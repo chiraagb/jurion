@@ -1,6 +1,6 @@
 import uuid
 from typing import AsyncGenerator
-from sqlalchemy import String, Text, DateTime, func, Index
+from sqlalchemy import ForeignKey, String, Text, DateTime, func, Index
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from pgvector.sqlalchemy import Vector
@@ -37,10 +37,23 @@ class ContractChunk(Base):
     )
 
 
-# 2b. Encrypted LLM provider keys (one per provider; single-tenant until user accounts exist)
+# 2a. Users, created on first Google sign-in
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    google_sub: Mapped[str] = mapped_column(String(64), unique=True)  # Google's stable account id; email can change
+    email: Mapped[str] = mapped_column(String(320))
+    name: Mapped[str] = mapped_column(String(200), default="")
+    picture: Mapped[str] = mapped_column(Text, default="")
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+# 2b. Encrypted LLM provider keys, one per user and provider
 class LlmApiKey(Base):
     __tablename__ = "llm_api_keys"
 
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
     provider: Mapped[str] = mapped_column(String(16), primary_key=True)
     ciphertext: Mapped[str] = mapped_column(Text)  # Fernet token; the plaintext key is never stored
     hint: Mapped[str] = mapped_column(String(32))  # "sk-…a1b2", safe to show in the UI

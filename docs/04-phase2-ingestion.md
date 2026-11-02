@@ -63,7 +63,7 @@ Click the **key icon** in the top bar, pick Gemini or OpenAI (ChatGPT), paste yo
 - API: `GET /settings/llm` (hints), `PUT /settings/llm/{provider}`, `DELETE /settings/llm/{provider}`.
 - Fallback: `GEMINI_API_KEY` / `OPENAI_API_KEY` in `.env` are used when no key is saved in the database.
 
-> There are no user accounts yet, so there is **one set of keys for the whole server**, and the settings endpoints have no login. Anyone who can reach the API can replace a key or run parses on it. Keep the API on localhost until auth exists, then add a `user_id` column to `llm_api_keys`.
+Keys belong to the signed-in user (`llm_api_keys` is keyed by `user_id` + provider), and every endpoint except `/health` requires sign-in. See `docs/11-auth.md`.
 
 ### LLM fallback: one attempt, never a loop
 

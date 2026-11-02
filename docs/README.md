@@ -14,3 +14,4 @@ Read them in order:
 8. [Scaling to Production](08-scaling-to-production.md) – making it enterprise-ready
 9. [Glossary](09-glossary.md) – jargon explained
 10. [Git & GitHub](10-git-github.md) – committing and pushing
+11. [Sign in with Google](11-auth.md) – login, sessions, setup

@@ -20,6 +20,9 @@
   --success: #3f5f1e;
   --danger: #a8231a;
   --warn: #7f5200;
+  --rule: rgb(104 134 184 / 0.22);   /* blue ruled lines */
+  --margin: rgb(184 69 60 / 0.55);   /* red margin line */
+  --mark: rgb(235 196 70 / 0.5);     /* highlighter */
   --grain-opacity: 0.07;
 }
 
@@ -40,6 +43,9 @@
   --success: #a9c37f;
   --danger: #f2897c;
   --warn: #e6c174;
+  --rule: rgb(140 170 220 / 0.12);
+  --margin: rgb(226 120 110 / 0.45);
+  --mark: rgb(214 170 60 / 0.35);
   --grain-opacity: 0.05;
 }
 
@@ -102,4 +108,58 @@ body::before {
 ::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
+}
+
+/* Gentle entrance for the login card. */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+.animate-rise { animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Login showcase: ruled legal pad with a red margin, and a highlighter that sweeps across a phrase. */
+@utility legal-pad {
+  background-color: var(--surface);
+  background-image:
+    linear-gradient(90deg, transparent 4.5rem, var(--margin) 4.5rem 4.56rem, transparent 4.56rem 4.8rem, var(--margin) 4.8rem 4.86rem, transparent 4.86rem),
+    repeating-linear-gradient(transparent 0 2.2rem, var(--rule) 2.2rem 2.25rem);
+}
+/* One 7s cycle drives the highlighter, the tag and the signature so they stay in sync. */
+.marker {
+  background: linear-gradient(var(--mark), var(--mark)) no-repeat left 85% / 0% 70%;
+  animation: markloop 7s ease-in-out 3.2s infinite;
+}
+@keyframes markloop {
+  0% { background-size: 0% 70%; }
+  14%, 82% { background-size: 100% 70%; }
+  96%, 100% { background-size: 0% 70%; }
+}
+.tag-pop { animation: tagloop 7s ease-in-out 3.2s infinite both; }
+@keyframes tagloop {
+  0%, 12% { opacity: 0; transform: translateY(4px) scale(0.96); }
+  20%, 82% { opacity: 1; transform: none; }
+  94%, 100% { opacity: 0; transform: translateY(-2px); }
+}
+.sign-draw { stroke-dasharray: 1; animation: signloop 7s ease-in-out 3.2s infinite both; }
+@keyframes signloop {
+  0%, 6% { stroke-dashoffset: 1; opacity: 1; }
+  45%, 85% { stroke-dashoffset: 0; opacity: 1; }
+  96%, 100% { stroke-dashoffset: 0; opacity: 0; }
+}
+.scan-line { animation: scan 7s ease-in-out 1.5s infinite; }
+@keyframes scan {
+  0% { top: 8%; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 92%; opacity: 0; }
+}
+/* Reduce Motion: no endless loops. Each effect plays once and stays on its finished state. */
+@keyframes sweep { to { background-size: 100% 70%; } }
+@keyframes tagin { from { opacity: 0; transform: translateY(4px) scale(0.96); } to { opacity: 1; transform: none; } }
+@keyframes signin { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .marker { animation: sweep 0.9s ease-out 3.2s both; }
+  .tag-pop { animation: tagin 0.4s ease-out 4.1s both; }
+  .sign-draw { animation: signin 1.6s ease-in-out 3.2s both; }
+  .scan-line { animation: scan 4s ease-in-out 1.5s 1 both; }
 }

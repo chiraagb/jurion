@@ -2,6 +2,9 @@
 import sys
 import pymupdf
 from fastapi.testclient import TestClient
+import uuid
+from app.auth import current_user
+from app.database import User
 from app.main import app
 
 SECTIONS = [
@@ -63,6 +66,12 @@ def make_hanging_indent_pdf() -> bytes:
 
 
 if __name__ == "__main__":
+    pdf0 = make_sample_pdf()
+    assert TestClient(app).post("/parse", files={"file": ("a.pdf", pdf0, "application/pdf")}).status_code == 401  # signed out
+    assert TestClient(app).get("/auth/me").status_code == 401
+    assert TestClient(app).post("/auth/google", json={"credential": "junk"}).status_code == 401  # forged token
+    app.dependency_overrides[current_user] = lambda: User(id=uuid.uuid4())  # signed in from here on
+
     hanging = TestClient(app).post("/parse", files={"file": ("h.pdf", make_hanging_indent_pdf(), "application/pdf")}).json()
     by_id = {c["clause_identifier"]: c for c in hanging["clauses"]}
     assert "\n" not in by_id["2.6"]["content"], repr(by_id["2.6"]["content"])  # one paragraph, no stray breaks

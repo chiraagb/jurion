@@ -8,7 +8,9 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import llm_keys
-from app.database import LlmApiKey, async_engine, neo4j_driver, redis_client, get_db
+from app.auth import current_user, router as auth_router
+from app.database import LlmApiKey, User, async_engine, neo4j_driver, redis_client, get_db
+from app.config import settings
 from app.hybrid_parser import PROVIDERS, _pdf_executor, count_pages, parse_contract_fast
 
 MAX_PDF_BYTES = 25 * 1024 * 1024
@@ -16,20 +18,21 @@ MAX_PDF_BYTES = 25 * 1024 * 1024
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    # No migration tool yet: create just this table. A down database must not stop the API from starting.
+    # No migration tool yet: create just the user and key tables. A down database must not stop the API from starting.
     try:
         async with async_engine.begin() as conn:
-            await conn.run_sync(lambda c: LlmApiKey.__table__.create(c, checkfirst=True))
+            await conn.run_sync(lambda c: [t.create(c, checkfirst=True) for t in (User.__table__, LlmApiKey.__table__)])
     except Exception:
         pass
     yield
 
 
 app = FastAPI(title="Jurion Legal Intelligence API", lifespan=lifespan)
+app.include_router(auth_router)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[settings.FRONTEND_ORIGIN],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -88,35 +91,38 @@ def _provider(name: str) -> str:
 
 
 @app.get("/settings/llm")
-async def list_llm_keys(db: AsyncSession = Depends(get_db)):
+async def list_llm_keys(user: User = Depends(current_user), db: AsyncSession = Depends(get_db)):
     """Which providers have a saved key, as masked hints only."""
     try:
-        return {"keys": await llm_keys.key_hints(db)}
+        return {"keys": await llm_keys.key_hints(db, user.id)}
     except Exception as e:
         raise HTTPException(503, f"Database unavailable: {e}")
 
 
 @app.put("/settings/llm/{provider}")
-async def save_llm_key(provider: str, body: KeyIn, db: AsyncSession = Depends(get_db)):
+async def save_llm_key(
+    provider: str, body: KeyIn, user: User = Depends(current_user), db: AsyncSession = Depends(get_db)
+):
     try:
-        return {"provider": _provider(provider), "hint": await llm_keys.save_key(db, provider, body.api_key.strip())}
+        return {"provider": _provider(provider), "hint": await llm_keys.save_key(db, user.id, provider, body.api_key.strip())}
     except RuntimeError as e:  # ENCRYPTION_KEY missing
         raise HTTPException(503, str(e))
 
 
 @app.delete("/settings/llm/{provider}", status_code=204)
-async def delete_llm_key(provider: str, db: AsyncSession = Depends(get_db)):
-    await llm_keys.delete_key(db, _provider(provider))
+async def delete_llm_key(provider: str, user: User = Depends(current_user), db: AsyncSession = Depends(get_db)):
+    await llm_keys.delete_key(db, user.id, _provider(provider))
 
 
 @app.post("/parse")
 async def parse_pdf(
     file: UploadFile = File(...),
     x_llm_provider: str | None = Header(None),
+    user: User = Depends(current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Parses an uploaded contract PDF into clauses. Nothing is persisted yet.
-    The fallback provider comes from X-LLM-Provider; its key is read (decrypted) from Postgres, else the server .env."""
+    The fallback provider comes from X-LLM-Provider; the signed-in user's key is read (decrypted) from Postgres, else the server .env."""
     started = time.perf_counter()
     pdf_bytes = await file.read(MAX_PDF_BYTES + 1)
 
@@ -132,7 +138,7 @@ async def parse_pdf(
         raise HTTPException(422, f"Could not open PDF: {e}")
 
     try:
-        stored_key = await llm_keys.load_key(db, x_llm_provider) if x_llm_provider in PROVIDERS else None
+        stored_key = await llm_keys.load_key(db, user.id, x_llm_provider) if x_llm_provider in PROVIDERS else None
     except Exception:  # DB down or ENCRYPTION_KEY missing: fall back to the .env key
         stored_key = None
 
