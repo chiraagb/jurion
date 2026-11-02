@@ -1,1 +1,105 @@
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Semantic color tokens: components use these, never raw palette colors. */
+:root {
+  /* Parchment: sand desk, cream paper, iron-gall ink, seal-wax red */
+  color-scheme: light;
+  --canvas: #efe6d5;
+  --surface: #fbf6ec;
+  --raised: #e9dfcc;
+  --line: #ddcfb6;
+  --line-strong: #c8b694;
+  --fg: #2b2118;
+  --fg-soft: #46382a;
+  --muted: #5f4e3b;
+  --subtle: #6f5d48;
+  --accent: #8c2f1e;
+  --accent-fg: #7a2617;
+  --success: #3f5f1e;
+  --danger: #a8231a;
+  --warn: #7f5200;
+  --grain-opacity: 0.07;
+}
+
+.dark {
+  /* Lamplit study: walnut desk, aged vellum ink */
+  color-scheme: dark;
+  --canvas: #17130f;
+  --surface: #211b15;
+  --raised: #2c241c;
+  --line: #352c22;
+  --line-strong: #4a3d2f;
+  --fg: #f1e8d8;
+  --fg-soft: #ddd0ba;
+  --muted: #b9aa92;
+  --subtle: #9a8b74;
+  --accent: #e3906f;
+  --accent-fg: #f0b296;
+  --success: #a9c37f;
+  --danger: #f2897c;
+  --warn: #e6c174;
+  --grain-opacity: 0.05;
+}
+
+@theme inline {
+  --font-display: "EB Garamond", Georgia, serif;
+  --font-sans: "Lato", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-fg: var(--fg);
+  --color-fg-soft: var(--fg-soft);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-warn: var(--warn);
+}
+
+body {
+  @apply bg-canvas text-fg font-sans antialiased;
+}
+
+/* Paper grain: fixed SVG noise over the whole page, never blocks clicks. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .2 0 0 0 0 .14 0 0 0 0 .08 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* A sheet of paper resting on the desk. */
+@utility paper {
+  background-color: var(--surface);
+  box-shadow:
+    0 1px 0 rgb(80 55 25 / 0.06),
+    0 10px 28px -18px rgb(80 55 25 / 0.35);
+}
+
+/* Small caps label, like a court-filing caption. */
+@utility caption {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--subtle);
+}
+
+/* Theme switch: the new theme is revealed by a circle clip animated from JS. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}

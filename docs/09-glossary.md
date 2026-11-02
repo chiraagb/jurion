@@ -5,6 +5,7 @@
 | **RAG** | Retrieval-Augmented Generation. Find relevant text first, then let an AI answer using it. |
 | **GraphRAG** | RAG that also uses a graph of relationships, not just text similarity. |
 | **CRAG** | Corrective RAG. Check if the found text is good; if not, retry before answering. |
+| **Parse confidence** | A 0-1 score for how much we trust the local PDF parse (text kept × numbering complete × headings titled). Low scores trigger the Gemini fallback. |
 | **LLM** | Large Language Model – the AI (GPT-4o, Claude, Gemini). |
 | **Embedding** | A list of numbers representing the meaning of text. Similar meanings → similar numbers. |
 | **Vector search** | Finding text whose embedding is closest to the question's embedding. |

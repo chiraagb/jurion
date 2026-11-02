@@ -55,7 +55,7 @@ If the score is below **0.7**, the results aren't good enough.
 
 ## Step 4 – Rewrite and retry
 
-If grading fails, ask the LLM to rephrase the question (using legal synonyms, cross-references) and search again. Keep a counter (`rewrite_count`) so it doesn't loop forever – stop after a few tries.
+If grading fails, ask the LLM to rephrase the question (using legal synonyms, cross-references) and search again. Keep a counter (`rewrite_count`) so it never loops forever – stop after **at most 3 tries**, then answer with what was found and say the evidence is weak.
 
 ## Step 5 – Write the answer with citations
 

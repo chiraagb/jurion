@@ -37,6 +37,18 @@ class ContractChunk(Base):
     )
 
 
+# 2b. Encrypted LLM provider keys (one per provider; single-tenant until user accounts exist)
+class LlmApiKey(Base):
+    __tablename__ = "llm_api_keys"
+
+    provider: Mapped[str] = mapped_column(String(16), primary_key=True)
+    ciphertext: Mapped[str] = mapped_column(Text)  # Fernet token; the plaintext key is never stored
+    hint: Mapped[str] = mapped_column(String(32))  # "sk-…a1b2", safe to show in the UI
+    updated_at: Mapped[DateTime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
 # 3. Connection Engines & Drivers
 async_engine = create_async_engine(settings.DATABASE_URL, echo=False)
 AsyncSessionLocal = async_sessionmaker(

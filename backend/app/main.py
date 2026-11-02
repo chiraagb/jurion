@@ -1,12 +1,31 @@
 import asyncio
-from fastapi import FastAPI, Depends
+import time
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, Depends, File, Header, HTTPException, UploadFile
+from pydantic import BaseModel, Field
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import neo4j_driver, redis_client, get_db
+from app import llm_keys
+from app.database import LlmApiKey, async_engine, neo4j_driver, redis_client, get_db
+from app.hybrid_parser import PROVIDERS, _pdf_executor, count_pages, parse_contract_fast
 
-app = FastAPI(title="Jurion Legal Intelligence API")
+MAX_PDF_BYTES = 25 * 1024 * 1024
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    # No migration tool yet: create just this table. A down database must not stop the API from starting.
+    try:
+        async with async_engine.begin() as conn:
+            await conn.run_sync(lambda c: LlmApiKey.__table__.create(c, checkfirst=True))
+    except Exception:
+        pass
+    yield
+
+
+app = FastAPI(title="Jurion Legal Intelligence API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -55,4 +74,79 @@ async def health_check(db: AsyncSession = Depends(get_db)):
         "postgres_vector": pg_ok is True,
         "neo4j": neo4j_ok is True,
         "redis": redis_ok is True,
+    }
+
+
+class KeyIn(BaseModel):
+    api_key: str = Field(min_length=8, max_length=512)
+
+
+def _provider(name: str) -> str:
+    if name not in PROVIDERS:
+        raise HTTPException(404, f"Unknown provider. Use one of: {', '.join(PROVIDERS)}")
+    return name
+
+
+@app.get("/settings/llm")
+async def list_llm_keys(db: AsyncSession = Depends(get_db)):
+    """Which providers have a saved key, as masked hints only."""
+    try:
+        return {"keys": await llm_keys.key_hints(db)}
+    except Exception as e:
+        raise HTTPException(503, f"Database unavailable: {e}")
+
+
+@app.put("/settings/llm/{provider}")
+async def save_llm_key(provider: str, body: KeyIn, db: AsyncSession = Depends(get_db)):
+    try:
+        return {"provider": _provider(provider), "hint": await llm_keys.save_key(db, provider, body.api_key.strip())}
+    except RuntimeError as e:  # ENCRYPTION_KEY missing
+        raise HTTPException(503, str(e))
+
+
+@app.delete("/settings/llm/{provider}", status_code=204)
+async def delete_llm_key(provider: str, db: AsyncSession = Depends(get_db)):
+    await llm_keys.delete_key(db, _provider(provider))
+
+
+@app.post("/parse")
+async def parse_pdf(
+    file: UploadFile = File(...),
+    x_llm_provider: str | None = Header(None),
+    db: AsyncSession = Depends(get_db),
+):
+    """Parses an uploaded contract PDF into clauses. Nothing is persisted yet.
+    The fallback provider comes from X-LLM-Provider; its key is read (decrypted) from Postgres, else the server .env."""
+    started = time.perf_counter()
+    pdf_bytes = await file.read(MAX_PDF_BYTES + 1)
+
+    if len(pdf_bytes) > MAX_PDF_BYTES:
+        raise HTTPException(413, "PDF is larger than 25 MB")
+    if not pdf_bytes.startswith(b"%PDF"):
+        raise HTTPException(415, "File is not a PDF")
+
+    loop = asyncio.get_running_loop()
+    try:
+        pages = await loop.run_in_executor(_pdf_executor, count_pages, pdf_bytes)
+    except Exception as e:
+        raise HTTPException(422, f"Could not open PDF: {e}")
+
+    try:
+        stored_key = await llm_keys.load_key(db, x_llm_provider) if x_llm_provider in PROVIDERS else None
+    except Exception:  # DB down or ENCRYPTION_KEY missing: fall back to the .env key
+        stored_key = None
+
+    try:
+        result = await parse_contract_fast(pdf_bytes, x_llm_provider, stored_key)
+    except Exception as e:
+        raise HTTPException(
+            422, f"Layout too ambiguous for the local parser and the LLM fallback failed: {e}"
+        )
+
+    return {
+        "filename": file.filename,
+        "size_bytes": len(pdf_bytes),
+        "pages": pages,
+        "total_ms": round((time.perf_counter() - started) * 1000, 1),
+        **result,
     }
