@@ -4,6 +4,8 @@ export interface Clause {
   content: string;
   page_number?: number;
   parent_identifier?: string | null;
+  start_line?: number; // [start_line, end_line) in the stored full text; absent for scans and old contracts
+  end_line?: number;
 }
 
 export interface Confidence {
@@ -11,7 +13,8 @@ export interface Confidence {
   coverage: number;
   numbering: number;
   titled: number;
-  unique?: number; // absent on contracts saved before this check existed
+  unique?: number;
+  balanced?: number; // absent on contracts saved before this check existed
   issues?: string[];
 }
 

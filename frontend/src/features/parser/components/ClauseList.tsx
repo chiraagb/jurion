@@ -143,15 +143,38 @@ function ClauseCard({ clause: c, onOpen }: { clause: Clause; onOpen: (page: numb
           {c.content.length.toLocaleString()} chars
         </span>
       </summary>
-      <p
-        className={`border-t border-line px-5 py-4 text-fg-soft ${
-          c.clause_identifier === "SIGNATURES"
-            ? "overflow-x-auto whitespace-pre font-mono text-xs leading-relaxed"
-            : "whitespace-pre-wrap font-display text-lg leading-relaxed"
-        }`}
-      >
-        {c.content}
-      </p>
+      {c.clause_identifier === "SIGNATURES" ? (
+        <p className="overflow-x-auto whitespace-pre border-t border-line px-5 py-4 font-mono text-xs leading-relaxed text-fg-soft">
+          {c.content}
+        </p>
+      ) : (
+        <div className="space-y-4 border-t border-line px-5 py-4 font-display text-lg leading-relaxed text-fg-soft">
+          {c.content.split("\n\n").map((block, i) => {
+            const rows = block.startsWith("| ") ? block.split("\n").map((r) => r.slice(2, -2).split(" | ")) : null;
+            return rows ? <Table key={i} rows={rows} /> : <p key={i} className="whitespace-pre-wrap">{block}</p>;
+          })}
+        </div>
+      )}
     </details>
+  );
+}
+
+/** A table the parser kept as "| a | b |" rows; the first row is the header. */
+function Table({ rows: [head, ...body] }: { rows: string[][] }) {
+  return (
+    <div className="overflow-x-auto rounded-md border border-line-strong">
+      <table className="w-full border-collapse font-sans text-sm">
+        <thead className="bg-raised text-left text-fg">
+          <tr>{head.map((h, i) => <th key={i} className="border-b border-line-strong px-3 py-2 font-semibold">{h}</th>)}</tr>
+        </thead>
+        <tbody>
+          {body.map((r, i) => (
+            <tr key={i} className="align-top odd:bg-surface even:bg-canvas/40">
+              {r.map((cell, j) => <td key={j} className="border-t border-line px-3 py-2">{cell}</td>)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }

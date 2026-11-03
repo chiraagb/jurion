@@ -45,3 +45,14 @@ from llm_api_keys k join users u on u.id = k.user_id;
 ## Later: an admin panel inside the app
 
 [SQLAdmin](https://github.com/aminalaee/sqladmin) gives a Django-admin-style `/admin` for FastAPI and SQLAlchemy models. If added, limit it to admin accounts with the Google sign-in, since it can edit any row.
+
+## Full text first, clauses as ranges
+
+When you save a contract, the server reads the PDF once more and stores its **full text in reading order** in `documents.lines` (one entry per visual line: text, page, position, font size, bold, and a flag for tables). Each clause row then has `start_line` and `end_line`: the clause is lines `start_line` up to (not including) `end_line`.
+
+Why: the text is never lost, whatever the splitter does. A wrong split is fixed by moving a boundary, and a new splitter (or the AI heading step) can be re-run on the saved lines without opening the PDF again. The same lines will feed the graph (cross-references, definitions) and the search index later.
+
+- `clauses.content` is still stored: it is the readable version of those lines, kept so the UI and queries stay simple.
+- Contracts saved before this change have no lines (`lines` is empty). Open and save them again to get them.
+- A scan with no text layer has no lines and no ranges.
+- The server checks each range fits inside the text before saving, because the browser sends it.

@@ -101,7 +101,7 @@ export default function ResultsView({ result, file, onClear, onSave, clearLabel 
                 wide
                 label="Parse confidence"
                 value={`${Math.round(result.confidence.score * 100)}%`}
-                note={`Text kept ${pct(result.confidence.coverage)} · numbering complete ${pct(result.confidence.numbering)} · headings titled ${pct(result.confidence.titled)}${result.confidence.unique !== undefined ? ` · numbers unique ${pct(result.confidence.unique)}` : ""}`}
+                note={`Text kept ${pct(result.confidence.coverage)} · numbering complete ${pct(result.confidence.numbering)} · headings titled ${pct(result.confidence.titled)}${result.confidence.unique !== undefined ? ` · numbers unique ${pct(result.confidence.unique)}` : ""}${result.confidence.balanced !== undefined ? ` · evenly split ${pct(result.confidence.balanced)}` : ""}`}
               />
             )}
           </dl>

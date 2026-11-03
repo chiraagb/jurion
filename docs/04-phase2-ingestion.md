@@ -31,7 +31,9 @@ We have two versions in the code:
 - `app/hybrid_parser.py` – smarter:
   1. **Fast path (local, < 50ms):** looks at headings using regex *plus* font size and bold text.
   2. **Confidence check:** after the fast path, the parser scores itself from 0 to 1 (see below).
-  3. **Fallback (Gemini, ~2s):** if it finds fewer than 3 clauses, or the confidence is below 0.6, it sends the PDF to an AI and asks it to list the clauses.
+  3. **Fallback (Gemini or OpenAI):** if it finds fewer than 3 clauses, or the confidence is below 0.6, the AI is asked **which lines are headings**. It gets a short list (about 150 candidate lines, not the whole contract) and answers with line numbers. The clause text still comes from the PDF itself, so nothing is reworded and page numbers stay exact. If the AI's result scores no better than the local one, the local one is kept. A scanned PDF with no text is the exception: the whole file goes to the AI.
+
+The local rules are meant to stay small. When a new contract parses badly, the answer is this AI step (and the test in "Regression test" below), not another special case in the regex rules.
 
 Each clause comes out as:
 
@@ -39,9 +41,16 @@ Each clause comes out as:
 { "clause_identifier": "SECTION 14.2", "title": "Governing Law", "content": "..." }
 ```
 
+### Tables, attachments and signature blocks
+
+- **Tables are kept as tables.** If a page has a table drawn with ruled lines, the parser reads each cell and stores the table as rows (`| Visit | Fee |`). The app shows it as a real table, not a run of text. Tables with no ruling lines are still read as plain text. Finding tables costs about 0.2s per page that has one.
+- **A signature block stops at an attachment.** The signature block normally runs to the end of the file, but a heading like `ATTACHMENT 1`, `APPENDIX` or `ANNEX` (in capitals) starts a new section. Numbering restarts inside an attachment, so a second "1." there is not counted as a duplicate.
+- **Only a short line starts a signature block.** "signed by the Investigator and returned…" is a normal sentence; "Signed at London" is a signature line. (A long sentence that began with "signed by" once swallowed 28 pages into one clause.)
+- **Cross-references are not headings.** "Section 1.7 [Financial Disclosure], 1.8 …" inside a sentence is ignored.
+
 ### How does the parser know the layout is messy?
 
-Four checks, each from 0 to 1. They are multiplied into one **confidence score**, which `POST /parse` returns as `confidence` and the Parser Lab shows as "Parse confidence".
+Five checks, each from 0 to 1. They are multiplied into one **confidence score**, which `POST /parse` returns as `confidence` and the Parser Lab shows as "Parse confidence".
 
 | Check | Question it answers | Low score means |
 |---|---|---|
@@ -49,6 +58,7 @@ Four checks, each from 0 to 1. They are multiplied into one **confidence score**
 | **numbering** | Are clause numbers continuous (1, 2, 3 – not 1, 2, 4)? | Headings were missed |
 | **titled** | How many headings got a real title (not "Section X")? | Heading detection is off |
 | **unique** | Is each clause number used only once? | The contract reuses a number (or the parser split one section in two) |
+| **balanced** | Does any one clause hold more than 40% of the text (documents of 4+ pages)? | A heading was missed and the rest of the contract is merged into one clause |
 
 The API also returns `issues`: plain-language warnings shown as yellow notes above the clause list, for example:
 
@@ -76,7 +86,7 @@ Keys belong to the signed-in user (`llm_api_keys` is keyed by `user_id` + provid
 
 - The Gemini call is made **once**. There is no retry loop.
 - It has a hard **60-second timeout** (`GEMINI_TIMEOUT_S`). On timeout or any error, the parser returns the local result and marks the Gemini step as a warning.
-- The model is set in `GEMINI_MODEL` (default `gemini-3.8-flash`) or `OPENAI_MODEL` (default `gpt-4o`). Change it in `.env` if a model is retired.
+- The model is set in `GEMINI_MODEL` (default `gemini-3.5-flash-lite`) or `OPENAI_MODEL` (default `gpt-4o`). Change it in `.env` if a model is retired.
 - If you add retries later (for example for rate limits), cap them at 2 or 3 with a growing delay, and keep the timeout.
 
 ## Step 2 – Ask the AI what each clause is connected to
@@ -114,3 +124,7 @@ We use Cypher `MERGE`, which means "create it if it doesn't exist, otherwise reu
 - You can upload a PDF to an endpoint (e.g. `POST /documents`)
 - Its clauses appear in the `contract_chunks` table with embeddings
 - You can see the document, clauses and links in the Neo4j browser (http://localhost:7474)
+
+### Regression test on real contracts
+
+`backend/tests/integration/test_corpus.py` parses real PDFs kept in `backend/tests/corpus/` (git-ignored, since they are real contracts) and checks each against `expectations.json`: minimum clause count, clause IDs that must exist, table rows, and a minimum score. When a new contract parses badly, put the PDF in that folder, add an entry, fix the parser, and the test keeps every earlier contract working.

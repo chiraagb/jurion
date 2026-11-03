@@ -1,2 +1,5 @@
 .DS_Store
 .env*
+
+# real contracts used by the local regression test
+backend/tests/corpus/*.pdf
