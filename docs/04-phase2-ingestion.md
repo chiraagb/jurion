@@ -41,13 +41,20 @@ Each clause comes out as:
 
 ### How does the parser know the layout is messy?
 
-Three checks, each from 0 to 1. They are multiplied into one **confidence score**, which `POST /parse` returns as `confidence` and the Parser Lab shows as "Parse confidence".
+Four checks, each from 0 to 1. They are multiplied into one **confidence score**, which `POST /parse` returns as `confidence` and the Parser Lab shows as "Parse confidence".
 
 | Check | Question it answers | Low score means |
 |---|---|---|
 | **coverage** | How much of the page text ended up inside clauses? | Text was dropped |
 | **numbering** | Are clause numbers continuous (1, 2, 3 – not 1, 2, 4)? | Headings were missed |
 | **titled** | How many headings got a real title (not "Section X")? | Heading detection is off |
+| **unique** | Is each clause number used only once? | The contract reuses a number (or the parser split one section in two) |
+
+The API also returns `issues`: plain-language warnings shown as yellow notes above the clause list, for example:
+
+> Number 3 is used twice: "COMPENSATION" (p.3) and "SUPPLY OF MATERIALS" (p.4). The contract reuses it.
+
+We keep both clauses with their original numbers and never renumber. The warning tells a reviewer to check. In the clause tree, a sub-clause such as `3.7` attaches to the **nearest preceding** clause numbered `3`, so a reused number doesn't mix up two sections' sub-clauses.
 
 Below **0.6** the parser tries Gemini. If there is no Gemini key, or Gemini fails, you still get the local result with its score, never an error.
 

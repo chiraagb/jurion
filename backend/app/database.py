@@ -1,7 +1,8 @@
 import uuid
 from typing import AsyncGenerator
-from sqlalchemy import ForeignKey, String, Text, DateTime, func, Index
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import Float, ForeignKey, Integer, LargeBinary, String, Text, DateTime, func, Index
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import DeclarativeBase, Mapped, deferred, mapped_column
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from pgvector.sqlalchemy import Vector
 from neo4j import AsyncGraphDatabase, AsyncDriver
@@ -60,6 +61,36 @@ class LlmApiKey(Base):
     updated_at: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
+
+
+# 2c. A saved contract and its parsed clauses
+class Document(Base):
+    __tablename__ = "documents"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    filename: Mapped[str] = mapped_column(String(255))
+    size_bytes: Mapped[int] = mapped_column(Integer)
+    pages: Mapped[int] = mapped_column(Integer)
+    method: Mapped[str] = mapped_column(String(16))  # local | gemini | openai
+    total_ms: Mapped[float] = mapped_column(Float, default=0)
+    confidence = mapped_column(JSONB, nullable=True)  # {score, coverage, numbering, titled}; null for LLM parses
+    # ponytail: PDF kept as bytea (<=25 MB, deferred so list queries skip it); move to S3/disk storage when volume grows
+    pdf = deferred(mapped_column(LargeBinary))
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Clause(Base):
+    __tablename__ = "clauses"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    document_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("documents.id", ondelete="CASCADE"), index=True)
+    position: Mapped[int] = mapped_column(Integer)  # reading order within the document
+    clause_identifier: Mapped[str] = mapped_column(String(64))
+    title: Mapped[str] = mapped_column(Text)
+    content: Mapped[str] = mapped_column(Text)
+    page_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    parent_identifier: Mapped[str | None] = mapped_column(String(64), nullable=True)
 
 
 # 3. Connection Engines & Drivers

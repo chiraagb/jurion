@@ -66,6 +66,13 @@ def make_hanging_indent_pdf() -> bytes:
 
 
 if __name__ == "__main__":
+    from app.hybrid_parser import _confidence
+
+    def cl(i, t, pg): return {"clause_identifier": i, "title": t, "content": "x" * 50, "page_number": pg}
+    dup = _confidence([cl("1", "A", 1), cl("2", "B", 1), cl("3", "COMPENSATION", 3), cl("3.1", "x", 3), cl("3", "SUPPLY", 4), cl("3.1", "y", 4)], 300)
+    assert dup["unique"] < 1 and dup["score"] < 1 and "Number 3 is used twice" in dup["issues"][0], dup
+    assert _confidence([cl("1", "A", 1), cl("2", "B", 1), cl("3", "C", 2)], 150)["issues"] == []
+
     pdf0 = make_sample_pdf()
     assert TestClient(app).post("/parse", files={"file": ("a.pdf", pdf0, "application/pdf")}).status_code == 401  # signed out
     assert TestClient(app).get("/auth/me").status_code == 401

@@ -9,19 +9,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import llm_keys
 from app.auth import current_user, router as auth_router
-from app.database import LlmApiKey, User, async_engine, neo4j_driver, redis_client, get_db
+from app.database import Clause, Document, LlmApiKey, User, async_engine, neo4j_driver, redis_client, get_db
 from app.config import settings
-from app.hybrid_parser import PROVIDERS, _pdf_executor, count_pages, parse_contract_fast
-
-MAX_PDF_BYTES = 25 * 1024 * 1024
+from app.documents import router as documents_router
+from app.hybrid_parser import MAX_PDF_BYTES, PROVIDERS, _pdf_executor, count_pages, parse_contract_fast
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    # No migration tool yet: create just the user and key tables. A down database must not stop the API from starting.
+    # No migration tool yet: create just our own tables, parents first. A down database must not stop the API from starting.
     try:
         async with async_engine.begin() as conn:
-            await conn.run_sync(lambda c: [t.create(c, checkfirst=True) for t in (User.__table__, LlmApiKey.__table__)])
+            await conn.run_sync(lambda c: [t.create(c, checkfirst=True) for t in (User.__table__, LlmApiKey.__table__, Document.__table__, Clause.__table__)])
     except Exception:
         pass
     yield
@@ -29,6 +28,7 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(title="Jurion Legal Intelligence API", lifespan=lifespan)
 app.include_router(auth_router)
+app.include_router(documents_router)
 
 app.add_middleware(
     CORSMiddleware,

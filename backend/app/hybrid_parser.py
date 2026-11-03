@@ -56,6 +56,7 @@ def _strip_page_noise(lines_meta: List[Dict[str, Any]], page_count: int) -> List
     return [l for l in lines_meta if not is_noise(l)]
 
 
+MAX_PDF_BYTES = 25 * 1024 * 1024
 LLM_TIMEOUT_S = 60  # one attempt, no retries: a hung or failing LLM call must not block the upload
 MIN_CONFIDENCE = 0.6  # below this the local parse is distrusted and Gemini is tried (if a key is set)
 
@@ -72,17 +73,34 @@ def _numbering_score(ids: List[str]) -> float:
     return sum(len(g) for g in groups.values()) / expected if expected >= 3 else 1.0
 
 
-def _confidence(clauses: List[Dict[str, Any]], line_chars: int) -> Dict[str, float]:
+def _confidence(clauses: List[Dict[str, Any]], line_chars: int) -> Dict[str, Any]:
     """0-1 scores for whether the local parse kept the text and found the structure.
-    coverage: clause text vs. text on the pages; numbering: gaps in 1,2,3…; titled: headings with a real title."""
+    coverage: clause text vs. text on the pages; numbering: gaps in 1,2,3...; titled: headings with a real title;
+    unique: clause numbers used once. `issues` are plain-language warnings for the UI."""
     coverage = min(1.0, sum(len(c["content"]) for c in clauses) / max(line_chars, 1))
     numbering = _numbering_score([c["clause_identifier"] for c in clauses])
     titled = 1 - sum(c["title"].startswith("Section ") for c in clauses) / len(clauses)
+
+    first: Dict[str, Dict[str, Any]] = {}
+    repeats, issues = 0, []
+    for c in clauses:
+        prev = first.setdefault(c["clause_identifier"], c)
+        if prev is not c:
+            repeats += 1
+            if "." not in c["clause_identifier"] and len(issues) < 3:
+                issues.append(
+                    f"Number {c['clause_identifier']} is used twice: \u201c{prev['title']}\u201d (p.{prev['page_number']}) "
+                    f"and \u201c{c['title']}\u201d (p.{c['page_number']}). The contract reuses it."
+                )
+    unique = 1 - repeats / len(clauses)
+
     return {
-        "score": round(coverage * numbering * titled, 2),
+        "score": round(coverage * numbering * titled * unique, 2),
         "coverage": round(coverage, 2),
         "numbering": round(numbering, 2),
         "titled": round(titled, 2),
+        "unique": round(unique, 2),
+        "issues": issues,
     }
 
 
@@ -216,6 +234,9 @@ def local_fast_parse(pdf_bytes: bytes) -> Optional[Tuple[List[Dict[str, Any]], D
 
     for line in lines_meta:
         text = line["text"]
+        if current_clause and current_clause["clause_identifier"] == "SIGNATURES":
+            body_accumulator.append(line)  # the signature block runs to the end of the document
+            continue
         match = FAST_HEADER_PATTERN.match(text)
         is_visual_header = (
             line["font_size"] > (median_size * 1.18) and len(text.split()) < 10

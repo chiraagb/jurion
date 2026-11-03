@@ -11,6 +11,16 @@ One click, no passwords to store.
 5. Every later request carries the cookie. JavaScript can't read it, so a script injected into the page can't steal it.
 6. `POST /auth/logout` deletes the session in Redis, so it stops working at once, even if the cookie was copied.
 
+## What is `google_sub`?
+
+`sub` ("subject") is Google's permanent, unique ID for a Google account, a long string of digits. We store it in `users.google_sub` and look users up by it, **not by email**:
+
+- Emails can change (a Workspace admin renames the account) or be reused by someone else later. The `sub` never changes and is never reused.
+- Looking up by `sub` means a recycled email can't land someone in another person's account, with their contracts and saved keys.
+- On every sign-in we refresh the email, name and picture from Google, so a changed email is picked up automatically.
+
+It isn't a secret, but it is only meaningful together with a valid Google token, so we don't show it in the UI.
+
 ## Setup
 
 | Where | Setting |

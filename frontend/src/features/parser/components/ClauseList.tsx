@@ -11,16 +11,17 @@ export default function ClauseList({ clauses, onOpen }: Props) {
   const [query, setQuery] = useState("");
   const [collapsed, setCollapsed] = useState<Set<number>>(new Set());
 
-  // Tree by index: a clause's parent is the first clause with its parent_identifier.
+  // Tree by index: a clause's parent is the nearest PRECEDING clause with its parent_identifier,
+  // so a contract that reuses "3." for two sections keeps each one's sub-clauses together.
   const { roots, children } = useMemo(() => {
-    const firstIndex = new Map<string, number>();
-    clauses.forEach((c, i) => firstIndex.has(c.clause_identifier) || firstIndex.set(c.clause_identifier, i));
+    const latest = new Map<string, number>();
     const children = new Map<number, number[]>();
     const roots: number[] = [];
     clauses.forEach((c, i) => {
-      const parent = c.parent_identifier ? firstIndex.get(c.parent_identifier) : undefined;
-      if (parent === undefined || parent === i) roots.push(i);
+      const parent = c.parent_identifier ? latest.get(c.parent_identifier) : undefined;
+      if (parent === undefined) roots.push(i);
       else children.set(parent, [...(children.get(parent) ?? []), i]);
+      latest.set(c.clause_identifier, i);
     });
     return { roots, children };
   }, [clauses]);

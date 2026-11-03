@@ -2,6 +2,7 @@ import { AlertTriangle } from "lucide-react";
 import Dropzone from "./components/Dropzone";
 import Pipeline from "./components/Pipeline";
 import ResultsView from "./components/ResultsView";
+import { saveDocument } from "@/features/documents/api";
 import { useParseContract } from "./useParseContract";
 
 export default function ParserLab({ apiDown }: { apiDown: boolean }) {
@@ -41,7 +42,7 @@ export default function ParserLab({ apiDown }: { apiDown: boolean }) {
         </div>
       )}
 
-      {result && file && <ResultsView result={result} file={file} onClear={reset} />}
+      {result && file && <ResultsView result={result} file={file} onClear={reset} onSave={() => saveDocument(file, result)} />}
     </div>
   );
 }

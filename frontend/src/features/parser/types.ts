@@ -11,6 +11,8 @@ export interface Confidence {
   coverage: number;
   numbering: number;
   titled: number;
+  unique?: number; // absent on contracts saved before this check existed
+  issues?: string[];
 }
 
 export interface ParseResult {
