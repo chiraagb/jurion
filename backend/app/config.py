@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     NEO4J_PASSWORD: str = "secure_graph_password"
     REDIS_URL: str = "redis://localhost:6379/0"
     GEMINI_API_KEY: str = ""
-    GEMINI_MODEL: str = "gemini-3.8-flash"  # the API rejected gemini-2.5-flash for new users and suggested this one
+    GEMINI_MODEL: str = "gemini-3.5-flash-lite"  # cheapest current Flash-Lite; gemini-2.5-flash(-lite) are retired (404) and gemini-3.8-flash often returns 503
 
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-4o"

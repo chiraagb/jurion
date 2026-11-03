@@ -42,6 +42,27 @@ if __name__ == "__main__":
             assert got["clauses"][1]["parent_identifier"] == "1"
             assert c.get(f"/documents/{doc_id}/pdf").content == pdf
 
+            # full text + line ranges: save a real parse, then each clause's range must point at its own lines
+            from app.database import Document
+            from app.hybrid_parser import local_fast_parse
+            clauses, conf = local_fast_parse(pdf)
+            real = c.post("/documents", files={"file": ("m.pdf", pdf, "application/pdf")},
+                          data={"result": json.dumps({"method": "local", "confidence": conf, "clauses": clauses})}).json()["id"]
+            async def stored(doc_id):
+                async with AsyncSessionLocal() as db:
+                    doc = await db.get(Document, uuid.UUID(doc_id))
+                    await db.refresh(doc, ["lines"])
+                    return doc.lines
+            lines = c.portal.call(stored, real)
+            got2 = c.get(f"/documents/{real}").json()["clauses"]
+            assert len(lines) > 10 and all(g["end_line"] > g["start_line"] for g in got2)
+            for g in got2:
+                assert lines[g["start_line"]]["t"].upper().startswith(g["clause_identifier"].split()[0].upper()), g  # starts at its heading
+            assert got2[0]["end_line"] == got2[1]["start_line"]  # ranges tile the text, no gap
+            off = [{**clauses[0], "end_line": 10**6}]
+            assert c.post("/documents", files={"file": ("m.pdf", pdf, "application/pdf")},
+                          data={"result": json.dumps({"method": "local", "clauses": off})}).status_code == 422  # range outside the text
+
             bad = c.post("/documents", files={"file": ("x.pdf", b"nope", "application/pdf")}, data={"result": json.dumps(RESULT)})
             assert bad.status_code == 415
             assert c.post("/documents", files={"file": ("a.pdf", pdf, "application/pdf")}, data={"result": "{}"}).status_code == 422

@@ -7,7 +7,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth import current_user
 from app.database import Clause, Document, User, get_db
-from app.hybrid_parser import MAX_PDF_BYTES, _pdf_executor, count_pages
+from app.hybrid_parser import MAX_PDF_BYTES, _pdf_executor, _read_lines, count_pages, stored_lines
 
 router = APIRouter(prefix="/documents")
 
@@ -18,6 +18,8 @@ class ClauseIn(BaseModel):
     content: str
     page_number: int | None = None
     parent_identifier: str | None = Field(default=None, max_length=64)
+    start_line: int | None = Field(default=None, ge=0)
+    end_line: int | None = None
 
 
 class ResultIn(BaseModel):
@@ -63,14 +65,25 @@ async def save_document(
         data = ResultIn.model_validate_json(result)
     except ValidationError as e:
         raise HTTPException(422, f"Invalid parse result: {e.errors()[0]['msg']}")
+    loop = asyncio.get_running_loop()
     try:
-        pages = await asyncio.get_running_loop().run_in_executor(_pdf_executor, count_pages, pdf)
+        pages = await loop.run_in_executor(_pdf_executor, count_pages, pdf)
+        # ponytail: the PDF is read a second time here (about 2s with many tables); cache the lines from /parse if it hurts
+        read = await loop.run_in_executor(_pdf_executor, _read_lines, pdf)
     except Exception as e:
         raise HTTPException(422, f"Could not open PDF: {e}")
+    lines = stored_lines(read) if read else None  # null for a scan with no text layer
+    for c in data.clauses:
+        if lines is None:
+            c.start_line = c.end_line = None
+        elif (c.start_line is None) != (c.end_line is None) or (
+            c.start_line is not None and not 0 <= c.start_line < c.end_line <= len(lines)
+        ):
+            raise HTTPException(422, f"Clause {c.clause_identifier}: line range does not fit the document")
 
     doc = Document(
         user_id=user.id, filename=(file.filename or "contract.pdf")[:255], size_bytes=len(pdf), pages=pages,
-        method=data.method, total_ms=data.total_ms, confidence=data.confidence, pdf=pdf,
+        method=data.method, total_ms=data.total_ms, confidence=data.confidence, pdf=pdf, lines=lines,
     )
     db.add(doc)
     await db.flush()  # assigns doc.id for the clause rows
@@ -100,7 +113,7 @@ async def get_document(doc_id: uuid.UUID, user: User = Depends(current_user), db
         **_summary(doc, len(clauses)),
         "total_ms": doc.total_ms,
         "clauses": [
-            {k: getattr(c, k) for k in ("clause_identifier", "title", "content", "page_number", "parent_identifier")}
+            {k: getattr(c, k) for k in ("clause_identifier", "title", "content", "page_number", "parent_identifier", "start_line", "end_line")}
             for c in clauses
         ],
     }

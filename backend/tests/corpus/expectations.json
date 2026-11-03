@@ -1,0 +1,6 @@
+{
+  "clinical_trial_agreement.pdf": {"min_clauses": 65, "ids": ["1", "1.8", "9.5", "12", "SIGNATURES", "ATTACHMENT 1", "ATTACHMENT 2"], "min_table_rows": 150, "min_score": 0.9},
+  "nda_template.pdf": {"min_clauses": 45, "ids": ["1"], "min_table_rows": 0, "min_score": 0.95},
+  "widget_contract.pdf": {"min_clauses": 115, "ids": ["1", "2"], "min_table_rows": 0, "min_score": 0.85},
+  "cnda_signed.pdf": {"min_clauses": 15, "ids": ["SIGNATURES"], "min_table_rows": 0, "min_score": 0.95}
+}

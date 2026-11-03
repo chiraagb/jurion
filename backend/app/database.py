@@ -77,6 +77,9 @@ class Document(Base):
     confidence = mapped_column(JSONB, nullable=True)  # {score, coverage, numbering, titled}; null for LLM parses
     # ponytail: PDF kept as bytea (<=25 MB, deferred so list queries skip it); move to S3/disk storage when volume grows
     pdf = deferred(mapped_column(LargeBinary))
+    # Full text in reading order: [{t: text, p: page, x, y, y1, s: font size, b: bold, tb?: table}]. Null for contracts
+    # saved before this existed and for scans with no text layer. Clauses are line ranges over it.
+    lines = deferred(mapped_column(JSONB, nullable=True))
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
@@ -91,6 +94,8 @@ class Clause(Base):
     content: Mapped[str] = mapped_column(Text)
     page_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
     parent_identifier: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    start_line: Mapped[int | None] = mapped_column(Integer, nullable=True)  # [start_line, end_line) in Document.lines
+    end_line: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
 
 # 3. Connection Engines & Drivers

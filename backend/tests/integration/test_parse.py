@@ -65,13 +65,57 @@ def make_hanging_indent_pdf() -> bytes:
     return doc.tobytes()
 
 
+def make_table_pdf() -> bytes:
+    """A body line that starts with 'signed by', a ruled 3x2 table, then a real clause after both."""
+    doc = pymupdf.open()
+    page = doc.new_page()
+    page.insert_text((72, 72), "1. FEES", fontsize=12, fontname="hebo")
+    page.insert_text((72, 92), "signed by the Investigator and returned to the Sponsor within thirty days of receipt.", fontsize=10)
+    for r, (a, b) in enumerate([("Visit", "Fee"), ("Screening", "EUR 100"), ("Follow-up", "EUR 50")]):
+        for c, text in enumerate((a, b)):
+            rect = pymupdf.Rect(72 + c * 150, 120 + r * 24, 222 + c * 150, 144 + r * 24)
+            page.draw_rect(rect, width=0.8)
+            page.insert_text((rect.x0 + 4, rect.y0 + 16), text, fontsize=10)
+    page.insert_text((72, 230), "2. TERM", fontsize=12, fontname="hebo")
+    page.insert_text((72, 250), "This Agreement lasts for three years from the Effective Date unless ended earlier.", fontsize=10)
+    page.insert_text((72, 290), "3. LAW", fontsize=12, fontname="hebo")
+    page.insert_text((72, 310), "This Agreement is governed by the laws of the Republic of South Africa.", fontsize=10)
+    return doc.tobytes()
+
+
 if __name__ == "__main__":
-    from app.hybrid_parser import _confidence
+    from app.hybrid_parser import _confidence, local_fast_parse
+
+    tbl, _ = local_fast_parse(make_table_pdf())
+    by = {c["clause_identifier"]: c for c in tbl}
+    assert "SIGNATURES" not in by and {"1", "2", "3"} <= by.keys(), list(by)  # "signed by" in prose is not a signature block
+    assert "| Visit | Fee |\n| Screening | EUR 100 |\n| Follow-up | EUR 50 |" in by["1"]["content"], by["1"]["content"]
 
     def cl(i, t, pg): return {"clause_identifier": i, "title": t, "content": "x" * 50, "page_number": pg}
     dup = _confidence([cl("1", "A", 1), cl("2", "B", 1), cl("3", "COMPENSATION", 3), cl("3.1", "x", 3), cl("3", "SUPPLY", 4), cl("3.1", "y", 4)], 300)
     assert dup["unique"] < 1 and dup["score"] < 1 and "Number 3 is used twice" in dup["issues"][0], dup
     assert _confidence([cl("1", "A", 1), cl("2", "B", 1), cl("3", "C", 2)], 150)["issues"] == []
+
+    # LLM heading picker, with the model stubbed: picks come from line numbers, text still comes from the PDF.
+    import asyncio
+    import app.hybrid_parser as hp
+    read = hp._read_lines(make_table_pdf())
+    picks = {i: hp.Heading(line=i, clause_identifier=l["text"][0], title=l["text"][3:]) for i, l in enumerate(read[0]) if l["text"][:3] in ("1. ", "2. ", "3. ")}
+    built, conf = hp._from_headings(read, picks)
+    assert [c["clause_identifier"] for c in built] == ["1", "2", "3"] and "| Visit | Fee |" in built[0]["content"], built
+    assert hp._from_headings(read, {}) is None  # no headings picked: caller keeps the local result
+
+    async def fake_headings(read, provider, key): return hp._from_headings(read, dict(picks))
+    real_local, real_llm = hp._local_from_lines, hp._llm_headings
+    hp._local_from_lines = lambda r: ([{"clause_identifier": "X", "title": "t", "content": "c", "page_number": 1, "parent_identifier": None}], {"score": 0.1})
+    hp._llm_headings = fake_headings
+    out = asyncio.run(hp.parse_contract_fast(make_table_pdf(), "gemini", "k"))
+    assert out["method"] == "gemini" and [c["clause_identifier"] for c in out["clauses"]] == ["1", "2", "3"], out  # low local score -> LLM headings used
+    async def boom(*a): raise RuntimeError("503")
+    hp._llm_headings = boom
+    out = asyncio.run(hp.parse_contract_fast(make_table_pdf(), "gemini", "k"))
+    assert out["method"] == "local" and out["steps"][1]["status"] == "failed", out  # LLM down -> local result, no retry loop
+    hp._local_from_lines, hp._llm_headings = real_local, real_llm
 
     pdf0 = make_sample_pdf()
     assert TestClient(app).post("/parse", files={"file": ("a.pdf", pdf0, "application/pdf")}).status_code == 401  # signed out

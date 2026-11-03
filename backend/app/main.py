@@ -21,6 +21,12 @@ async def lifespan(_: FastAPI):
     try:
         async with async_engine.begin() as conn:
             await conn.run_sync(lambda c: [t.create(c, checkfirst=True) for t in (User.__table__, LlmApiKey.__table__, Document.__table__, Clause.__table__)])
+            for ddl in (  # ponytail: hand-rolled column adds until Alembic exists
+                "ALTER TABLE documents ADD COLUMN IF NOT EXISTS lines JSONB",
+                "ALTER TABLE clauses ADD COLUMN IF NOT EXISTS start_line INTEGER",
+                "ALTER TABLE clauses ADD COLUMN IF NOT EXISTS end_line INTEGER",
+            ):
+                await conn.execute(text(ddl))
     except Exception:
         pass
     yield
