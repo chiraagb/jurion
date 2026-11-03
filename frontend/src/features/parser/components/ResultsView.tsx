@@ -10,7 +10,7 @@ interface Props {
   result: ParseResult;
   file: File;
   onClear: () => void;
-  onSave?: () => Promise<unknown>; // omitted for already-saved contracts
+  onSave?: (replace?: boolean) => Promise<unknown>; // omitted for already-saved contracts
   clearLabel?: string;
   onRerunAi?: () => void; // Parser Lab only: re-run with the AI picking the headings
   hasAi?: boolean; // an AI result already exists: the button re-runs it
@@ -24,13 +24,22 @@ export default function ResultsView({ result, file, onClear, onSave, clearLabel 
   const [page, setPage] = useState(1);
   const [save, setSave] = useState<"idle" | "saving" | "saved" | string>("idle"); // string = error message
 
-  const doSave = async () => {
+  // Set when the server says this exact file is already saved (409): offers to replace that copy.
+  const [dupe, setDupe] = useState<{ filename: string; created_at: string } | null>(null);
+
+  const doSave = async (replace = false) => {
     setSave("saving");
+    setDupe(null);
     try {
-      await onSave?.();
+      await onSave?.(replace);
       setSave("saved");
     } catch (e: any) {
-      setSave(e.response?.data?.detail ?? e.message ?? "Could not save.");
+      if (e.response?.status === 409 && e.response.data?.existing) {
+        setDupe(e.response.data.existing);
+        setSave("idle");
+      } else {
+        setSave(e.response?.data?.detail ?? e.message ?? "Could not save.");
+      }
     }
   };
 
@@ -69,7 +78,7 @@ export default function ResultsView({ result, file, onClear, onSave, clearLabel 
           )}
           {onSave && (
             <button
-              onClick={doSave}
+              onClick={() => doSave()}
               disabled={save === "saving" || save === "saved"}
               className="flex cursor-pointer items-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-canvas transition-opacity duration-200 hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-default disabled:opacity-70"
             >
@@ -92,6 +101,31 @@ export default function ResultsView({ result, file, onClear, onSave, clearLabel 
         </div>
         {save !== "idle" && save !== "saving" && save !== "saved" && (
           <p role="alert" className="w-full text-sm text-danger">{save}</p>
+        )}
+        {dupe && (
+          <div role="alert" className="flex w-full flex-wrap items-center justify-between gap-3 rounded-md border border-warn/40 bg-warn/10 p-3 text-sm text-fg-soft">
+            <p className="flex min-w-0 items-start gap-2">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warn" aria-hidden />
+              <span>
+                You already saved this file as <strong className="break-words text-fg">{dupe.filename}</strong> on{" "}
+                {new Date(dupe.created_at).toLocaleDateString(undefined, { dateStyle: "medium" })}. It is in My contracts.
+              </span>
+            </p>
+            <span className="flex shrink-0 gap-2">
+              <button
+                onClick={() => doSave(true)}
+                className="cursor-pointer rounded-lg border border-warn px-3 py-1.5 font-medium text-fg transition-colors duration-200 hover:bg-warn/15 focus-visible:outline-2 focus-visible:outline-warn"
+              >
+                Replace it with this result
+              </button>
+              <button
+                onClick={() => setDupe(null)}
+                className="cursor-pointer rounded-lg px-3 py-1.5 text-muted transition-colors duration-200 hover:bg-raised hover:text-fg focus-visible:outline-2 focus-visible:outline-accent"
+              >
+                Dismiss
+              </button>
+            </span>
+          </div>
         )}
         {aiError && <p role="alert" className="w-full text-sm text-danger">{aiError}</p>}
       </div>

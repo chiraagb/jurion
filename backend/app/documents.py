@@ -1,8 +1,10 @@
 """Saved contracts: a parsed result plus the original PDF, always scoped to the signed-in user."""
+import hashlib
 import uuid
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Response, UploadFile
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, ValidationError
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth import current_user
 from app.database import Clause, Document, User, get_db
@@ -53,6 +55,7 @@ async def _owned(db: AsyncSession, user: User, doc_id: uuid.UUID) -> Document:
 async def save_document(
     file: UploadFile = File(...),
     result: str = Form(...),
+    replace: bool = Form(False),  # the same file is already saved: replace it with this result instead of refusing
     user: User = Depends(current_user),
     db: AsyncSession = Depends(get_db),
     _: None = Depends(limit("save", 20, 60, by_user=True)),
@@ -62,6 +65,16 @@ async def save_document(
         raise HTTPException(413, "PDF is larger than 25 MB")
     if not pdf.startswith(b"%PDF"):
         raise HTTPException(415, "File is not a PDF")
+    digest = hashlib.sha256(pdf).hexdigest()
+    same = (await db.execute(
+        select(Document.id, Document.filename, Document.created_at).where(Document.user_id == user.id, Document.sha256 == digest)
+    )).all()
+    if same and not replace:
+        first = same[0]  # checked before the slow PDF read: a duplicate costs almost nothing
+        return JSONResponse(status_code=409, content={
+            "detail": f"You already saved this contract as \u201c{first.filename}\u201d.",
+            "existing": {"id": str(first.id), "filename": first.filename, "created_at": first.created_at.isoformat()},
+        })
     try:
         data = ResultIn.model_validate_json(result)
     except ValidationError as e:
@@ -83,8 +96,10 @@ async def save_document(
 
     doc = Document(
         user_id=user.id, filename=(file.filename or "contract.pdf")[:255], size_bytes=len(pdf), pages=pages,
-        method=data.method, total_ms=data.total_ms, confidence=data.confidence, pdf=pdf, lines=lines,
+        method=data.method, total_ms=data.total_ms, confidence=data.confidence, pdf=pdf, lines=lines, sha256=digest,
     )
+    if same:  # replace: the old copies go, in the same transaction as the new one (clauses follow by ON DELETE CASCADE)
+        await db.execute(delete(Document).where(Document.id.in_([r.id for r in same])))
     db.add(doc)
     await db.flush()  # assigns doc.id for the clause rows
     db.add_all(Clause(document_id=doc.id, position=i, **c.model_dump()) for i, c in enumerate(data.clauses))

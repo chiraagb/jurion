@@ -56,3 +56,5 @@ Why: the text is never lost, whatever the splitter does. A wrong split is fixed 
 - Contracts saved before this change have no lines (`lines` is empty). Open and save them again to get them.
 - A scan with no text layer has no lines and no ranges.
 - The server checks each range fits inside the text before saving, because the browser sends it.
+
+- `documents.sha256` is the SHA-256 of the stored PDF (hex). It is used to refuse saving the same file twice for one user; see [Saved contracts](13-saved-contracts.md).

@@ -28,3 +28,13 @@ Every query filters by the signed-in user. Asking for someone else's contract re
 - The PDF is stored in Postgres (max 25 MB each). Fine for now; move to object storage (S3) when volume grows.
 - Saving does not re-run the parser; it stores what you saw. Re-parsing a saved contract is not built yet.
 - Nothing is searchable by meaning yet: embeddings are the next step.
+
+## Saving the same file twice
+
+Each saved contract stores a **SHA-256 fingerprint** of its PDF (`documents.sha256`). When you save, the server checks whether *you* already saved a file with the same fingerprint:
+
+- **Same file, same account:** the save is refused with `409` and the message names the copy you already have ("You already saved this contract as …"). A renamed copy of the same file is caught too, because the fingerprint comes from the file's bytes, not its name.
+- **Replace option:** in the Parser Lab the Save button then shows **Replace it with this result**. Use it when you re-parsed the file (for example with Gemini) and want that version instead. The old copy and its clauses are deleted and the new one saved in one step (`replace=true` on the request).
+- **Another account** can save the same file: duplicates are checked per user.
+- **Old contracts** saved before this existed were given a fingerprint automatically when the server started. No duplicates were found among them.
+- **Limit:** two saves of the same file at the exact same moment can both succeed. A unique database constraint on `(user_id, sha256)` would close that; it is left out for now so old duplicates (if any ever turn up) are never deleted behind your back.

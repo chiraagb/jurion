@@ -27,6 +27,9 @@ async def lifespan(_: FastAPI):
                 "ALTER TABLE documents ADD COLUMN IF NOT EXISTS lines JSONB",
                 "ALTER TABLE clauses ADD COLUMN IF NOT EXISTS start_line INTEGER",
                 "ALTER TABLE clauses ADD COLUMN IF NOT EXISTS end_line INTEGER",
+                "ALTER TABLE documents ADD COLUMN IF NOT EXISTS sha256 VARCHAR(64)",
+                "UPDATE documents SET sha256 = encode(sha256(pdf), 'hex') WHERE sha256 IS NULL",  # backfill saved contracts
+                "CREATE INDEX IF NOT EXISTS ix_documents_sha256 ON documents (sha256)",
             ):
                 await conn.execute(text(ddl))
     except Exception:

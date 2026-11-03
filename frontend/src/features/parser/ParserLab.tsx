@@ -55,7 +55,7 @@ export default function ParserLab({ apiDown }: { apiDown: boolean }) {
           result={result}
           file={file}
           onClear={reset}
-          onSave={() => saveDocument(file, result)}
+          onSave={(replace) => saveDocument(file, result, replace)}
           onRerunAi={rerunWithAi}
           hasAi={!!results.ai}
           aiBusy={ai.busy}

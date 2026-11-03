@@ -12,11 +12,13 @@ export interface DocSummary {
   created_at: string;
 }
 
-export async function saveDocument(file: File, result: ParseResult) {
+/** replace: the same file is already saved; swap that copy for this result. */
+export async function saveDocument(file: File, result: ParseResult, replace = false) {
   const form = new FormData();
   form.append("file", file);
   const { method, total_ms, confidence, clauses } = result;
   form.append("result", JSON.stringify({ method, total_ms, confidence, clauses }));
+  if (replace) form.append("replace", "true");
   return (await api.post<DocSummary>("/documents", form)).data;
 }
 

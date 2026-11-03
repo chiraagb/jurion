@@ -80,6 +80,10 @@ class Document(Base):
     # Full text in reading order: [{t: text, p: page, x, y, y1, s: font size, b: bold, tb?: table}]. Null for contracts
     # saved before this existed and for scans with no text layer. Clauses are line ranges over it.
     lines = deferred(mapped_column(JSONB, nullable=True))
+    # SHA-256 of the PDF bytes: the same file saved twice by one user is caught. Not a unique index on purpose: contracts
+    # saved before this existed may already hold duplicates, and those must not be deleted. Race: two simultaneous saves of
+    # the same file can both pass; add UNIQUE (user_id, sha256) once old duplicates are cleaned up.
+    sha256: Mapped[str | None] = mapped_column(String(64), index=True, nullable=True)
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
