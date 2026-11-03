@@ -54,6 +54,12 @@ Speed (4 parses at once): median 1.7s, slowest 10 to 50s. Slow ones are long doc
 - 39 contracts got fewer than 10 clauses, and 37 got fewer than 3.
 - No file was a scan (all had a text layer), so OCR is untested.
 
+## Number columns and underlined tables (two fixes from screenshots)
+
+- **Numbers stored apart from titles.** In the Cybergy affiliate agreement the number column is separate text, so the parser paired `1.` with the wrong titles (`2.1 Effective Date and Term` instead of `1.`). Each bare marker is now moved next to the text on its baseline: score 0.26 to 0.94. Over all 510 contracts: 6 scores up, 0 down, 0 crashes; AI fallback rate 16% to 15%.
+- **Table with only underlines.** In the Agape supply agreement the detector found the table but put everything in one column (`150gm packaged 15,000` glued together). Columns are now rebuilt from word positions when a detected grid has fewer than two filled columns; the result is `| 150gm packaged | 15,000 |` with the product name row above it. A "table" that cannot be rebuilt is no longer a table: its lines stay plain text.
+- **Checked on the 30 selected contracts** (not the full 510): 25 identical to before, 0 worse, 1 better (a contract that had no clauses now parses). 57 tables seen: 56 read normally, 1 dropped as not-a-table, 0 needed the word-position rebuild (that case is not among the 30; it is covered by the synthetic test and the Agape contract).
+
 ## AI fallback, tried for real
 
 - The AI heading step ran on the clinical trial agreement with `gemini-3.5-flash-lite`: 72 clauses in 7.5s (local: 71), same score, all 156 table rows kept.
@@ -82,6 +88,7 @@ What the disagreements showed: some PDFs put clause numbers in a separate column
 
 - No measured boundary accuracy yet (labels not reviewed).
 - No OCR for scans; scanned PDFs go whole to the AI.
-- Borderless tables and two-column layouts are untested.
+- Tables on pages with no ruled lines at all are still read as plain text, and two-column layouts are untested.
+- The two page-footer lines inside the underlined table from the Agape contract still end up as junk rows at the end of that table.
 - The AI step has been run live on only a few contracts.
 - Reading long contracts with tables is slow (up to about 50s under load).

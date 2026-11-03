@@ -45,7 +45,9 @@ Each clause comes out as:
 
 ### Tables, attachments and signature blocks
 
-- **Tables are kept as tables.** If a page has a table drawn with ruled lines, the parser reads each cell and stores the table as rows (`| Visit | Fee |`). The app shows it as a real table, not a run of text. Tables with no ruling lines are still read as plain text. Finding tables costs about 0.2s per page that has one.
+- **Tables are kept as tables.** If a page has a table drawn with ruled lines, the parser reads each cell and stores the table as rows (`| Visit | Fee |`). The app shows it as a real table, not a run of text. Finding tables costs about 0.2s per page that has one.
+- **Tables with only underlines (no grid).** The line detector sometimes finds the area but puts everything in one column, gluing each quantity onto the name above it. When a detected table has fewer than two columns holding text, the columns are rebuilt from where the words sit: a gap of 12pt or more that almost no row crosses is a column gutter, and a row that crosses one (a footer or title) is kept whole in the first cell. A tiny column with a stray page number is folded into its neighbour. If no two columns come out, it is not treated as a table and the lines stay plain text.
+- **Still plain text:** a table on a page with no ruled lines at all.
 - **A signature block stops at an attachment.** The signature block normally runs to the end of the file, but a heading like `ATTACHMENT 1`, `APPENDIX` or `ANNEX` (in capitals) starts a new section. Numbering restarts inside an attachment, so a second "1." there is not counted as a duplicate.
 - **Only a short line starts a signature block.** "signed by the Investigator and returned…" is a normal sentence; "Signed at London" is a signature line. (A long sentence that began with "signed by" once swallowed 28 pages into one clause.)
 - **Cross-references are not headings.** "Section 1.7 [Financial Disclosure], 1.8 …" inside a sentence is ignored.

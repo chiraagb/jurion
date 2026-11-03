@@ -83,6 +83,28 @@ def make_number_column_pdf() -> bytes:
     return doc.tobytes()
 
 
+def make_underline_table_pdf() -> bytes:
+    """No grid, only header underlines (the shape detectors get wrong): product names on one line, 'size  quantity'
+    on the next, quantities in a second column; a long footer line crosses the gap and a page number sits far right."""
+    doc = pymupdf.open()
+    page = doc.new_page()
+    page.insert_text((60, 100), "Product Name:", fontsize=10, fontname="hebo")
+    page.insert_text((260, 100), "Agreed Quantity per Annum:", fontsize=10, fontname="hebo")
+    page.draw_line((60, 104), (230, 104))
+    page.draw_line((260, 104), (480, 104))
+    y = 120
+    for name, size, qty in [("ATP 1 Survivor Select", "150gm packaged", "15,000"), ("ATP 2 Mineral Concentrate", "29.5mL packaged", "20,000"),
+                            ("ATP 3 Ionized Cal-Mag", "114gm packaged", "15,000"), ("ATP 4 Omega Blend", "250mL packaged", "15,000")]:
+        page.insert_text((60, y), name, fontsize=10)
+        page.insert_text((60, y + 12), size, fontsize=10)
+        page.insert_text((260, y + 12), qty, fontsize=10)
+        y += 24
+    page.insert_text((140, y + 4), "Organic Preparations INC. and Agape International Holding Limited", fontsize=10)
+    page.insert_text((520, y + 4), "12", fontsize=10)
+    page.draw_line((60, y + 8), (520, y + 8))
+    return doc.tobytes()
+
+
 def make_table_pdf() -> bytes:
     """A body line that starts with 'signed by', a ruled 3x2 table, then a real clause after both."""
     doc = pymupdf.open()
@@ -107,6 +129,16 @@ if __name__ == "__main__":
     import redis
     from app.config import settings
     redis.Redis.from_url(settings.REDIS_URL).delete("rl:parse:testclient")  # the per-minute limit would trip on back-to-back runs
+
+    from app.hybrid_parser import _rows_from_words, _usable
+    page = pymupdf.open(stream=make_underline_table_pdf(), filetype="pdf")[0]
+    grid = _rows_from_words(page, page.rect)
+    assert grid and len(grid[0]) == 2 and _usable(grid), grid  # two columns found although nothing is ruled
+    assert ["150gm packaged", "15,000"] in grid and ["114gm packaged", "15,000"] in grid, grid  # size and quantity side by side
+    assert ["ATP 1 Survivor Select", ""] in grid, grid  # a name on its own line keeps an empty quantity
+    assert not any("15,000" in r[0] for r in grid), grid  # a quantity is never glued onto the name column
+    assert any("Organic Preparations" in c for r in grid for c in r), grid  # the line crossing the gap is kept, whole
+    assert _rows_from_words(pymupdf.open(stream=make_sample_pdf(), filetype="pdf")[0], pymupdf.Rect(60, 60, 540, 130)) is None  # plain text is not a table
 
     cols, _ = local_fast_parse(make_number_column_pdf())
     got = {c["clause_identifier"]: c["title"] for c in cols}

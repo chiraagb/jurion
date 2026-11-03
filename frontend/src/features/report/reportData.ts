@@ -12,6 +12,8 @@ export const worked = [
   "The AI heading step works live: 72 clauses in 7.5s on the 32-page clinical trial agreement (local: 71).",
   "A stuck PDF is killed after 45s and the next upload still works; page cap and rate limits are tested.",
   "Fixing stray clause numbers moved 16 contracts up in score and none down.",
+  "Tables with only underlines (no grid) are rebuilt from word positions: “150gm packaged | 15,000” stays side by side.",
+  "A number column stored apart from the titles is re-attached: one contract went from score 0.26 to 0.94.",
   "The corpus of four real contracts guards every earlier fix against coming back.",
 ];
 
@@ -27,7 +29,7 @@ export const findings = [
 export const gaps = [
   "No measured boundary accuracy yet: the draft labels (1,768 disputed lines across 30 contracts) have not been reviewed.",
   "No OCR. All 510 test PDFs had a text layer, so scans are untested (they go whole to the AI).",
-  "Borderless tables and two-column layouts are untested.",
+  "Tables on pages with no ruled lines at all are still plain text; two-column layouts are untested.",
   "37 contracts gave fewer than 3 clauses and 39 fewer than 10; not yet looked at one by one.",
   "Slow on long contracts with tables: median 1.7s, slowest 10 to 50s with four parses at once.",
   "Contract text goes to Google or OpenAI when the AI is used; the policy for real client contracts is undecided.",
@@ -36,7 +38,7 @@ export const gaps = [
 export const next = [
   "Review the 24 smaller label files (646 decisions), then run the accuracy script for precision and recall.",
   "Look at the contracts with too few clauses, and at the duplicate-number cases, to find the next real failure type.",
-  "Add OCR for scanned PDFs, and test borderless and two-column layouts.",
+  "Add OCR for scanned PDFs, and test pages with no table lines and two-column layouts.",
   "Speed up table detection on long documents; move parsing to a background job.",
   "Re-parse on the server when saving instead of trusting the browser's clauses; add CI and migrations.",
   "Then the search side: embeddings in pgvector, the Neo4j graph, answers with clause citations.",

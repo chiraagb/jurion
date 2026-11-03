@@ -7,6 +7,7 @@ from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures.process import BrokenProcessPool
 from typing import List, Dict, Any, Optional, Tuple
 import fitz  # PyMuPDF
+import pymupdf
 from openai import AsyncOpenAI
 from pydantic import BaseModel
 import base64
@@ -237,6 +238,93 @@ def _reorder_markers(lines: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     return out
 
 
+def _clean_cell(text: str) -> str:
+    return re.sub(r"\s+", " ", text or "").replace("|", "/").strip()
+
+
+def _usable(rows: List[List[str]]) -> bool:
+    """A real table has at least two columns that actually hold text. A grid whose second column is empty is the
+    detector joining everything into one column."""
+    if len(rows) < 2:
+        return False
+    need = max(2, -(-len(rows) * 15 // 100))  # a column counts when it has text in 15% of the rows (at least 2)
+    return sum(sum(bool(r[c]) for r in rows if c < len(r)) >= need for c in range(max(map(len, rows)))) >= 2
+
+
+def _rows_from_words(page, bbox) -> Optional[List[List[str]]]:
+    """Rebuilds a table from where its words sit, for tables with no ruled grid (only underlines), where the line-based
+    detector gives one wide column. Rows are words on one baseline. A column gutter is a gap of 12pt+ that (almost) no
+    row crosses; a row that does cross one (a footer, a title) is kept whole in the first cell instead of being torn
+    apart. Page headers and footers in the margins are left out. Returns None if no two columns come out."""
+    height = page.rect.height
+    words = [w for w in page.get_text("words", clip=pymupdf.Rect(bbox)) if 0.12 * height < (w[1] + w[3]) / 2 < 0.88 * height]
+    if len(words) < 4:
+        return None
+    hs = sorted(w[3] - w[1] for w in words)
+    tol = hs[len(hs) // 2] * 0.5  # same row if the vertical centres are within half a line height
+    words.sort(key=lambda w: ((w[1] + w[3]) / 2, w[0]))
+    rows: List[List[Any]] = []
+    for w in words:
+        cy = (w[1] + w[3]) / 2
+        if rows and abs(cy - rows[-1][0]) <= tol:
+            rows[-1][1].append(w)
+        else:
+            rows.append([cy, [w]])
+
+    # coverage[x] = how many rows have a word over x; gutters are wide runs of (almost) zero coverage between text
+    lo, hi = int(min(w[0] for w in words)), int(max(w[2] for w in words)) + 1
+    cover = [0] * (hi - lo + 1)
+    for _, ws in rows:
+        for x in {x for w in ws for x in range(int(w[0]) - lo, int(w[2]) - lo + 1)}:
+            cover[x] += 1
+    limit = len(rows) // 10 or (1 if len(rows) >= 6 else 0)  # about one stray row in ten may cross a gutter
+    gutters, start = [], None
+    for x, c in enumerate(cover + [limit + 1]):
+        if c <= limit and start is None:
+            start = x
+        elif c > limit and start is not None:
+            if start > 0 and x < len(cover) and x - start >= 12:  # interior only, 12pt or wider
+                gutters.append((start + lo, x + lo))
+            start = None
+    edges = [lo] + [e for g in gutters for e in g] + [hi]
+    cols = [(edges[i], edges[i + 1]) for i in range(0, len(edges) - 1, 2)]
+    if not 2 <= len(cols) <= 8:
+        return None
+
+    def col_of(x: float) -> int:
+        return next((i for i, (a, b) in enumerate(cols) if a <= x <= b), len(cols) - 1)
+
+    grid = []
+    for _, ws in rows:
+        ws = sorted(ws, key=lambda w: w[0])
+        cells = [""] * len(cols)
+        if any(g0 + 1 < w[2] and w[0] < g1 - 1 for w in ws for g0, g1 in gutters):  # crosses a gutter: keep the row whole
+            cells[col_of(ws[0][0])] = " ".join(w[4] for w in ws)
+        else:
+            for w in ws:
+                ci = col_of((w[0] + w[2]) / 2)
+                cells[ci] = f"{cells[ci]} {w[4]}".strip()
+        grid.append([_clean_cell(c) for c in cells])
+
+    # a column with almost nothing in it (a stray page number) is folded into its neighbour
+    need = max(2, -(-len(grid) * 15 // 100))
+    for ci in range(len(cols) - 1, -1, -1):
+        if len(cols) > 2 and sum(bool(r[ci]) for r in grid) < need:
+            into = ci - 1 if ci else 1
+            for r in grid:
+                r[into] = " ".join(x for x in ((r[ci], r[into]) if ci < into else (r[into], r[ci])) if x)
+                del r[ci]
+            cols.pop(ci)
+    return grid if _usable(grid) else None
+
+
+def _table_rows(page, t) -> Optional[List[List[str]]]:
+    """Cell text of a detected table, or None when it is not really a table (then its lines stay plain text)."""
+    # cell text from the page words: Table.extract() drops the spaces in some PDFs
+    rows = [[_clean_cell(page.get_text("text", clip=c, sort=True) if c else "") for c in r.cells] for r in t.rows]
+    return rows if _usable(rows) else _rows_from_words(page, t.bbox)
+
+
 Read = Tuple[List[Dict[str, Any]], float, float, int]  # lines, median font size, line pitch, page count
 
 
@@ -248,17 +336,18 @@ def _read_lines(pdf_bytes: bytes) -> Optional[Read]:
     for page_idx, page in enumerate(doc):
         page_dict = page.get_text("dict")
         # ponytail: ruled tables only (the default "lines" strategy); borderless tables stay as flowing text
-        tables = [t for t in page.find_tables().tables if t.col_count >= 2 and t.row_count >= 2] if len(page.get_drawings()) >= 4 else []  # a table needs 4+ ruled lines or cells
+        # ponytail: ruled or underlined tables only (the default "lines" strategy); a page with no lines at all is skipped
+        found = [t for t in page.find_tables().tables if t.col_count >= 2 and t.row_count >= 2] if len(page.get_drawings()) >= 4 else []
+        built = [(t, rows) for t in found if (rows := _table_rows(page, t))]
+        tables = [t for t, _ in built]
         placed: set = set()
 
-        def table_at(b):  # index of the ruled table containing this line's centre
+        def table_at(b):  # index of the table containing this line's centre
             cx, cy = (b[0] + b[2]) / 2, (b[1] + b[3]) / 2
             return next((i for i, t in enumerate(tables) if t.bbox[0] - 2 <= cx <= t.bbox[2] + 2 and t.bbox[1] - 2 <= cy <= t.bbox[3] + 2), None)
 
-        def table_line(t):
-            # cell text from the page words: Table.extract() drops the spaces in some PDFs
-            cell = lambda c: re.sub(r"\s+", " ", page.get_text("text", clip=c, sort=True) if c else "").replace("|", "/").strip()
-            rows = [[cell(c) for c in r.cells] for r in t.rows]
+        def table_line(i):
+            t, rows = built[i]
             md = "\n".join("| " + " | ".join(r) + " |" for r in rows if any(r))
             return {"text": md, "font_size": 0.0, "is_bold": False, "page_number": page_idx + 1, "x0": t.bbox[0],
                     "y0": t.bbox[1], "y1": t.bbox[3], "in_margin": False, "table": True}
@@ -272,7 +361,7 @@ def _read_lines(pdf_bytes: bytes) -> Optional[Read]:
                 if ti is not None:  # the table replaces its text lines, at the spot of the first one
                     if ti not in placed:
                         placed.add(ti)
-                        lines_meta.append(table_line(tables[ti]))
+                        lines_meta.append(table_line(ti))
                     continue
                 # Word exports put zero-width spaces after clause numbers ("1.\u200b PURPOSE"); \s doesn't match them.
                 line_text = re.sub(
