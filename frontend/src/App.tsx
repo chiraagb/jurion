@@ -7,12 +7,13 @@ import ServiceStatus from "@/features/health/ServiceStatus";
 import { useHealth } from "@/features/health/useHealth";
 import ContractsPage from "@/features/documents/ContractsPage";
 import ParserLab from "@/features/parser/ParserLab";
+import ReportPage from "@/features/report/ReportPage";
 import SettingsDialog from "@/features/settings/SettingsDialog";
 
 export default function App() {
   const { user, loading: authLoading, error, login, logout } = useAuth();
   const { services, apiDown, loading, refresh } = useHealth();
-  const [tab, setTab] = useState<"lab" | "contracts">("lab");
+  const [tab, setTab] = useState<"lab" | "contracts" | "report">("lab");
 
   if (authLoading) return <div className="min-h-dvh" aria-busy />;
   if (!user) return <LoginPage onCredential={login} error={error} />;
@@ -26,7 +27,7 @@ export default function App() {
       </Header>
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
         <nav aria-label="Sections" className="mb-8 flex gap-1 border-b border-line">
-          {([["lab", "Parser Lab"], ["contracts", "My contracts"]] as const).map(([id, label]) => (
+          {([["lab", "Parser Lab"], ["contracts", "My contracts"], ["report", "Parser report"]] as const).map(([id, label]) => (
             <button
               key={id}
               onClick={() => setTab(id)}
@@ -44,6 +45,7 @@ export default function App() {
           <ParserLab apiDown={apiDown} />
         </div>
         {tab === "contracts" && <ContractsPage />}
+        {tab === "report" && <ReportPage />}
       </main>
     </div>
   );

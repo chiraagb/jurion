@@ -11,6 +11,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
+from app.ratelimit import limit
 from app.database import User, get_db, redis_client
 
 COOKIE, TTL = "jurion_session", 7 * 24 * 3600
@@ -31,7 +32,7 @@ def _public(user: User) -> dict:
 
 
 @router.post("/google")
-async def google_login(body: GoogleIn, response: Response, db: AsyncSession = Depends(get_db)):
+async def google_login(body: GoogleIn, response: Response, db: AsyncSession = Depends(get_db), _: None = Depends(limit("login", 20, 60))):
     if not settings.GOOGLE_CLIENT_ID:
         raise HTTPException(503, "GOOGLE_CLIENT_ID is not set in the server .env")
     try:

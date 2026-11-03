@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import time
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends, File, Header, HTTPException, UploadFile
@@ -12,7 +13,8 @@ from app.auth import current_user, router as auth_router
 from app.database import Clause, Document, LlmApiKey, User, async_engine, neo4j_driver, redis_client, get_db
 from app.config import settings
 from app.documents import router as documents_router
-from app.hybrid_parser import MAX_PDF_BYTES, PROVIDERS, _pdf_executor, count_pages, parse_contract_fast
+from app.hybrid_parser import MAX_PDF_BYTES, PROVIDERS, NoApiKey, count_pages, parse_contract_fast, run_pdf
+from app.ratelimit import limit
 
 
 @asynccontextmanager
@@ -28,9 +30,13 @@ async def lifespan(_: FastAPI):
             ):
                 await conn.execute(text(ddl))
     except Exception:
-        pass
+        log.exception("Could not create or update the database tables")
     yield
 
+
+logging.basicConfig(level=logging.WARNING, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+log = logging.getLogger("jurion")
+log.setLevel(logging.INFO)  # our own lines at INFO; libraries only when something is wrong
 
 app = FastAPI(title="Jurion Legal Intelligence API", lifespan=lifespan)
 app.include_router(auth_router)
@@ -123,9 +129,11 @@ async def delete_llm_key(provider: str, user: User = Depends(current_user), db: 
 @app.post("/parse")
 async def parse_pdf(
     file: UploadFile = File(...),
+    force_llm: bool = False,  # ?force_llm=true: use the AI's headings even when the local parse looks fine
     x_llm_provider: str | None = Header(None),
     user: User = Depends(current_user),
     db: AsyncSession = Depends(get_db),
+    _: None = Depends(limit("parse", 10, 60, by_user=True)),
 ):
     """Parses an uploaded contract PDF into clauses. Nothing is persisted yet.
     The fallback provider comes from X-LLM-Provider; the signed-in user's key is read (decrypted) from Postgres, else the server .env."""
@@ -137,9 +145,8 @@ async def parse_pdf(
     if not pdf_bytes.startswith(b"%PDF"):
         raise HTTPException(415, "File is not a PDF")
 
-    loop = asyncio.get_running_loop()
     try:
-        pages = await loop.run_in_executor(_pdf_executor, count_pages, pdf_bytes)
+        pages = await run_pdf(count_pages, pdf_bytes)
     except Exception as e:
         raise HTTPException(422, f"Could not open PDF: {e}")
 
@@ -149,12 +156,21 @@ async def parse_pdf(
         stored_key = None
 
     try:
-        result = await parse_contract_fast(pdf_bytes, x_llm_provider, stored_key)
+        result = await parse_contract_fast(pdf_bytes, x_llm_provider, stored_key, force_llm)
+    except NoApiKey as e:
+        raise HTTPException(400, str(e))
     except Exception as e:
+        log.warning("parse failed: user=%s pages=%s %s", user.id, pages, type(e).__name__)
         raise HTTPException(
             422, f"Layout too ambiguous for the local parser and the LLM fallback failed: {e}"
         )
 
+    conf = result["confidence"]
+    log.info(
+        "parsed user=%s pages=%s clauses=%s method=%s score=%s steps=%s ms=%s", user.id, pages, len(result["clauses"]),
+        result["method"], conf and conf["score"], [(s["name"], s["status"]) for s in result["steps"]],
+        round((time.perf_counter() - started) * 1000),
+    )
     return {
         "filename": file.filename,
         "size_bytes": len(pdf_bytes),

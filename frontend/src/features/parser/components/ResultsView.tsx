@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { AlertTriangle, Check, FileText, Loader2, Save, X } from "lucide-react";
+import { AlertTriangle, Check, FileText, Loader2, Save, Sparkles, X } from "lucide-react";
+import { loadProvider } from "@/features/settings/llmConfig";
 import { formatMs } from "@/lib/format";
 import type { ParseResult } from "../types";
 import ClauseList from "./ClauseList";
@@ -11,10 +12,15 @@ interface Props {
   onClear: () => void;
   onSave?: () => Promise<unknown>; // omitted for already-saved contracts
   clearLabel?: string;
+  onRerunAi?: () => void; // Parser Lab only: re-run with the AI picking the headings
+  hasAi?: boolean; // an AI result already exists: the button re-runs it
+  aiBusy?: boolean;
+  aiError?: string | null;
 }
 
 /** PDF on the left, parsed clauses on the right. Mounts fresh for each result. */
-export default function ResultsView({ result, file, onClear, onSave, clearLabel = "Clear" }: Props) {
+export default function ResultsView({ result, file, onClear, onSave, clearLabel = "Clear", onRerunAi, hasAi, aiBusy, aiError }: Props) {
+  const aiName = loadProvider() === "openai" ? "OpenAI" : "Gemini";
   const [page, setPage] = useState(1);
   const [save, setSave] = useState<"idle" | "saving" | "saved" | string>("idle"); // string = error message
 
@@ -50,6 +56,17 @@ export default function ResultsView({ result, file, onClear, onSave, clearLabel 
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {onRerunAi && (
+            <button
+              onClick={onRerunAi}
+              disabled={aiBusy}
+              title={`Ask ${aiName} to find the clause headings. Use it when the local parse missed sections or merged them.`}
+              className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-accent px-3 py-2 text-sm font-medium text-accent-fg transition-colors duration-200 hover:bg-accent/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-default disabled:opacity-70"
+            >
+              {aiBusy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <Sparkles className="h-4 w-4" aria-hidden />}
+              {aiBusy ? `Asking ${aiName}…` : hasAi ? `Re-run with ${aiName}` : `Parse with ${aiName}`}
+            </button>
+          )}
           {onSave && (
             <button
               onClick={doSave}
@@ -76,6 +93,7 @@ export default function ResultsView({ result, file, onClear, onSave, clearLabel 
         {save !== "idle" && save !== "saving" && save !== "saved" && (
           <p role="alert" className="w-full text-sm text-danger">{save}</p>
         )}
+        {aiError && <p role="alert" className="w-full text-sm text-danger">{aiError}</p>}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

@@ -33,6 +33,8 @@ We have two versions in the code:
   2. **Confidence check:** after the fast path, the parser scores itself from 0 to 1 (see below).
   3. **Fallback (Gemini or OpenAI):** if it finds fewer than 3 clauses, or the confidence is below 0.6, the AI is asked **which lines are headings**. It gets a short list (about 150 candidate lines, not the whole contract) and answers with line numbers. The clause text still comes from the PDF itself, so nothing is reworded and page numbers stay exact. If the AI's result scores no better than the local one, the local one is kept. A scanned PDF with no text is the exception: the whole file goes to the AI.
 
+You can also trigger it yourself: the **Parse with Gemini** button in the Parser Lab re-runs the file with the AI and uses its result.
+
 The local rules are meant to stay small. When a new contract parses badly, the answer is this AI step (and the test in "Regression test" below), not another special case in the regex rules.
 
 Each clause comes out as:
@@ -128,3 +130,25 @@ We use Cypher `MERGE`, which means "create it if it doesn't exist, otherwise reu
 ### Regression test on real contracts
 
 `backend/tests/integration/test_corpus.py` parses real PDFs kept in `backend/tests/corpus/` (git-ignored, since they are real contracts) and checks each against `expectations.json`: minimum clause count, clause IDs that must exist, table rows, and a minimum score. When a new contract parses badly, put the PDF in that folder, add an entry, fix the parser, and the test keeps every earlier contract working.
+
+### Limits and safety
+
+PDFs come from users, so reading one is treated as risky work:
+
+- **Worker processes.** PDFs are read in separate worker processes (`PARSE_WORKERS`, default 2), not inside the web server. Two uploads no longer wait for each other, and a PDF that crashes the reader cannot take the API down.
+- **Page cap.** More than `MAX_PAGES` (default 300) pages is refused. Password-protected PDFs are refused too.
+- **Time limit.** A read that takes longer than `PARSE_TIMEOUT_S` (default 45s) is killed, the user gets a clear error, and the workers restart. (This also cancels other uploads being read at that moment; they can be retried.)
+- **Rate limits** (a counter in Redis, per signed-in user): 10 parses and 20 saves per minute; 20 sign-in attempts per minute per IP. Over the limit returns `429` with `Retry-After`. If Redis is down, the limit is skipped rather than blocking everyone.
+- **Logging.** Each parse logs one line: user, pages, clauses, method, score, which steps ran, and time. LLM fallback failures and worker kills are logged as warnings. Contract text is never logged.
+
+All three limits are settings in `backend/.env` (`MAX_PAGES`, `PARSE_TIMEOUT_S`, `PARSE_WORKERS`). Check them with `uv run python -m tests.integration.test_limits`.
+
+### Measuring clause-boundary accuracy
+
+Confidence is the parser grading itself, so accuracy is measured against labels:
+
+1. `tests/corpus_big/selection.txt` lists the contracts (30 from CUAD, chosen from clean, many-duplicate-numbers, too-few-clauses, long, and weak-numbering groups).
+2. `uv run python -m tests.label_draft` drafts labels in `tests/corpus_big/labels/`. The local parser and the AI heading step each mark where clauses start. Lines both mark (`=`) are accepted; lines only one marks (`L?` local only, `A?` AI only) are for a person to decide: change to `+` (starts a clause) or `-` (does not). A missed start is added as `+ p<page> | <exact line text>`.
+3. `uv run python -m tests.eval` prints precision, recall and F1 per contract and overall (only for fully reviewed files), plus how often the AI fallback would trigger.
+
+Limit: lines both drafters get wrong the same way are accepted unreviewed, so recall can look better than it is. Skim the `=` lines too.

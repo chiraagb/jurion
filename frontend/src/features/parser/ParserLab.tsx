@@ -1,12 +1,15 @@
 import { AlertTriangle } from "lucide-react";
 import Dropzone from "./components/Dropzone";
 import Pipeline from "./components/Pipeline";
+import Comparison from "./components/Comparison";
 import ResultsView from "./components/ResultsView";
+import { loadProvider } from "@/features/settings/llmConfig";
 import { saveDocument } from "@/features/documents/api";
 import { useParseContract } from "./useParseContract";
 
 export default function ParserLab({ apiDown }: { apiDown: boolean }) {
-  const { phase, file, uploadPct, result, error, busy, start, reset } = useParseContract();
+  const { phase, file, uploadPct, result, results, view, setView, error, busy, start, reset, ai, rerunWithAi } = useParseContract();
+  const aiName = loadProvider() === "openai" ? "OpenAI" : "Gemini";
 
   return (
     <div className="space-y-10">
@@ -42,7 +45,23 @@ export default function ParserLab({ apiDown }: { apiDown: boolean }) {
         </div>
       )}
 
-      {result && file && <ResultsView result={result} file={file} onClear={reset} onSave={() => saveDocument(file, result)} />}
+      {results.local && results.ai && (
+        <Comparison local={results.local} ai={results.ai} view={view} onView={setView} aiName={aiName} />
+      )}
+
+      {result && file && (
+        <ResultsView
+          key={`${result.method}-${result.total_ms}`} // a new result starts with a fresh Save button
+          result={result}
+          file={file}
+          onClear={reset}
+          onSave={() => saveDocument(file, result)}
+          onRerunAi={rerunWithAi}
+          hasAi={!!results.ai}
+          aiBusy={ai.busy}
+          aiError={ai.error}
+        />
+      )}
     </div>
   );
 }

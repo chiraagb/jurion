@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     COOKIE_SECURE: bool = False  # True behind HTTPS (Secure cookies are not sent over plain http)
     FRONTEND_ORIGIN: str = "http://localhost:5173"
 
+    MAX_PAGES: int = 300  # longer PDFs are refused
+    PARSE_TIMEOUT_S: int = 45  # a PDF read that takes longer is killed
+    PARSE_WORKERS: int = 2  # PDF-reading worker processes
+
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", extra="ignore"
     )

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { FileText, Trash2 } from "lucide-react";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import { formatBytes } from "@/lib/format";
 import ResultsView from "@/features/parser/components/ResultsView";
 import type { ParseResult } from "@/features/parser/types";
@@ -13,6 +14,9 @@ export default function ContractsPage() {
   const [open, setOpen] = useState<{ result: ParseResult; file: File } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [pending, setPending] = useState<DocSummary | null>(null); // the contract waiting for delete confirmation
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const load = () => listDocuments().then(setDocs).catch((e) => setError(errorText(e)));
   useEffect(() => {
@@ -31,13 +35,23 @@ export default function ContractsPage() {
     }
   };
 
-  const remove = async (d: DocSummary) => {
-    if (!window.confirm(`Delete “${d.filename}” and its ${d.clause_count} clauses? This can't be undone.`)) return;
+  const askDelete = (d: DocSummary) => {
+    setDeleteError(null);
+    setPending(d);
+  };
+
+  const confirmDelete = async () => {
+    if (!pending) return;
+    setDeleting(true);
+    setDeleteError(null);
     try {
-      await deleteDocument(d.id);
-      setDocs((all) => all?.filter((x) => x.id !== d.id) ?? null);
+      await deleteDocument(pending.id);
+      setDocs((all) => all?.filter((x) => x.id !== pending.id) ?? null);
+      setPending(null);
     } catch (e) {
-      setError(errorText(e));
+      setDeleteError(errorText(e)); // stays open so the failure is seen next to the button
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -84,7 +98,7 @@ export default function ContractsPage() {
                 </span>
               </button>
               <button
-                onClick={() => remove(d)}
+                onClick={() => askDelete(d)}
                 aria-label={`Delete ${d.filename}`}
                 className="grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-lg text-muted transition-colors duration-200 hover:bg-danger/10 hover:text-danger focus-visible:outline-2 focus-visible:outline-danger"
               >
@@ -94,6 +108,28 @@ export default function ContractsPage() {
           ))}
         </ul>
       )}
+
+      <ConfirmDialog
+        open={!!pending}
+        title="Delete this contract?"
+        confirmLabel="Delete contract"
+        busy={deleting}
+        error={deleteError}
+        onConfirm={confirmDelete}
+        onCancel={() => setPending(null)}
+        subject={
+          pending && (
+            <>
+              <p className="font-display text-lg font-semibold leading-snug text-fg [overflow-wrap:anywhere]">{pending.filename}</p>
+              <p className="mt-0.5 text-xs text-muted">
+                {pending.pages} pages · {pending.clause_count} clauses · {formatBytes(pending.size_bytes)}
+              </p>
+            </>
+          )
+        }
+      >
+        This permanently removes the contract, its clauses and the stored PDF from your account. This can't be undone.
+      </ConfirmDialog>
     </section>
   );
 }

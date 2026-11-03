@@ -17,3 +17,4 @@ Read them in order:
 11. [Sign in with Google](11-auth.md) – login, sessions, setup
 12. [Looking at the database](12-database.md) – psql, DBeaver, what is stored
 13. [Saved contracts](13-saved-contracts.md) – save, list, open, delete
+14. [Parser test results](14-parser-test-results.md) – what was tested, the numbers, known gaps

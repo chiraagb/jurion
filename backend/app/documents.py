@@ -1,5 +1,4 @@
 """Saved contracts: a parsed result plus the original PDF, always scoped to the signed-in user."""
-import asyncio
 import uuid
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Response, UploadFile
 from pydantic import BaseModel, Field, ValidationError
@@ -7,7 +6,8 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth import current_user
 from app.database import Clause, Document, User, get_db
-from app.hybrid_parser import MAX_PDF_BYTES, _pdf_executor, _read_lines, count_pages, stored_lines
+from app.ratelimit import limit
+from app.hybrid_parser import MAX_PDF_BYTES, _read_lines, count_pages, run_pdf, stored_lines
 
 router = APIRouter(prefix="/documents")
 
@@ -55,6 +55,7 @@ async def save_document(
     result: str = Form(...),
     user: User = Depends(current_user),
     db: AsyncSession = Depends(get_db),
+    _: None = Depends(limit("save", 20, 60, by_user=True)),
 ):
     pdf = await file.read(MAX_PDF_BYTES + 1)
     if len(pdf) > MAX_PDF_BYTES:
@@ -65,11 +66,10 @@ async def save_document(
         data = ResultIn.model_validate_json(result)
     except ValidationError as e:
         raise HTTPException(422, f"Invalid parse result: {e.errors()[0]['msg']}")
-    loop = asyncio.get_running_loop()
     try:
-        pages = await loop.run_in_executor(_pdf_executor, count_pages, pdf)
+        pages = await run_pdf(count_pages, pdf)
         # ponytail: the PDF is read a second time here (about 2s with many tables); cache the lines from /parse if it hurts
-        read = await loop.run_in_executor(_pdf_executor, _read_lines, pdf)
+        read = await run_pdf(_read_lines, pdf)
     except Exception as e:
         raise HTTPException(422, f"Could not open PDF: {e}")
     lines = stored_lines(read) if read else None  # null for a scan with no text layer

@@ -26,6 +26,7 @@ export interface ParseResult {
   method: "local" | "gemini" | "openai";
   clauses: Clause[];
   confidence: Confidence | null;
+  local_result?: { clauses: Clause[]; confidence: Confidence | null }; // sent with an AI result, for comparison
   steps: { name: "local" | "llm"; status: "done" | "skipped" | "insufficient" | "failed"; ms: number; provider?: string }[];
 }
 

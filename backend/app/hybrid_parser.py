@@ -1,7 +1,10 @@
 import asyncio
 import re
 import time
-from concurrent.futures import ThreadPoolExecutor
+import logging
+import multiprocessing
+from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures.process import BrokenProcessPool
 from typing import List, Dict, Any, Optional, Tuple
 import fitz  # PyMuPDF
 from openai import AsyncOpenAI
@@ -11,23 +14,51 @@ from google import genai
 from google.genai import types
 from app.config import settings
 
-# PyMuPDF is not thread-safe, so all local parsing goes through one worker thread.
-# ponytail: single thread caps throughput; move to a process pool / Celery workers when uploads queue up
-_pdf_executor = ThreadPoolExecutor(max_workers=1)
+log = logging.getLogger("jurion.parser")
+
+# PyMuPDF is not thread-safe and untrusted PDFs can hang or crash it, so reading runs in worker processes:
+# uploads don't block each other, a crash can't take the API down, and a stuck read is killed after PARSE_TIMEOUT_S.
+# ponytail: one pool per API process; move to a job queue (Celery/arq) when parsing should outlive the HTTP request
+_pool: Optional[ProcessPoolExecutor] = None
 
 
-def count_pages(pdf_bytes: bytes) -> int:
-    """Opens the PDF once to validate it; raises on corrupt or encrypted files."""
+async def run_pdf(fn, *args):
+    global _pool
+    if _pool is None:
+        _pool = ProcessPoolExecutor(settings.PARSE_WORKERS, mp_context=multiprocessing.get_context("spawn"))
+    try:
+        return await asyncio.wait_for(asyncio.get_running_loop().run_in_executor(_pool, fn, *args), settings.PARSE_TIMEOUT_S)
+    except (asyncio.TimeoutError, BrokenProcessPool) as e:
+        pool, _pool = _pool, None  # drop the pool; the next call starts fresh workers
+        for p in list(getattr(pool, "_processes", {}).values()):  # ponytail: private attr, the only way to kill a stuck worker
+            p.terminate()
+        pool.shutdown(wait=False, cancel_futures=True)
+        log.warning("PDF worker %s", type(e).__name__)
+        raise ValueError(
+            f"Reading the PDF took longer than {settings.PARSE_TIMEOUT_S}s" if isinstance(e, asyncio.TimeoutError)
+            else "The PDF reader crashed on this file"
+        ) from e
+
+
+def _open(pdf_bytes: bytes):
+    """Opens a PDF, refusing encrypted files and very long ones."""
     doc = fitz.open(stream=pdf_bytes, filetype="pdf")
     if doc.needs_pass:
         raise ValueError("PDF is password-protected")
-    return len(doc)
+    if len(doc) > settings.MAX_PAGES:
+        raise ValueError(f"PDF has {len(doc)} pages; the limit is {settings.MAX_PAGES}")
+    return doc
+
+
+def count_pages(pdf_bytes: bytes) -> int:
+    """Opens the PDF once to validate it; raises on corrupt, encrypted or too long files."""
+    return len(_open(pdf_bytes))
 
 # ---------------------------------------------------------
 # 1. Local Fast-Path Heuristic Engine (< 50ms)
 # ---------------------------------------------------------
 FAST_HEADER_PATTERN = re.compile(
-    r"^(?P<id>(?:ARTICLE|SECTION|CLAUSE|SCHEDULE|EXHIBIT|(?-i:ATTACHMENT|APPENDIX|ANNEX))\s+[IVXLCDM\d]+\b(?:\.\d+)*|\d+(?:\.\d+)+|\d+\.)\s*[:\-\.]?\s*(?P<title>.*)$",
+    r"^(?P<id>(?:ARTICLE|SECTION|CLAUSE|SCHEDULE|EXHIBIT|(?-i:ATTACHMENT|APPENDIX|ANNEX))\s+[IVXLCDM\d]+\b(?:\.\d+)*|\d{1,3}(?:\.\d{1,3})+|\d{1,3}\.)\s*[:\-\.]?\s*(?P<title>.*)$",
     re.IGNORECASE,
 )
 # Starts an attachment: the end of the signature block, and a fresh numbering scope ("1." restarts inside it).
@@ -71,6 +102,8 @@ def _numbering_score(ids: List[str]) -> float:
         m = re.fullmatch(r"(?:(\d+(?:\.\d+)*)\.)?(\d+)", clause_id)
         if m:
             groups.setdefault(m.group(1) or "", set()).add(int(m.group(2)))
+    # A stray number far above the rest ("22314", a zip code) must not stretch the expected range to thousands.
+    groups = {k: kept for k, g in groups.items() if (kept := {v for v in g if v <= 5 * len(g) + 20})}
     expected = sum(max(g) - min(g) + 1 for g in groups.values())  # gaps only; an excerpt may not start at 1
     return sum(len(g) for g in groups.values()) / expected if expected >= 3 else 1.0
 
@@ -171,12 +204,45 @@ def _reflow(lines: List[Dict[str, Any]], pitch: float) -> str:
     return out.strip()
 
 
+# A line that is only a clause or list marker: "1.", "2.1", "(a)", "b)"
+MARKER_PATTERN = re.compile(r"^(?:\d{1,3}(?:\.\d{1,3})*\.?|\(?(?:[a-zA-Z]|[ivxIVX]{2,4})[.)])$")  # not "TERM." (a heading)
+
+
+def _reorder_markers(lines: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Some PDFs store the number column apart from its text, so the text stream reads "1.", "2.", "2.1" first and the
+    titles later. Moves each such marker to just before the line on the same baseline to its right. A marker that is
+    already followed by its text, the normal case, is untouched, so ordinary and two-column pages are not disturbed."""
+    claimed: Dict[int, List[int]] = {}  # partner index -> its markers
+    moved: set = set()
+    for i, m in enumerate(lines):
+        if not MARKER_PATTERN.match(m["text"]) or m.get("table"):
+            continue
+        nxt = lines[i + 1] if i + 1 < len(lines) else None
+        if nxt and abs(nxt["y0"] - m["y0"]) <= 3 and nxt["x0"] > m["x0"]:
+            continue  # already next to its text
+        partners = [
+            j for j, l in enumerate(lines)
+            if j != i and not l.get("table") and abs(l["y0"] - m["y0"]) <= 3 and l["x0"] > m["x0"] + 5 and not MARKER_PATTERN.match(l["text"])
+        ]
+        if partners:
+            j = min(partners, key=lambda j: lines[j]["x0"])  # the nearest text to the right
+            claimed.setdefault(j, []).append(i)
+            moved.add(i)
+    out: List[Dict[str, Any]] = []
+    for j, l in enumerate(lines):
+        if j in moved:
+            continue
+        out.extend(lines[i] for i in sorted(claimed.get(j, []), key=lambda i: lines[i]["x0"]))
+        out.append(l)
+    return out
+
+
 Read = Tuple[List[Dict[str, Any]], float, float, int]  # lines, median font size, line pitch, page count
 
 
 def _read_lines(pdf_bytes: bytes) -> Optional[Read]:
     """Visual lines of the PDF (tables folded into single lines, page noise removed), or None if there is no text."""
-    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    doc = _open(pdf_bytes)
     lines_meta = []
 
     for page_idx, page in enumerate(doc):
@@ -197,6 +263,7 @@ def _read_lines(pdf_bytes: bytes) -> Optional[Read]:
             return {"text": md, "font_size": 0.0, "is_bold": False, "page_number": page_idx + 1, "x0": t.bbox[0],
                     "y0": t.bbox[1], "y1": t.bbox[3], "in_margin": False, "table": True}
 
+        page_start = len(lines_meta)
         for block in page_dict.get("blocks", []):
             if block.get("type") != 0:
                 continue
@@ -233,6 +300,8 @@ def _read_lines(pdf_bytes: bytes) -> Optional[Read]:
                         or line["bbox"][3] > page.rect.height * 0.88,
                     }
                 )
+
+        lines_meta[page_start:] = _reorder_markers(lines_meta[page_start:])
 
     lines_meta = _strip_page_noise(lines_meta, len(doc))
     if not lines_meta:
@@ -499,11 +568,16 @@ async def llm_fallback_parse(pdf_bytes: bytes, provider: str, api_key: str) -> L
 # ---------------------------------------------------------
 # 3. Main Hybrid Entrypoint
 # ---------------------------------------------------------
+class NoApiKey(RuntimeError):
+    """The LLM was needed (or asked for) but no key is configured."""
+
+
 async def parse_contract_fast(
-    pdf_bytes: bytes, provider: Optional[str] = None, api_key: Optional[str] = None
+    pdf_bytes: bytes, provider: Optional[str] = None, api_key: Optional[str] = None, force_llm: bool = False
 ) -> Dict[str, Any]:
     """Returns clauses plus a per-step trace (status + ms) for the UI.
-    provider/api_key are the caller's own LLM credentials; they override the server's .env keys."""
+    provider/api_key are the caller's own LLM credentials; they override the server's .env keys.
+    force_llm: the user asked for the AI result even though the local parse looks fine; it is used as is."""
     provider = provider if provider in PROVIDERS else "gemini"
     api_key = api_key or (settings.OPENAI_API_KEY if provider == "openai" else settings.GEMINI_API_KEY)
     loop = asyncio.get_running_loop()
@@ -511,18 +585,18 @@ async def parse_contract_fast(
 
     # Step 1: read the PDF once, then the local heuristic parse
     t = time.perf_counter()
-    read = await loop.run_in_executor(_pdf_executor, _read_lines, pdf_bytes)
+    read = await run_pdf(_read_lines, pdf_bytes)
     local = _local_from_lines(read) if read else None
     local_ms = round((time.perf_counter() - t) * 1000, 1)
 
     confidence = local[1] if local else None
-    if local and (confidence["score"] >= MIN_CONFIDENCE or not api_key):
+    if local and not force_llm and (confidence["score"] >= MIN_CONFIDENCE or not api_key):
         # Low confidence with no key still returns the local parse; the UI shows the score.
         steps.append({"name": "local", "status": "done", "ms": local_ms})
         steps.append({"name": "llm", "status": "skipped", "ms": 0, "provider": provider})
         return {"method": "local", "clauses": local[0], "confidence": confidence, "steps": steps}
     if not api_key:
-        raise RuntimeError(f"No {provider} API key: add one in Settings or set it in the server .env")
+        raise NoApiKey(f"No {provider} API key: add one in Settings or set it in the server .env")
 
     steps.append({"name": "local", "status": "insufficient", "ms": local_ms})
 
@@ -537,15 +611,19 @@ async def parse_contract_fast(
             clauses, llm_conf = picked
         else:
             clauses, llm_conf = await asyncio.wait_for(llm_fallback_parse(pdf_bytes, provider, api_key), LLM_TIMEOUT_S), None
-    except Exception:  # includes the timeout
+    except Exception as e:  # includes the timeout
+        log.warning("LLM fallback failed (%s, %s)", provider, type(e).__name__)
         if not local:
             raise
         # LLM unavailable: a low-confidence local parse beats an error.
         steps.append({"name": "llm", "status": "failed", "ms": round((time.perf_counter() - t) * 1000, 1), "provider": provider})
         return {"method": "local", "clauses": local[0], "confidence": confidence, "steps": steps}
     llm_ms = round((time.perf_counter() - t) * 1000, 1)
-    if local and llm_conf and llm_conf["score"] <= confidence["score"]:  # the LLM did no better: keep the local result
+    if local and llm_conf and not force_llm and llm_conf["score"] <= confidence["score"]:  # the LLM did no better: keep the local result
         steps.append({"name": "llm", "status": "insufficient", "ms": llm_ms, "provider": provider})
         return {"method": "local", "clauses": local[0], "confidence": confidence, "steps": steps}
     steps.append({"name": "llm", "status": "done", "ms": llm_ms, "provider": provider})
-    return {"method": provider, "clauses": clauses, "confidence": llm_conf, "steps": steps}
+    out = {"method": provider, "clauses": clauses, "confidence": llm_conf, "steps": steps}
+    if local:
+        out["local_result"] = {"clauses": local[0], "confidence": confidence}  # kept so the UI can compare the two
+    return out

@@ -3,3 +3,4 @@
 
 # real contracts used by the local regression test
 backend/tests/corpus/*.pdf
+backend/tests/corpus_big/

@@ -65,6 +65,24 @@ def make_hanging_indent_pdf() -> bytes:
     return doc.tobytes()
 
 
+def make_number_column_pdf() -> bytes:
+    """Numbers are stored apart from their text (all markers first), as in some Word exports: the stream reads
+    '1.', '2.', '2.1' and only then the titles, which sit on the same baselines."""
+    doc = pymupdf.open()
+    page = doc.new_page()
+    rows = [(100, "1.", "SCOPE OF SERVICES.", True), (160, "2.", "TERM.", True), (190, "2.1", "General Rights. The Company grants the right to market the products.", False)]
+    for y, num, _, _ in rows:
+        page.insert_text((60, y), num, fontsize=10, fontname="hebo")
+    for y, _, text, bold in rows:
+        page.insert_text((90, y), text, fontsize=10, fontname="hebo" if bold else "helv")
+        if bold:
+            page.insert_text((60, y + 20), "This agreement shall begin upon execution and remain in effect for one year.", fontsize=10)
+    page.insert_text((60, 240), "3.", fontsize=10, fontname="hebo")
+    page.insert_text((90, 240), "LAW.", fontsize=10, fontname="hebo")
+    page.insert_text((60, 260), "This agreement is governed by the laws of the State of New York.", fontsize=10)
+    return doc.tobytes()
+
+
 def make_table_pdf() -> bytes:
     """A body line that starts with 'signed by', a ruled 3x2 table, then a real clause after both."""
     doc = pymupdf.open()
@@ -86,6 +104,14 @@ def make_table_pdf() -> bytes:
 if __name__ == "__main__":
     from app.hybrid_parser import _confidence, local_fast_parse
 
+    import redis
+    from app.config import settings
+    redis.Redis.from_url(settings.REDIS_URL).delete("rl:parse:testclient")  # the per-minute limit would trip on back-to-back runs
+
+    cols, _ = local_fast_parse(make_number_column_pdf())
+    got = {c["clause_identifier"]: c["title"] for c in cols}
+    assert got.get("1", "").startswith("SCOPE") and got.get("2", "").startswith("TERM") and got.get("2.1", "").startswith("General"), got  # numbers re-attached to their own titles
+
     tbl, _ = local_fast_parse(make_table_pdf())
     by = {c["clause_identifier"]: c for c in tbl}
     assert "SIGNATURES" not in by and {"1", "2", "3"} <= by.keys(), list(by)  # "signed by" in prose is not a signature block
@@ -94,6 +120,9 @@ if __name__ == "__main__":
     def cl(i, t, pg): return {"clause_identifier": i, "title": t, "content": "x" * 50, "page_number": pg}
     dup = _confidence([cl("1", "A", 1), cl("2", "B", 1), cl("3", "COMPENSATION", 3), cl("3.1", "x", 3), cl("3", "SUPPLY", 4), cl("3.1", "y", 4)], 300)
     assert dup["unique"] < 1 and dup["score"] < 1 and "Number 3 is used twice" in dup["issues"][0], dup
+    from app.hybrid_parser import _numbering_score
+    assert _numbering_score(["2000"]) == 1.0 and _numbering_score([]) == 1.0  # a lone stray number: no crash
+    assert _numbering_score(["1", "2", "3", "4", "22314"]) == 1.0  # the outlier is ignored, not counted as a gap
     assert _confidence([cl("1", "A", 1), cl("2", "B", 1), cl("3", "C", 2)], 150)["issues"] == []
 
     # LLM heading picker, with the model stubbed: picks come from line numbers, text still comes from the PDF.
@@ -115,6 +144,17 @@ if __name__ == "__main__":
     hp._llm_headings = boom
     out = asyncio.run(hp.parse_contract_fast(make_table_pdf(), "gemini", "k"))
     assert out["method"] == "local" and out["steps"][1]["status"] == "failed", out  # LLM down -> local result, no retry loop
+    hp._local_from_lines, hp._llm_headings = real_local, fake_headings
+    good = asyncio.run(hp.parse_contract_fast(make_table_pdf(), "gemini", "k"))
+    assert good["method"] == "local" and good["steps"][1]["status"] == "skipped", good  # a good local parse: AI not called
+    forced = asyncio.run(hp.parse_contract_fast(make_table_pdf(), "gemini", "k", force_llm=True))
+    assert forced["method"] == "gemini" and forced["steps"][1]["status"] == "done", forced  # "Parse with Gemini": AI result used
+    assert len(forced["local_result"]["clauses"]) == 3, forced  # the local parse comes along, for comparison
+    try:
+        asyncio.run(hp.parse_contract_fast(make_table_pdf(), "openai", "", force_llm=True))
+        raise SystemExit("forcing the AI with no key should fail")
+    except hp.NoApiKey:
+        pass
     hp._local_from_lines, hp._llm_headings = real_local, real_llm
 
     pdf0 = make_sample_pdf()
