@@ -7,7 +7,13 @@ interface Score { "hit@1": number; "hit@3": number; "hit@5": number; "hit@10": n
 type Summary = Record<"all" | "direct" | "paraphrase" | "broad", Partial<Record<Mode, Score>>>;
 interface Row { id: number; question: string; kind: Kind; ranks: Partial<Record<Mode, number | null>>; top?: string[] }
 interface Run { summary: Summary; rows: Row[]; ran_at?: string }
-interface Data { available?: false; ran_at: string; embedding_model: string; questions: number; baseline?: Run; retrieval: Run }
+interface AnswerRow {
+  id: number; question: string; kind: Kind; answer: string; sources: number; refused: boolean;
+  context_has_gold?: boolean; cited_gold?: boolean; faithfulness?: number | null; unsupported?: string[]; answers_question?: boolean;
+}
+interface AnswerStats { n: number; answered: number | null; right_clause_in_context: number | null; right_clause_cited: number | null; faithfulness: number | null; addresses_question: number | null }
+interface Answers { summary: Record<"all" | "direct" | "paraphrase" | "broad", AnswerStats> & { none: { n: number; correctly_refused: number | null } }; rows: AnswerRow[]; answer_model: string; judge_model: string; ran_at: string }
+interface Data { available?: false; ran_at: string; embedding_model: string; questions: number; baseline?: Run; retrieval: Run; answers?: Answers }
 
 const MODES: { id: Mode; label: string; note: string }[] = [
   { id: "vector", label: "Vector only", note: "meaning match" },
@@ -120,6 +126,8 @@ export default function EvaluationPage() {
         </div>
       </div>
 
+      {data.answers && <AnswerQuality a={data.answers} />}
+
       <div className="max-w-3xl space-y-2 text-sm text-fg-soft">
         <h2 className="text-lg font-semibold text-fg">What to trust, and what not</h2>
         <ul className="list-disc space-y-1.5 pl-5">
@@ -127,7 +135,7 @@ export default function EvaluationPage() {
           <li>Hybrid is about as good as vector-only here. Keyword search alone is weak because a question rarely has all its words in one clause. I tried matching any word: it helped questions that reuse the contract's words but hurt paraphrased ones, so I kept the original.</li>
           <li>“Hybrid + context” counts the text of the clauses that follow a heading-only clause, because that is what the Ask tab gives the model.</li>
           <li>Prefixing each sub-clause's embedding with its section title made no measurable difference.</li>
-          <li>Not measured yet: whether the written answers stay faithful to the cited clauses, and how often Ask refuses when nothing answers.</li>
+          <li>Answer scores come from an AI judge, not a person: a different, larger model than the one that wrote the answers, but still a model. Read a few answers yourself.</li>
         </ul>
       </div>
     </section>
@@ -138,4 +146,63 @@ function Rank({ n }: { n?: number | null }) {
   if (n === undefined) return <span className="text-subtle">—</span>;
   const tone = n === null ? "text-danger" : n <= 3 ? "text-accent-fg font-semibold" : "text-warn";
   return <span className={`tabular-nums ${tone}`}>{n === null ? "—" : n}</span>;
+}
+
+const Stat = ({ label, value, note }: { label: string; value: string; note: string }) => (
+  <div className="rounded-md border border-line bg-surface p-4">
+    <p className="font-display text-3xl font-semibold tabular-nums">{value}</p>
+    <p className="mt-1 text-sm font-semibold">{label}</p>
+    <p className="text-xs text-muted">{note}</p>
+  </div>
+);
+
+/** The written answers, scored: given at all, cites the right clause, sticks to what the clauses say, answers the question. */
+function AnswerQuality({ a }: { a: Answers }) {
+  const [open, setOpen] = useState<number | null>(null);
+  const s = a.summary.all, none = a.summary.none;
+  const p = (n: number | null) => (n === null ? "—" : pct(n));
+  return (
+    <div className="space-y-4">
+      <div>
+        <h2 className="text-lg font-semibold">Answer quality</h2>
+        <p className="mt-1 max-w-3xl text-sm text-muted">
+          The full Ask pipeline run on every question. Answers written by <code className="font-mono">{a.answer_model}</code>, scored by <code className="font-mono">{a.judge_model}</code>.
+        </p>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <Stat label="Answered" value={p(s.answered)} note={`of ${s.n} answerable questions, rest refused`} />
+        <Stat label="Cites the right clause" value={p(s.right_clause_cited)} note={`right clause was in context ${p(s.right_clause_in_context)}`} />
+        <Stat label="Faithful" value={p(s.faithfulness)} note="claims supported by the clauses given" />
+        <Stat label="Addresses the question" value={p(s.addresses_question)} note="of the answers given" />
+        <Stat label="Refuses when no answer" value={p(none.correctly_refused)} note={`${none.n} questions the contracts can't answer`} />
+      </div>
+      <div className="overflow-x-auto rounded-md border border-line">
+        <table className="w-full border-collapse text-sm">
+          <thead className="bg-raised text-left"><tr><th className="px-3 py-2">Question</th><th className="px-3 py-2">Result</th><th className="px-3 py-2">Faithful</th></tr></thead>
+          <tbody>
+            {a.rows.map((r) => {
+              const good = r.kind === "none" ? r.refused : !r.refused && r.cited_gold && (r.faithfulness ?? 1) >= 1;
+              return (
+                <Fragment key={r.id}>
+                  <tr onClick={() => setOpen(open === r.id ? null : r.id)} className="cursor-pointer border-t border-line align-top hover:bg-raised">
+                    <td className="px-3 py-2"><span className="mr-2 rounded bg-raised px-1.5 py-0.5 font-mono text-xs text-muted">{r.kind === "none" ? "no answer" : r.kind}</span>{r.question}</td>
+                    <td className={`px-3 py-2 ${good ? "text-accent-fg" : "text-warn"}`}>
+                      {r.kind === "none" ? (r.refused ? "Refused ✓" : "Answered ✗") : r.refused ? "Refused ✗" : r.cited_gold ? "Cited right clause ✓" : r.context_has_gold ? "Had it, cited another" : "Missed the clause"}
+                    </td>
+                    <td className="px-3 py-2 tabular-nums">{r.faithfulness == null ? "—" : pct(r.faithfulness)}</td>
+                  </tr>
+                  {open === r.id && (
+                    <tr className="bg-canvas"><td colSpan={3} className="space-y-2 px-3 py-3 text-sm">
+                      <p className="whitespace-pre-wrap text-fg-soft">{r.answer}</p>
+                      {r.unsupported && r.unsupported.length > 0 && <p className="text-xs text-warn">Not supported by the clauses: {r.unsupported.join(" · ")}</p>}
+                    </td></tr>
+                  )}
+                </Fragment>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 }
