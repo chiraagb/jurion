@@ -11,7 +11,7 @@ interface AnswerRow {
   id: number; question: string; kind: Kind; answer: string; sources: number; refused: boolean;
   context_has_gold?: boolean; cited_gold?: boolean; faithfulness?: number | null; unsupported?: string[]; answers_question?: boolean;
 }
-interface AnswerStats { n: number; answered: number | null; right_clause_in_context: number | null; right_clause_cited: number | null; faithfulness: number | null; addresses_question: number | null }
+interface AnswerStats { n: number; answered: number | null; right_clause_in_context: number | null; right_clause_cited: number | null; answered_wrong_clause: number | null; faithfulness: number | null; addresses_question: number | null }
 interface Answers { summary: Record<"all" | "direct" | "paraphrase" | "broad", AnswerStats> & { none: { n: number; correctly_refused: number | null } }; rows: AnswerRow[]; answer_model: string; judge_model: string; ran_at: string }
 interface Data { available?: false; ran_at: string; embedding_model: string; questions: number; baseline?: Run; retrieval: Run; answers?: Answers }
 
@@ -169,9 +169,10 @@ function AnswerQuality({ a }: { a: Answers }) {
           The full Ask pipeline run on every question. Answers written by <code className="font-mono">{a.answer_model}</code>, scored by <code className="font-mono">{a.judge_model}</code>.
         </p>
       </div>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <Stat label="Answered" value={p(s.answered)} note={`of ${s.n} answerable questions, rest refused`} />
         <Stat label="Cites the right clause" value={p(s.right_clause_cited)} note={`right clause was in context ${p(s.right_clause_in_context)}`} />
+        <Stat label="Answered from the wrong clause" value={p(s.answered_wrong_clause)} note="confident and cited, but not the right clause (varies 0–5% between runs)" />
         <Stat label="Faithful" value={p(s.faithfulness)} note="claims supported by the clauses given" />
         <Stat label="Addresses the question" value={p(s.addresses_question)} note="of the answers given" />
         <Stat label="Refuses when no answer" value={p(none.correctly_refused)} note={`${none.n} questions the contracts can't answer`} />

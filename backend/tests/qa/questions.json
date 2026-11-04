@@ -214,7 +214,10 @@
   "question": "What do I get back if the vendor misses its service targets?",
   "kind": "paraphrase",
   "doc": "OFGBANCORP",
-  "phrase": "percentage credit based on the invoice"
+  "phrase": [
+   "percentage credit based on the invoice",
+   "Service Level Credit shall be four percent (4%)"
+  ]
  },
  {
   "id": 32,

@@ -43,10 +43,13 @@ Runs the real Ask pipeline on every question and scores each answer. Written by 
 
 By kind: same-words 94% cited, other-words 82%, whole-section 100% (4 questions).
 
-What failed (6 of 38):
-- Q10, Q11: retrieval missed the right clause, so Ask said it could not find the answer. That is the intended behaviour when evidence is missing.
-- Q31, Q32: the right clause was not retrieved, and the answer came from other clauses it was faithful to. This is the dangerous kind: a confident, cited, wrong answer. Faithfulness cannot catch it; only the gold-clause check does.
-- Q24, Q29: one unsupported sentence each, e.g. "both clauses restrict any modifications".
+The one failure that misleads a user is an answer that is confident and cited but not from the right clause ("answered from the wrong clause"). Faithfulness cannot catch it, because an answer can be faithful to the wrong clauses; only the gold-clause check does. It has its own metric on the page.
+
+First run: 2 of 38 (5.3%). Q32 ("What does the bank owe if it ends the contract early?") was answered from the template services agreement, with the guess "(in this case, the bank)": the word "bank" only appears in the Oriental Bank contract. Q31 looked wrong but was not: several Service Level Credit clauses really do answer it, so its gold now accepts either phrase.
+
+Fix (contract-aware Ask): the relevance grader now sees each clause's contract name and is told that if the question names a party or kind of document ("the bank", "the clinical trial"), a clause from a contract without it is not relevant. The answer prompt says to name the contract of each statement and never to assume which party the user means. Q32 is now refused in both later runs (the right clause is not retrieved, so "the clauses do not cover it" is the correct answer).
+
+The count still moves between runs because the models are not deterministic: the next two full runs gave **0** and **2** of 38 (the two were broad questions, Q40 and Q41). Read it as "0 to 5%", not a fixed number. Other failures in the latest run: Q10 (retrieval missed, honest refusal), and a few answers with one "unsupported" sentence, mostly the judge marking "this comes from contract X" as unsupported even though the contract name was in its context.
 
 Things found and fixed while building this (kept here because they change how far to trust the numbers):
 - **The model cited clause numbers (`[1.1]`) instead of source numbers (`[1]`)** on broad questions, so the UI could not link them. The prompt now says the brackets are source numbers.

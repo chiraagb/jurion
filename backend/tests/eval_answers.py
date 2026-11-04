@@ -19,7 +19,7 @@ from app.ask import pipeline
 from app.config import settings
 from app.database import AsyncSessionLocal, Document
 from app.embeddings import openai_key
-from tests.eval_qa import QA, norm
+from tests.eval_qa import QA, is_gold
 
 PARALLEL = 4
 # How a refusal starts: "I couldn't find this in your saved contracts", "The clauses provided do not mention ...", "There is no ..."
@@ -56,10 +56,10 @@ async def score(key: str, owner, q: dict, sem: asyncio.Semaphore) -> dict:
                 elif kind == "token":
                     answer += d["text"]
         row = {"id": q["id"], "question": q["question"], "kind": q["kind"], "answer": answer, "sources": len(sources)}
-        context = "\n\n".join(f"[{i}] {x['content']}" for i, x in enumerate(sources, 1))
+        context = "\n\n".join(f"[{i}] Contract: {x['filename']}\n{x['content']}" for i, x in enumerate(sources, 1))  # the answer names contracts, so the judge must see them
         row["refused"] = not sources or bool(REFUSAL.match(answer))  # a pattern, not a judge: the yes/no AI judge flagged clean answers as refusals
         if q["doc"]:  # the right clause: did grading keep it, and did the answer cite it
-            has = lambda x: x["filename"].startswith(q["doc"]) and norm(q["phrase"]) in norm(x["content"])
+            has = lambda x: is_gold(x["filename"], x["content"], q)
             cited = {int(n) for n in re.findall(r"\[(\d+)\]", answer)}
             row["context_has_gold"] = any(has(x) for x in sources)
             row["cited_gold"] = any(has(x) for i, x in enumerate(sources, 1) if i in cited)
@@ -78,9 +78,12 @@ def summarize(rows: list[dict]) -> dict:
     for name, group in (("all", [r for r in rows if r["kind"] != "none"]), *((k, [r for r in rows if r["kind"] == k]) for k in ("direct", "paraphrase", "broad"))):
         done = [r for r in group if not r["refused"]]
         faith = [r["faithfulness"] for r in done if r.get("faithfulness") is not None]
-        out[name] = {"n": len(group), "answered": rate([not r["refused"] for r in group]), "right_clause_in_context": rate([r["context_has_gold"] for r in group]),
-                     "right_clause_cited": rate([r["cited_gold"] for r in group]), "faithfulness": round(statistics.fmean(faith), 3) if faith else None,
-                     "addresses_question": rate([r["answers_question"] for r in done])}
+        out[name] = {
+            "n": len(group), "answered": rate([not r["refused"] for r in group]), "right_clause_in_context": rate([r["context_has_gold"] for r in group]),
+            "right_clause_cited": rate([r["cited_gold"] for r in group]),
+            "answered_wrong_clause": rate([not r["refused"] and not r["cited_gold"] for r in group]),  # confident, cited, but not the right clause
+            "faithfulness": round(statistics.fmean(faith), 3) if faith else None, "addresses_question": rate([r["answers_question"] for r in done]),
+        }
     none = [r for r in rows if r["kind"] == "none"]
     out["none"] = {"n": len(none), "correctly_refused": rate([r["refused"] for r in none])}
     return out

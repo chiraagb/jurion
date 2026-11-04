@@ -22,11 +22,17 @@ KS = (1, 3, 5, 10)
 norm = lambda t: " ".join(t.split()).lower()
 
 
+def is_gold(filename: str, content: str, q: dict) -> bool:
+    """The clause is of the right contract and holds the answer text (phrase may be a list: any one counts)."""
+    phrases = q["phrase"] if isinstance(q["phrase"], list) else [q["phrase"]]
+    return filename.startswith(q["doc"]) and any(norm(p) in norm(content) for p in phrases)
+
+
 def gold_rank(hits: list[dict], q: dict) -> int | None:
     """1-based rank of the first clause that is the right one, else None."""
     if not q["doc"]:  # kind "none": there is no right clause
         return None
-    return next((i for i, h in enumerate(hits, 1) if h["filename"].startswith(q["doc"]) and norm(q["phrase"]) in norm(h["content"])), None)
+    return next((i for i, h in enumerate(hits, 1) if is_gold(h["filename"], h["content"], q)), None)
 
 
 def summarize(ranks: list[int | None]) -> dict:
