@@ -16,6 +16,7 @@ from app.documents import router as documents_router
 from app.embeddings import router as search_router
 from app.ask import router as ask_router
 from app.sessions import router as sessions_router
+from app.evaluation import router as evaluation_router
 from app.hybrid_parser import MAX_PDF_BYTES, PROVIDERS, NoApiKey, count_pages, parse_contract_fast, run_pdf
 from app.ratelimit import limit
 
@@ -52,6 +53,7 @@ app.include_router(documents_router)
 app.include_router(search_router)
 app.include_router(ask_router)
 app.include_router(sessions_router)
+app.include_router(evaluation_router)
 
 app.add_middleware(
     CORSMiddleware,

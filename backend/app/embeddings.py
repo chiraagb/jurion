@@ -36,14 +36,20 @@ async def embed_texts(api_key: str, texts: list[str]) -> list[list[float]]:
     return out
 
 
-def clause_text(c: Clause) -> str:
-    return f"{c.clause_identifier} {c.title}\n{c.content}"[:8000]  # ponytail: a clause longer than ~2k tokens is cut, not chunked
+def clause_text(c: Clause, parent_title: str | None = None) -> str:
+    head = f"{parent_title} > " if parent_title else ""  # "TERM > 2.1 Duration": a sub-clause keeps its section's name
+    return f"{head}{c.clause_identifier} {c.title}\n{c.content}"[:8000]  # ponytail: a clause longer than ~2k tokens is cut, not chunked
 
 
 async def embed_document(db: AsyncSession, api_key: str, doc_id: uuid.UUID) -> int:
     """(Re-)embeds every clause of one contract. Returns how many."""
     clauses = (await db.execute(select(Clause).where(Clause.document_id == doc_id).order_by(Clause.position))).scalars().all()
-    for c, v in zip(clauses, await embed_texts(api_key, [clause_text(c) for c in clauses])):
+    latest: dict[str, str] = {}  # identifier -> title of the nearest preceding clause with it (same rule as the clause tree in the UI)
+    texts = []
+    for c in clauses:
+        texts.append(clause_text(c, latest.get(c.parent_identifier) if c.parent_identifier else None))
+        latest[c.clause_identifier] = c.title
+    for c, v in zip(clauses, await embed_texts(api_key, texts)):
         c.embedding = v
     await db.commit()
     return len(clauses)
@@ -53,16 +59,43 @@ class SearchIn(BaseModel):
     query: str = Field(min_length=2, max_length=500)
 
 
-async def hybrid(db: AsyncSession, user_id: uuid.UUID, q: str, key: str | None, top: int = 10) -> tuple[list[dict], str, str | None]:
+THIN = 60  # a clause with less text than its own number + title + this is only a heading
+
+
+def is_thin(h: dict) -> bool:
+    return len(" ".join(h["content"].split())) < len(h["clause_identifier"]) + len(h["title"]) + THIN
+
+
+async def expand_thin(db: AsyncSession, hits: list[dict], following: int = 6, max_chars: int = 3500) -> None:
+    """A heading like "TERMS AND CONDITIONS" holds no text: its section is in the clauses after it. For each retrieved heading-only
+    clause, append the next few clauses (up to max_chars) so the grader and the answer see what the heading stands for."""
+    for h in hits:
+        if not is_thin(h):
+            continue
+        rows = (await db.execute(
+            select(Clause.content).where(Clause.document_id == uuid.UUID(h["document_id"]), Clause.position > h["position"], Clause.position <= h["position"] + following)
+            .order_by(Clause.position)
+        )).scalars().all()
+        text, n = h["content"], 0
+        for r in rows:
+            if len(text) + len(r) + 2 > max_chars:
+                break
+            text, n = f"{text}\n\n{r}", n + 1
+        h["content"], h["expanded"] = text, n  # expanded: how many following clauses were added
+
+
+async def hybrid(db: AsyncSession, user_id: uuid.UUID, q: str, key: str | None, top: int = 10, *, use_vector: bool = True, use_keyword: bool = True) -> tuple[list[dict], str, str | None]:
     """Hybrid search over one user's clauses: vector similarity + keyword rank, merged with reciprocal rank fusion."""
     mine = select(Clause.id, Clause.document_id, Document.filename, Clause.position, Clause.clause_identifier, Clause.title,
                   Clause.content, Clause.page_number).join(Document, Document.id == Clause.document_id).where(Document.user_id == user_id)
-    tsq = func.websearch_to_tsquery("english", q)
+    tsq = func.websearch_to_tsquery("english", q)  # all words must match; tried "any word" and AND-then-OR, both worse overall (docs/17)
     tsv = func.to_tsvector("english", Clause.title + " " + Clause.content)  # ponytail: no GIN index; add one past ~100k clauses
-    keyword = (await db.execute(mine.add_columns(func.ts_rank_cd(tsv, tsq).label("r")).where(tsv.op("@@")(tsq)).order_by(desc("r")).limit(20))).all()
+    keyword = (await db.execute(mine.add_columns(func.ts_rank_cd(tsv, tsq).label("r")).where(tsv.op("@@")(tsq)).order_by(desc("r")).limit(20))).all() if use_keyword else []
 
     vector, mode, note = [], "keyword", None
-    if not key:
+    if not use_vector:  # the evaluation switches one list off to measure the other alone
+        pass
+    elif not key:
         note = "No OpenAI key saved, so only keyword matching was used."
     else:
         try:

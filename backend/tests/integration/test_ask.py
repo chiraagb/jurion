@@ -1,9 +1,11 @@
 """The Ask pipeline with fake OpenAI calls. Run: uv run python -W ignore -m tests.integration.test_ask"""
 import json
 import uuid
+import redis
 from fastapi.testclient import TestClient
 from app import ask, documents, embeddings
 from app.auth import current_user
+from app.config import settings
 from app.database import AsyncSessionLocal, User
 from app.main import app
 from tests.integration.test_parse import make_sample_pdf
@@ -19,6 +21,7 @@ if __name__ == "__main__":
     async def a_key(*_): return "sk-fake"
     async def no_key(*_): return None
 
+    redis.Redis.from_url(settings.REDIS_URL).delete("rl:ask:testclient")  # the per-minute limit would trip on back-to-back runs
     with TestClient(app) as c:
         async def make_user():
             async with AsyncSessionLocal() as db:

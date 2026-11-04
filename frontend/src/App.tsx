@@ -9,6 +9,7 @@ import ContractsPage from "@/features/documents/ContractsPage";
 import ParserLab from "@/features/parser/ParserLab";
 import ReportPage from "@/features/report/ReportPage";
 import AskPage from "@/features/ask/AskPage";
+import EvaluationPage from "@/features/evaluation/EvaluationPage";
 import SessionsPage from "@/features/sessions/SessionsPage";
 import SearchPage from "@/features/search/SearchPage";
 import { Link, navigate, useRoute } from "@/lib/router";
@@ -18,7 +19,7 @@ export default function App() {
   const { user, loading: authLoading, error, login, logout } = useAuth();
   const { services, apiDown, loading, refresh } = useHealth();
   const { segments, params } = useRoute();
-  const TABS = [["parser", "Parser Lab"], ["contracts", "My contracts"], ["ask", "Ask"], ["search", "Search"], ["sessions", "History"], ["report", "Parser report"]] as const;
+  const TABS = [["parser", "Parser Lab"], ["contracts", "My contracts"], ["ask", "Ask"], ["search", "Search"], ["sessions", "History"], ["evaluation", "Evaluation"], ["report", "Parser report"]] as const;
   const known = TABS.find(([id]) => id === segments[0]);
   const tab = known?.[0] ?? "parser";
   useEffect(() => {
@@ -59,6 +60,7 @@ export default function App() {
         {tab === "ask" && <AskPage q={params.get("q") ?? ""} />}
         {tab === "search" && <SearchPage q={params.get("q") ?? ""} />}
         {tab === "sessions" && <SessionsPage id={segments[1]} a={params.get("a") ?? undefined} b={params.get("b") ?? undefined} />}
+        {tab === "evaluation" && <EvaluationPage />}
         {tab === "report" && <ReportPage />}
       </main>
     </div>

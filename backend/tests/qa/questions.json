@@ -1,0 +1,296 @@
+[
+ {
+  "id": 1,
+  "question": "How long does the supply agreement last, and does it roll over?",
+  "kind": "paraphrase",
+  "doc": "AgapeAtpCorp",
+  "phrase": "automatically renewed at the end of every ten (10) year term"
+ },
+ {
+  "id": 2,
+  "question": "What are the payment terms?",
+  "kind": "direct",
+  "doc": "AgapeAtpCorp",
+  "phrase": "separate payment terms are agreed"
+ },
+ {
+  "id": 3,
+  "question": "Can the manufacturer hand its rights to someone else?",
+  "kind": "paraphrase",
+  "doc": "AgapeAtpCorp",
+  "phrase": "may not transfer or assign any of its rights"
+ },
+ {
+  "id": 4,
+  "question": "Who pays for the lawyers if there is a dispute?",
+  "kind": "paraphrase",
+  "doc": "AgapeAtpCorp",
+  "phrase": "shall bare its own legal costs"
+ },
+ {
+  "id": 5,
+  "question": "What happens if a provision is held invalid by a court?",
+  "kind": "direct",
+  "doc": "AgapeAtpCorp",
+  "phrase": "held to be invalid by a court of competent jurisdiction"
+ },
+ {
+  "id": 6,
+  "question": "Does the customer get priority if the manufacturer sells its intellectual property?",
+  "kind": "paraphrase",
+  "doc": "AgapeAtpCorp",
+  "phrase": "first right of refusal to purchase the intellectual property"
+ },
+ {
+  "id": 7,
+  "question": "Must the customer name the manufacturer as additional insured?",
+  "kind": "direct",
+  "doc": "AgapeAtpCorp",
+  "phrase": "Additional Insured"
+ },
+ {
+  "id": 8,
+  "question": "Who provides the study drug and at what cost?",
+  "kind": "direct",
+  "doc": "EFC18326_Rosa",
+  "phrase": "shall provide the Study Drug at no costs"
+ },
+ {
+  "id": 9,
+  "question": "When can the investigator walk away from the study immediately?",
+  "kind": "paraphrase",
+  "doc": "EFC18326_Rosa",
+  "phrase": "may terminate this Agreement with immediate effect"
+ },
+ {
+  "id": 10,
+  "question": "When does the clinical trial agreement start?",
+  "kind": "direct",
+  "doc": "EFC18326_Rosa",
+  "phrase": "shall commence on the last date of signature"
+ },
+ {
+  "id": 11,
+  "question": "What is a participant who fails the entry checks called?",
+  "kind": "paraphrase",
+  "doc": "EFC18326_Rosa",
+  "phrase": "Screen Failure shall be defined as a Study participant who has signed an Informed Consent Form"
+ },
+ {
+  "id": 12,
+  "question": "What security measures must the institution maintain for personal data?",
+  "kind": "direct",
+  "doc": "EFC18326_Rosa",
+  "phrase": "take, implement and maintain during the entire term"
+ },
+ {
+  "id": 13,
+  "question": "Who covers injury to participants during the study?",
+  "kind": "paraphrase",
+  "doc": "EFC18326_Rosa",
+  "phrase": "has subscribed to and shall maintain in effect, for the duration of the Study"
+ },
+ {
+  "id": 14,
+  "question": "Which duties continue after the agreement ends?",
+  "kind": "paraphrase",
+  "doc": "EFC18326_Rosa",
+  "phrase": "shall not relieve any Party of its obligation"
+ },
+ {
+  "id": 15,
+  "question": "How is personal data defined?",
+  "kind": "direct",
+  "doc": "EFC18326_Rosa",
+  "phrase": "identifiable natural person is one who can be identified, directly or indirectly"
+ },
+ {
+  "id": 16,
+  "question": "Can the client cancel a project early, and with how much notice?",
+  "kind": "paraphrase",
+  "doc": "master-services",
+  "phrase": "for convenience upon [thirty (30) / sixty (60)] days"
+ },
+ {
+  "id": 17,
+  "question": "When must invoices be paid?",
+  "kind": "direct",
+  "doc": "master-services",
+  "phrase": "Each invoice shall be payable within"
+ },
+ {
+  "id": 18,
+  "question": "Who owns the new inventions created during the work?",
+  "kind": "paraphrase",
+  "doc": "master-services",
+  "phrase": "do not automatically vest in the Client"
+ },
+ {
+  "id": 19,
+  "question": "Which courts have jurisdiction over disputes?",
+  "kind": "direct",
+  "doc": "master-services",
+  "phrase": "disputes shall be subject to the jurisdiction of the competent"
+ },
+ {
+  "id": 20,
+  "question": "What happens to secret information when the contract ends?",
+  "kind": "paraphrase",
+  "doc": "master-services",
+  "phrase": "promptly return or securely destroy all Confidential Information"
+ },
+ {
+  "id": 21,
+  "question": "Who bears the risk of loss during shipments?",
+  "kind": "direct",
+  "doc": "master-services",
+  "phrase": "Risk of loss or damage to materials shall"
+ },
+ {
+  "id": 22,
+  "question": "Is a party excused if a pandemic or war stops it performing?",
+  "kind": "paraphrase",
+  "doc": "master-services",
+  "phrase": "acts of God, natural disasters, pandemics"
+ },
+ {
+  "id": 23,
+  "question": "What insurance must each party maintain?",
+  "kind": "direct",
+  "doc": "master-services",
+  "phrase": "commercially reasonable amounts appropriate for the nature of the Services"
+ },
+ {
+  "id": 24,
+  "question": "Can either party assign the agreement?",
+  "kind": "direct",
+  "doc": "master-services",
+  "phrase": "Neither Party may assign or transfer"
+ },
+ {
+  "id": 25,
+  "question": "Is the affiliate an employee of the company?",
+  "kind": "paraphrase",
+  "doc": "CybergyHoldings",
+  "phrase": "independent contractor in its relationship with Company"
+ },
+ {
+  "id": 26,
+  "question": "Which state's law governs the marketing affiliate agreement?",
+  "kind": "direct",
+  "doc": "CybergyHoldings",
+  "phrase": "State of Nevada"
+ },
+ {
+  "id": 27,
+  "question": "Can the company be made to pay for lost profits?",
+  "kind": "paraphrase",
+  "doc": "CybergyHoldings",
+  "phrase": "IN NO EVENT SHALL COMPANY BE LIABLE TO"
+ },
+ {
+  "id": 28,
+  "question": "Can either party end the agreement when the term expires?",
+  "kind": "direct",
+  "doc": "CybergyHoldings",
+  "phrase": "upon thirty (30) days written notice to the other party"
+ },
+ {
+  "id": 29,
+  "question": "Is the affiliate allowed to change the software?",
+  "kind": "paraphrase",
+  "doc": "CybergyHoldings",
+  "phrase": "shall not have the right to modify"
+ },
+ {
+  "id": 30,
+  "question": "What availability must the core systems reach?",
+  "kind": "direct",
+  "doc": "OFGBANCORP",
+  "phrase": "each of the Core Systems shall have ninety-nine"
+ },
+ {
+  "id": 31,
+  "question": "What do I get back if the vendor misses its service targets?",
+  "kind": "paraphrase",
+  "doc": "OFGBANCORP",
+  "phrase": "percentage credit based on the invoice"
+ },
+ {
+  "id": 32,
+  "question": "What does the bank owe if it ends the contract early?",
+  "kind": "paraphrase",
+  "doc": "OFGBANCORP",
+  "phrase": "if Customer elects to terminate this Agreement"
+ },
+ {
+  "id": 33,
+  "question": "What is the performance warranty?",
+  "kind": "direct",
+  "doc": "OFGBANCORP",
+  "phrase": "warrants that it will provide all Services in a commercially"
+ },
+ {
+  "id": 34,
+  "question": "How are disputes between the parties resolved?",
+  "kind": "direct",
+  "doc": "OFGBANCORP",
+  "phrase": "All disputes arising under or in connection with this Agreement"
+ },
+ {
+  "id": 35,
+  "question": "Do any of the contracts allow payment in bitcoin or other cryptocurrency?",
+  "kind": "none",
+  "doc": null,
+  "phrase": null
+ },
+ {
+  "id": 36,
+  "question": "What is the vacation policy for the vendor's employees?",
+  "kind": "none",
+  "doc": null,
+  "phrase": null
+ },
+ {
+  "id": 37,
+  "question": "Which contract requires the parties to use ICC arbitration in Paris?",
+  "kind": "none",
+  "doc": null,
+  "phrase": null
+ },
+ {
+  "id": 38,
+  "question": "What is the maximum number of staff the vendor may assign to the bank?",
+  "kind": "none",
+  "doc": null,
+  "phrase": null
+ },
+ {
+  "id": 39,
+  "question": "What are the terms and conditions?",
+  "kind": "broad",
+  "doc": "OFGBANCORP",
+  "phrase": "Capitalized terms shall have the meaning ascribed to them in Article 18"
+ },
+ {
+  "id": 40,
+  "question": "What are the terms of the agreement?",
+  "kind": "broad",
+  "doc": "AgapeAtpCorp",
+  "phrase": "This agreement commences upon execution"
+ },
+ {
+  "id": 41,
+  "question": "What does the manufacturer promise to do?",
+  "kind": "broad",
+  "doc": "AgapeAtpCorp",
+  "phrase": "covenants that it is and will remain for the term of this agreement in compliance"
+ },
+ {
+  "id": 42,
+  "question": "What documentation must each party provide?",
+  "kind": "broad",
+  "doc": "AgapeAtpCorp",
+  "phrase": "agrees to supply to the Customer, within a reasonable period of time, all documentation"
+ }
+]
