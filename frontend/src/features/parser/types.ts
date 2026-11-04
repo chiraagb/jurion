@@ -6,6 +6,7 @@ export interface Clause {
   parent_identifier?: string | null;
   start_line?: number; // [start_line, end_line) in the stored full text; absent for scans and old contracts
   end_line?: number;
+  embedding_preview?: number[] | null; // first 8 of 1536 numbers; null = not embedded (saved contracts only)
 }
 
 export interface Confidence {

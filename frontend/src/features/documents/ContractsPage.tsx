@@ -1,37 +1,59 @@
 import { useEffect, useState } from "react";
-import { FileText, Trash2 } from "lucide-react";
+import { FileText, Loader2, Sparkles, Trash2 } from "lucide-react";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { formatBytes } from "@/lib/format";
+import { Link, navigate } from "@/lib/router";
 import ResultsView from "@/features/parser/components/ResultsView";
 import type { ParseResult } from "@/features/parser/types";
-import { deleteDocument, listDocuments, openDocument, type DocSummary } from "./api";
+import { deleteDocument, embedDocument, listDocuments, openDocument, type DocSummary } from "./api";
 
 const errorText = (e: any) => e.response?.data?.detail ?? e.message ?? "Something went wrong.";
 const METHOD = { local: "Local", gemini: "Gemini", openai: "OpenAI" };
 
-export default function ContractsPage() {
+export default function ContractsPage({ id, page }: { id?: string; page?: number }) {
   const [docs, setDocs] = useState<DocSummary[] | null>(null);
-  const [open, setOpen] = useState<{ result: ParseResult; file: File } | null>(null);
+  const [open, setOpen] = useState<{ id: string; result: ParseResult; file: File } | null>(null); // the contract at /contracts/:id
   const [error, setError] = useState<string | null>(null);
-  const [busyId, setBusyId] = useState<string | null>(null);
   const [pending, setPending] = useState<DocSummary | null>(null); // the contract waiting for delete confirmation
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [embedding, setEmbedding] = useState<Set<string>>(new Set()); // ids being embedded right now
 
   const load = () => listDocuments().then(setDocs).catch((e) => setError(errorText(e)));
   useEffect(() => {
     load();
   }, []);
 
-  const view = async (id: string) => {
-    setBusyId(id);
+  useEffect(() => {
+    if (!id) return setOpen(null);
+    let stale = false;
     setError(null);
-    try {
-      setOpen(await openDocument(id));
-    } catch (e) {
-      setError(errorText(e));
-    } finally {
-      setBusyId(null);
+    openDocument(id)
+      .then((r) => !stale && setOpen({ id, ...r }))
+      .catch((e) => !stale && setError(errorText(e)));
+    return () => {
+      stale = true;
+    };
+  }, [id]);
+
+  // Embeds the given contracts one after another (a parallel burst would hit OpenAI and our rate limit together).
+  const embed = async (targets: DocSummary[]) => {
+    setError(null);
+    for (const d of targets) {
+      setEmbedding((s) => new Set(s).add(d.id));
+      try {
+        const { embedded_count } = await embedDocument(d.id);
+        setDocs((all) => all?.map((x) => (x.id === d.id ? { ...x, embedded_count } : x)) ?? null);
+      } catch (e) {
+        setError(`${d.filename}: ${errorText(e)}`);
+        break;
+      } finally {
+        setEmbedding((s) => {
+          const n = new Set(s);
+          n.delete(d.id);
+          return n;
+        });
+      }
     }
   };
 
@@ -55,7 +77,17 @@ export default function ContractsPage() {
     }
   };
 
-  if (open) return <ResultsView result={open.result} file={open.file} onClear={() => setOpen(null)} clearLabel="Back to list" />;
+  if (id) {
+    if (open?.id === id)
+      return <ResultsView key={id} result={open.result} file={open.file} initialPage={page} onClear={() => navigate("/contracts")} clearLabel="Back to list" />;
+    return error ? (
+      <p role="alert" className="rounded-md border border-danger/40 bg-danger/10 p-3 text-sm text-danger">
+        {error} <Link to="/contracts" className="underline">Back to My contracts</Link>
+      </p>
+    ) : (
+      <p className="text-muted" aria-busy>Loading…</p>
+    );
+  }
 
   return (
     <section aria-labelledby="contracts-title" className="space-y-6">
@@ -72,6 +104,16 @@ export default function ContractsPage() {
         </p>
       )}
 
+      {docs && docs.some((d) => d.embedded_count < d.clause_count) && (
+        <button
+          onClick={() => embed(docs.filter((d) => d.embedded_count < d.clause_count))}
+          disabled={embedding.size > 0}
+          className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-line-strong px-4 py-2 text-sm font-medium transition-colors duration-200 hover:bg-raised focus-visible:outline-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <Sparkles className="h-4 w-4" aria-hidden /> Embed all contracts that need it
+        </button>
+      )}
+
       {docs === null ? (
         <p className="text-muted" aria-busy>
           Loading…
@@ -85,18 +127,15 @@ export default function ContractsPage() {
           {docs.map((d) => (
             <li key={d.id} className="flex items-center gap-3 rounded-md border border-line bg-surface p-4">
               <FileText className="h-5 w-5 shrink-0 text-accent" aria-hidden />
-              <button
-                onClick={() => view(d.id)}
-                disabled={busyId === d.id}
-                className="min-w-0 flex-1 cursor-pointer text-left focus-visible:outline-2 focus-visible:outline-accent"
-              >
+              <Link to={`/contracts/${d.id}`} className="min-w-0 flex-1 cursor-pointer text-left focus-visible:outline-2 focus-visible:outline-accent">
                 <span className="block truncate font-display text-xl font-semibold text-fg">{d.filename}</span>
                 <span className="block text-sm text-muted">
                   {new Date(d.created_at).toLocaleDateString(undefined, { dateStyle: "medium" })} · {d.pages} pages ·{" "}
                   {d.clause_count} clauses · {formatBytes(d.size_bytes)} · {METHOD[d.method]}
                   {d.confidence ? ` · ${Math.round(d.confidence.score * 100)}% confidence` : ""}
                 </span>
-              </button>
+              </Link>
+              <EmbedBadge d={d} busy={embedding.has(d.id)} onEmbed={() => embed([d])} />
               <button
                 onClick={() => askDelete(d)}
                 aria-label={`Delete ${d.filename}`}
@@ -131,5 +170,25 @@ export default function ContractsPage() {
         This permanently removes the contract, its clauses and the stored PDF from your account. This can't be undone.
       </ConfirmDialog>
     </section>
+  );
+}
+
+function EmbedBadge({ d, busy, onEmbed }: { d: DocSummary; busy: boolean; onEmbed: () => void }) {
+  const done = d.clause_count > 0 && d.embedded_count === d.clause_count;
+  return (
+    <div className="flex shrink-0 items-center gap-2">
+      <span className={`hidden rounded-md px-2 py-1 font-mono text-xs sm:inline ${done ? "bg-accent/10 text-accent-fg" : "bg-raised text-muted"}`}>
+        {done ? "Embedded" : d.embedded_count ? `Embedded ${d.embedded_count}/${d.clause_count}` : "Not embedded"}
+      </span>
+      <button
+        onClick={onEmbed}
+        disabled={busy}
+        aria-label={`${done ? "Re-embed" : "Embed"} ${d.filename}`}
+        title={done ? "Re-embed (after the clauses changed)" : "Create embeddings with your OpenAI key"}
+        className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg text-muted transition-colors duration-200 hover:bg-raised hover:text-fg focus-visible:outline-2 focus-visible:outline-accent disabled:cursor-wait"
+      >
+        {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <Sparkles className="h-4 w-4" aria-hidden />}
+      </button>
+    </div>
   );
 }

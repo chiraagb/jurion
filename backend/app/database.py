@@ -100,6 +100,8 @@ class Clause(Base):
     parent_identifier: Mapped[str | None] = mapped_column(String(64), nullable=True)
     start_line: Mapped[int | None] = mapped_column(Integer, nullable=True)  # [start_line, end_line) in Document.lines
     end_line: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    # OpenAI text-embedding-3-small of "<id> <title>\n<content>"; null until embedded. Deferred so clause queries skip the 6 KB vector.
+    embedding = deferred(mapped_column(Vector(1536), nullable=True))
 
 
 # 3. Connection Engines & Drivers

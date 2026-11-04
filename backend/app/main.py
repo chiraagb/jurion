@@ -13,6 +13,8 @@ from app.auth import current_user, router as auth_router
 from app.database import Clause, Document, LlmApiKey, User, async_engine, neo4j_driver, redis_client, get_db
 from app.config import settings
 from app.documents import router as documents_router
+from app.embeddings import router as search_router
+from app.ask import router as ask_router
 from app.hybrid_parser import MAX_PDF_BYTES, PROVIDERS, NoApiKey, count_pages, parse_contract_fast, run_pdf
 from app.ratelimit import limit
 
@@ -24,7 +26,9 @@ async def lifespan(_: FastAPI):
         async with async_engine.begin() as conn:
             await conn.run_sync(lambda c: [t.create(c, checkfirst=True) for t in (User.__table__, LlmApiKey.__table__, Document.__table__, Clause.__table__)])
             for ddl in (  # ponytail: hand-rolled column adds until Alembic exists
+                "CREATE EXTENSION IF NOT EXISTS vector",
                 "ALTER TABLE documents ADD COLUMN IF NOT EXISTS lines JSONB",
+                "ALTER TABLE clauses ADD COLUMN IF NOT EXISTS embedding vector(1536)",
                 "ALTER TABLE clauses ADD COLUMN IF NOT EXISTS start_line INTEGER",
                 "ALTER TABLE clauses ADD COLUMN IF NOT EXISTS end_line INTEGER",
                 "ALTER TABLE documents ADD COLUMN IF NOT EXISTS sha256 VARCHAR(64)",
@@ -44,6 +48,8 @@ log.setLevel(logging.INFO)  # our own lines at INFO; libraries only when somethi
 app = FastAPI(title="Jurion Legal Intelligence API", lifespan=lifespan)
 app.include_router(auth_router)
 app.include_router(documents_router)
+app.include_router(search_router)
+app.include_router(ask_router)
 
 app.add_middleware(
     CORSMiddleware,

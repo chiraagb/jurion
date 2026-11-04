@@ -143,6 +143,7 @@ function ClauseCard({ clause: c, onOpen }: { clause: Clause; onOpen: (page: numb
           {c.content.length.toLocaleString()} chars
         </span>
       </summary>
+      {c.embedding_preview !== undefined && <EmbeddingInspector preview={c.embedding_preview} />}
       {c.clause_identifier === "SIGNATURES" ? (
         <p className="overflow-x-auto whitespace-pre border-t border-line px-5 py-4 font-mono text-xs leading-relaxed text-fg-soft">
           {c.content}
@@ -175,6 +176,29 @@ function Table({ rows: [head, ...body] }: { rows: string[][] }) {
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+/** Shows what is stored in the pgvector column: the model, size, and the first 8 of the 1536 numbers as bars. */
+function EmbeddingInspector({ preview }: { preview: number[] | null }) {
+  if (!preview)
+    return <p className="border-t border-line px-5 py-2 font-mono text-xs text-subtle">Not embedded yet. Use Embed on the contract list.</p>;
+  const max = Math.max(...preview.map(Math.abs), 1e-9);
+  return (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-line px-5 py-2 font-mono text-xs text-muted">
+      <span>vector(1536) · text-embedding-3-small</span>
+      <span className="flex h-6 items-center gap-0.5" role="img" aria-label={`First 8 values: ${preview.join(", ")}`}>
+        {preview.map((v, i) => (
+          <span key={i} className="flex h-full w-3 flex-col justify-center">
+            <span
+              className={`block w-full ${v >= 0 ? "bg-accent" : "bg-danger"}`}
+              style={{ height: `${Math.max(8, (Math.abs(v) / max) * 100)}%` }}
+            />
+          </span>
+        ))}
+      </span>
+      <span className="tabular-nums">[{preview.map((v) => v.toFixed(3)).join(", ")}, …]</span>
     </div>
   );
 }

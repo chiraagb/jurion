@@ -18,3 +18,5 @@ Read them in order:
 12. [Looking at the database](12-database.md) – psql, DBeaver, what is stored
 13. [Saved contracts](13-saved-contracts.md) – save, list, open, delete
 14. [Parser test results](14-parser-test-results.md) – what was tested, the numbers, known gaps
+15. [Embeddings and search](15-embeddings-search.md) – pgvector column, embed buttons, hybrid search
+16. [Ask](16-ask.md) – answers with citations, relevance check, one rewrite

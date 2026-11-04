@@ -9,6 +9,7 @@ export interface DocSummary {
   method: ParseResult["method"];
   confidence: Confidence | null;
   clause_count: number;
+  embedded_count: number;
   created_at: string;
 }
 
@@ -37,3 +38,5 @@ export async function openDocument(id: string): Promise<{ result: ParseResult; f
     result: { ...doc, steps: [] },
   };
 }
+
+export const embedDocument = async (id: string) => (await api.post<{ embedded_count: number }>(`/documents/${id}/embed`)).data;

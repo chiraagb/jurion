@@ -1,17 +1,21 @@
 """Saved contracts: a parsed result plus the original PDF, always scoped to the signed-in user."""
 import hashlib
+import logging
 import uuid
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Response, UploadFile
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, ValidationError
+from pgvector.sqlalchemy import Vector
 from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth import current_user
 from app.database import Clause, Document, User, get_db
+from app.embeddings import embed_document, openai_key
 from app.ratelimit import limit
 from app.hybrid_parser import MAX_PDF_BYTES, _read_lines, count_pages, run_pdf, stored_lines
 
 router = APIRouter(prefix="/documents")
+log = logging.getLogger("jurion")
 
 
 class ClauseIn(BaseModel):
@@ -31,7 +35,7 @@ class ResultIn(BaseModel):
     clauses: list[ClauseIn] = Field(min_length=1, max_length=5000)
 
 
-def _summary(doc: Document, clause_count: int) -> dict:
+def _summary(doc: Document, clause_count: int, embedded: int = 0) -> dict:
     return {
         "id": str(doc.id),
         "filename": doc.filename,
@@ -40,6 +44,7 @@ def _summary(doc: Document, clause_count: int) -> dict:
         "method": doc.method,
         "confidence": doc.confidence,
         "clause_count": clause_count,
+        "embedded_count": embedded,
         "created_at": doc.created_at.isoformat(),
     }
 
@@ -105,33 +110,65 @@ async def save_document(
     db.add_all(Clause(document_id=doc.id, position=i, **c.model_dump()) for i, c in enumerate(data.clauses))
     await db.commit()
     await db.refresh(doc)
-    return _summary(doc, len(data.clauses))
+    embedded = 0
+    key = await openai_key(db, user.id)
+    if key:  # a failed embedding never fails the save: the contract stays, and the Contracts page offers "Embed"
+        try:
+            embedded = await embed_document(db, key, doc.id)
+        except Exception as e:
+            log.warning("embedding on save failed: %s", type(e).__name__)
+    return _summary(doc, len(data.clauses), embedded)
 
 
 @router.get("")
 async def list_documents(user: User = Depends(current_user), db: AsyncSession = Depends(get_db)):
     rows = await db.execute(
-        select(Document, func.count(Clause.id))
+        select(Document, func.count(Clause.id), func.count(Clause.embedding))
         .outerjoin(Clause, Clause.document_id == Document.id)
         .where(Document.user_id == user.id)
         .group_by(Document.id)
         .order_by(Document.created_at.desc())
     )
-    return [_summary(doc, n) for doc, n in rows.all()]
+    return [_summary(doc, n, e) for doc, n, e in rows.all()]
 
 
 @router.get("/{doc_id}")
 async def get_document(doc_id: uuid.UUID, user: User = Depends(current_user), db: AsyncSession = Depends(get_db)):
     doc = await _owned(db, user, doc_id)
     clauses = (await db.execute(select(Clause).where(Clause.document_id == doc.id).order_by(Clause.position))).scalars().all()
+    # first 8 of the 1536 numbers, enough for the UI's embedding inspector without shipping every vector
+    heads = dict((await db.execute(
+        select(Clause.id, func.subvector(Clause.embedding, 1, 8, type_=Vector(8))).where(Clause.document_id == doc.id, Clause.embedding.is_not(None))
+    )).all())
     return {
-        **_summary(doc, len(clauses)),
+        **_summary(doc, len(clauses), len(heads)),
         "total_ms": doc.total_ms,
         "clauses": [
             {k: getattr(c, k) for k in ("clause_identifier", "title", "content", "page_number", "parent_identifier", "start_line", "end_line")}
+            | {"embedding_preview": [round(float(x), 4) for x in heads[c.id]] if c.id in heads else None}
             for c in clauses
         ],
     }
+
+
+@router.post("/{doc_id}/embed")
+async def embed(
+    doc_id: uuid.UUID,
+    user: User = Depends(current_user),
+    db: AsyncSession = Depends(get_db),
+    _: None = Depends(limit("embed", 20, 60, by_user=True)),
+):
+    """(Re-)embeds every clause of one saved contract with the user's OpenAI key."""
+    doc = await _owned(db, user, doc_id)
+    key = await openai_key(db, user.id)
+    if not key:
+        raise HTTPException(400, "Save an OpenAI key (key icon, top bar) to create embeddings.")
+    try:
+        n = await embed_document(db, key, doc.id)
+    except Exception as e:
+        log.warning("embed failed: %s", type(e).__name__)
+        raise HTTPException(502, f"OpenAI embedding call failed ({type(e).__name__}). Check the key and try again.")
+    return {"embedded_count": n}
 
 
 @router.get("/{doc_id}/pdf")

@@ -58,3 +58,4 @@ Why: the text is never lost, whatever the splitter does. A wrong split is fixed 
 - The server checks each range fits inside the text before saving, because the browser sends it.
 
 - `documents.sha256` is the SHA-256 of the stored PDF (hex). It is used to refuse saving the same file twice for one user; see [Saved contracts](13-saved-contracts.md).
+- `clauses.embedding` is a pgvector `vector(1536)` (null until embedded); see [Embeddings and search](15-embeddings-search.md).

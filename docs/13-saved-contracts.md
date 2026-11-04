@@ -38,3 +38,17 @@ Each saved contract stores a **SHA-256 fingerprint** of its PDF (`documents.sha2
 - **Another account** can save the same file: duplicates are checked per user.
 - **Old contracts** saved before this existed were given a fingerprint automatically when the server started. No duplicates were found among them.
 - **Limit:** two saves of the same file at the exact same moment can both succeed. A unique database constraint on `(user_id, sha256)` would close that; it is left out for now so old duplicates (if any ever turn up) are never deleted behind your back.
+
+## URLs
+
+Every screen has its own address, so the back button, reload, and copied links work:
+
+| Address | Shows |
+|---|---|
+| `/parser` | Parser Lab (`/` and unknown addresses go here) |
+| `/contracts` | My contracts |
+| `/contracts/<id>` | One saved contract. `?page=3` opens the PDF on that page |
+| `/search?q=termination notice` | Search, with the question run on load |
+| `/report` | Parser report |
+
+A search hit and a click on a map dot both go to `/contracts/<id>?page=N`, so the back button returns to the same search. The router is a 40-line History API helper in `frontend/src/lib/router.tsx`. A production host must serve `index.html` for every path (the Vite dev and preview servers already do).

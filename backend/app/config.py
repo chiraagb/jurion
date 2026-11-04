@@ -14,6 +14,7 @@ class Settings(BaseSettings):
 
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-4o"
+    ASK_MODEL: str = "gpt-4o-mini"  # grades retrieved clauses, rewrites questions, writes answers on the Ask tab
 
     ENCRYPTION_KEY: str = ""  # Fernet key encrypting API keys stored in Postgres; generate: python -c "from cryptography.fernet import Fernet;print(Fernet.generate_key().decode())"
 

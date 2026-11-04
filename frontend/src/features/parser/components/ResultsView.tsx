@@ -16,12 +16,13 @@ interface Props {
   hasAi?: boolean; // an AI result already exists: the button re-runs it
   aiBusy?: boolean;
   aiError?: string | null;
+  initialPage?: number; // e.g. when opened from a search hit
 }
 
 /** PDF on the left, parsed clauses on the right. Mounts fresh for each result. */
-export default function ResultsView({ result, file, onClear, onSave, clearLabel = "Clear", onRerunAi, hasAi, aiBusy, aiError }: Props) {
+export default function ResultsView({ result, file, onClear, onSave, clearLabel = "Clear", onRerunAi, hasAi, aiBusy, aiError, initialPage = 1 }: Props) {
   const aiName = loadProvider() === "openai" ? "OpenAI" : "Gemini";
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(initialPage);
   const [save, setSave] = useState<"idle" | "saving" | "saved" | string>("idle"); // string = error message
 
   // Set when the server says this exact file is already saved (409): offers to replace that copy.
