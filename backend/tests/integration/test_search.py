@@ -67,6 +67,8 @@ if __name__ == "__main__":
             assert got["embedded_count"] == 3 and all(len(x["embedding_preview"]) == 8 for x in got["clauses"])
 
             hy = c.post("/search", json={"query": "which law governs"}).json()
+            assert hy["session_id"] and "which law" in hy["results"][0]["content"].lower() or hy["results"][0]["content"]
+            assert c.get(f"/sessions/{hy['session_id']}").json()["kind"] == "search"
             top = hy["results"][0]
             assert hy["mode"] == "hybrid" and top["clause_identifier"] == "2", hy
             assert top["vector_rank"] == 1 and top["vector_similarity"] > 0 and top["page_number"] == 1
@@ -80,6 +82,7 @@ if __name__ == "__main__":
             app.dependency_overrides[current_user] = lambda: bob  # another user sees nothing of alice's clauses
             assert c.post("/search", json={"query": "terminate"}).json()["results"] == []
             assert c.post(f"/documents/{doc_id}/embed").status_code == 404
+            assert c.get(f"/sessions/{hy['session_id']}").status_code == 404 and [x["id"] for x in c.get("/sessions").json()] != [hy["session_id"]]  # sessions are private: bob only has his own search
             assert c.post("/embeddings/map", json={}).json()["points"] == []
             print("ok: embed, hybrid search, keyword fallback, isolation")
         finally:

@@ -12,7 +12,7 @@ from app.auth import current_user
 from app.database import Clause, Document, User, get_db
 from app.embeddings import embed_document, openai_key
 from app.ratelimit import limit
-from app.hybrid_parser import MAX_PDF_BYTES, _read_lines, count_pages, run_pdf, stored_lines
+from app.hybrid_parser import MAX_PDF_BYTES, _read_lines, clause_boxes, count_pages, run_pdf, stored_lines
 
 router = APIRouter(prefix="/documents")
 log = logging.getLogger("jurion")
@@ -169,6 +169,26 @@ async def embed(
         log.warning("embed failed: %s", type(e).__name__)
         raise HTTPException(502, f"OpenAI embedding call failed ({type(e).__name__}). Check the key and try again.")
     return {"embedded_count": n}
+
+
+@router.get("/{doc_id}/clauses/{position}/boxes")
+async def get_clause_boxes(doc_id: uuid.UUID, position: int, user: User = Depends(current_user), db: AsyncSession = Depends(get_db)):
+    """Where a clause sits on its PDF pages, so the viewer can highlight it. Empty for scans and for contracts saved without line ranges."""
+    doc = await _owned(db, user, doc_id)
+    clause = (await db.execute(select(Clause).where(Clause.document_id == doc.id, Clause.position == position))).scalar()
+    if not clause:
+        raise HTTPException(404, "Clause not found")
+    await db.refresh(doc, ["pdf", "lines"])
+    if not doc.lines or clause.start_line is None:
+        return {"boxes": []}
+    pages: dict[int, list] = {}
+    for l in doc.lines[clause.start_line : clause.end_line]:
+        pages.setdefault(l["p"], []).append(l)
+    spans = [(p, min(l["x"] for l in ls), min(l["y"] for l in ls), max(l["y1"] for l in ls)) for p, ls in sorted(pages.items())]
+    try:
+        return {"boxes": await run_pdf(clause_boxes, doc.pdf, spans)}
+    except Exception as e:
+        raise HTTPException(422, f"Could not read the PDF: {e}")
 
 
 @router.get("/{doc_id}/pdf")

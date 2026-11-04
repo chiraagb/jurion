@@ -12,6 +12,7 @@ from app.auth import current_user
 from app.config import settings
 from app.database import Clause, Document, User, get_db
 from app.ratelimit import limit
+from app.sessions import save_session
 
 log = logging.getLogger("jurion")
 MODEL, DIMS = "text-embedding-3-small", 1536
@@ -96,8 +97,14 @@ async def search(
     _: None = Depends(limit("search", 30, 60, by_user=True)),
 ):
     found, mode, note = await hybrid(db, user.id, body.query.strip(), await openai_key(db, user.id))
-    results = [{**{k: v for k, v in h.items() if k != "content"}, "snippet": h["content"][:400]} for h in found]
-    return {"mode": mode, "note": note, "model": MODEL, "results": results}
+    results = [{**{k: v for k, v in h.items() if k != "content"}, "snippet": h["content"][:400], "content": h["content"][:3000]} for h in found]
+    data = {"mode": mode, "note": note, "model": MODEL, "results": results}
+    try:
+        sid = str(await save_session(db, user.id, "search", body.query.strip(), data))
+    except Exception as e:  # history is a convenience: never fail a search over it
+        log.warning("saving search session failed: %s", type(e).__name__)
+        sid = None
+    return {**data, "session_id": sid}
 
 
 class MapIn(BaseModel):

@@ -12,6 +12,7 @@ export interface Hit {
   vector_similarity: number | null;
   keyword_rank: number | null;
   score: number;
+  content?: string;
 }
 
 export interface SearchResponse {
@@ -19,6 +20,7 @@ export interface SearchResponse {
   note: string | null;
   model: string;
   results: Hit[];
+  session_id?: string | null;
 }
 
 export const search = async (query: string) => (await api.post<SearchResponse>("/search", { query })).data;

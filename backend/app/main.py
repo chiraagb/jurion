@@ -10,11 +10,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import llm_keys
 from app.auth import current_user, router as auth_router
-from app.database import Clause, Document, LlmApiKey, User, async_engine, neo4j_driver, redis_client, get_db
+from app.database import Clause, Document, LlmApiKey, QuerySession, User, async_engine, neo4j_driver, redis_client, get_db
 from app.config import settings
 from app.documents import router as documents_router
 from app.embeddings import router as search_router
 from app.ask import router as ask_router
+from app.sessions import router as sessions_router
 from app.hybrid_parser import MAX_PDF_BYTES, PROVIDERS, NoApiKey, count_pages, parse_contract_fast, run_pdf
 from app.ratelimit import limit
 
@@ -24,7 +25,7 @@ async def lifespan(_: FastAPI):
     # No migration tool yet: create just our own tables, parents first. A down database must not stop the API from starting.
     try:
         async with async_engine.begin() as conn:
-            await conn.run_sync(lambda c: [t.create(c, checkfirst=True) for t in (User.__table__, LlmApiKey.__table__, Document.__table__, Clause.__table__)])
+            await conn.run_sync(lambda c: [t.create(c, checkfirst=True) for t in (User.__table__, LlmApiKey.__table__, Document.__table__, Clause.__table__, QuerySession.__table__)])
             for ddl in (  # ponytail: hand-rolled column adds until Alembic exists
                 "CREATE EXTENSION IF NOT EXISTS vector",
                 "ALTER TABLE documents ADD COLUMN IF NOT EXISTS lines JSONB",
@@ -50,6 +51,7 @@ app.include_router(auth_router)
 app.include_router(documents_router)
 app.include_router(search_router)
 app.include_router(ask_router)
+app.include_router(sessions_router)
 
 app.add_middleware(
     CORSMiddleware,

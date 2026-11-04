@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { AlertTriangle, Check, FileText, Loader2, Save, Sparkles, X } from "lucide-react";
+import { clauseBoxes, fetchPdf } from "@/features/documents/api";
+import LazyPdfViewer from "@/features/pdf/LazyPdfViewer";
+import type { Box } from "@/features/pdf/PdfViewer";
 import { loadProvider } from "@/features/settings/llmConfig";
 import { formatMs } from "@/lib/format";
 import type { ParseResult } from "../types";
@@ -16,13 +19,23 @@ interface Props {
   hasAi?: boolean; // an AI result already exists: the button re-runs it
   aiBusy?: boolean;
   aiError?: string | null;
-  initialPage?: number; // e.g. when opened from a search hit
+  initialPage?: number; // e.g. when opened from a citation
+  focusClause?: number; // index of a clause to jump to
+  documentId?: string; // a saved contract: the PDF is drawn by pdf.js and the open clause is highlighted
 }
 
 /** PDF on the left, parsed clauses on the right. Mounts fresh for each result. */
-export default function ResultsView({ result, file, onClear, onSave, clearLabel = "Clear", onRerunAi, hasAi, aiBusy, aiError, initialPage = 1 }: Props) {
+export default function ResultsView({ result, file, onClear, onSave, clearLabel = "Clear", onRerunAi, hasAi, aiBusy, aiError, initialPage = 1, focusClause, documentId }: Props) {
   const aiName = loadProvider() === "openai" ? "OpenAI" : "Gemini";
   const [page, setPage] = useState(initialPage);
+  const [active, setActive] = useState<number | null>(focusClause ?? null); // the clause shaded on the PDF
+  const [boxes, setBoxes] = useState<Box[]>([]);
+  useEffect(() => {
+    if (!documentId || active === null) return setBoxes([]);
+    let stale = false;
+    clauseBoxes(documentId, active).then((b) => !stale && setBoxes(b)).catch(() => !stale && setBoxes([]));
+    return () => { stale = true; };
+  }, [documentId, active]);
   const [save, setSave] = useState<"idle" | "saving" | "saved" | string>("idle"); // string = error message
 
   // Set when the server says this exact file is already saved (409): offers to replace that copy.
@@ -133,7 +146,9 @@ export default function ResultsView({ result, file, onClear, onSave, clearLabel 
 
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="h-[70dvh] overflow-hidden rounded-md border border-line bg-surface lg:sticky lg:top-20 lg:h-[calc(100dvh-7rem)]">
-          {pdfUrl && (
+          {documentId ? (
+            <LazyPdfViewer docKey={documentId} getData={() => fetchPdf(documentId)} page={page} onPage={setPage} boxes={boxes} />
+          ) : pdfUrl && (
             <iframe
               key={page}
               src={`${pdfUrl}#page=${page}`}
@@ -164,7 +179,7 @@ export default function ResultsView({ result, file, onClear, onSave, clearLabel 
               {issue}
             </p>
           ))}
-          <ClauseList clauses={result.clauses} onOpen={setPage} />
+          <ClauseList clauses={result.clauses} onOpen={(p, i) => { setPage(p); setActive(i); }} focus={focusClause} />
         </div>
       </div>
     </section>

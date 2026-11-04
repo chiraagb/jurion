@@ -1,13 +1,14 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronRight, Search } from "lucide-react";
 import type { Clause } from "../types";
 
 interface Props {
   clauses: Clause[];
-  onOpen: (page: number) => void;
+  onOpen: (page: number, index: number) => void;
+  focus?: number; // index of a clause to scroll to, open and highlight (from a citation)
 }
 
-export default function ClauseList({ clauses, onOpen }: Props) {
+export default function ClauseList({ clauses, onOpen, focus }: Props) {
   const [query, setQuery] = useState("");
   const [collapsed, setCollapsed] = useState<Set<number>>(new Set());
 
@@ -63,7 +64,7 @@ export default function ClauseList({ clauses, onOpen }: Props) {
             <span className="w-8 shrink-0" aria-hidden />
           )}
           <div className="min-w-0 flex-1">
-            <ClauseCard clause={clauses[i]} onOpen={onOpen} />
+            <ClauseCard clause={clauses[i]} index={i} onOpen={onOpen} focus={i === focus} />
           </div>
         </div>
         {kids.length > 0 && !isCollapsed && (
@@ -115,7 +116,7 @@ export default function ClauseList({ clauses, onOpen }: Props) {
           <ul className="space-y-2">
             {matches.map((i) => (
               <li key={i}>
-                <ClauseCard clause={clauses[i]} onOpen={onOpen} />
+                <ClauseCard clause={clauses[i]} index={i} onOpen={onOpen} focus={i === focus} />
               </li>
             ))}
           </ul>
@@ -127,11 +128,18 @@ export default function ClauseList({ clauses, onOpen }: Props) {
   );
 }
 
-function ClauseCard({ clause: c, onOpen }: { clause: Clause; onOpen: (page: number) => void }) {
+function ClauseCard({ clause: c, index, onOpen, focus }: { clause: Clause; index: number; onOpen: (page: number, index: number) => void; focus?: boolean }) {
+  const ref = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    if (!focus || !ref.current) return;
+    ref.current.open = true; // opening also moves the PDF to this clause's page
+    ref.current.scrollIntoView({ block: "center" });
+  }, [focus]);
   return (
     <details
-      onToggle={(e) => e.currentTarget.open && c.page_number && onOpen(c.page_number)}
-      className="group rounded-md border border-line paper transition-colors duration-200 open:border-line-strong hover:border-line-strong"
+      ref={ref}
+      onToggle={(e) => e.currentTarget.open && c.page_number && onOpen(c.page_number, index)}
+      className={`group rounded-md border paper ${focus ? "border-accent ring-2 ring-accent" : "border-line"}  transition-colors duration-200 open:border-line-strong hover:border-line-strong`}
     >
       <summary className="flex cursor-pointer list-none items-center gap-3 p-4 focus-visible:outline-2 focus-visible:outline-accent [&::-webkit-details-marker]:hidden">
         <span className="shrink-0 rounded-md bg-accent/10 px-2 py-1 font-mono text-xs font-medium text-accent-fg">

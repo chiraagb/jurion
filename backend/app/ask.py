@@ -13,6 +13,7 @@ from app.config import settings
 from app.database import AsyncSessionLocal, User, get_db
 from app.embeddings import hybrid, openai_key
 from app.ratelimit import limit
+from app.sessions import save_session
 
 log = logging.getLogger("jurion")
 router = APIRouter()
@@ -74,9 +75,9 @@ async def answer_stream(key: str, q: str, sources: list[dict]) -> AsyncIterator[
             yield t
 
 
-def _brief(h: dict, snippet: bool = False) -> dict:
+def _brief(h: dict, full: bool = False) -> dict:
     out = {k: h[k] for k in ("document_id", "filename", "position", "clause_identifier", "title", "page_number", "vector_rank", "keyword_rank")}
-    return out | ({"snippet": h["content"][:300]} if snippet else {})
+    return out | ({"snippet": h["content"][:300], "content": h["content"][:3000]} if full else {})  # content: exactly what the model saw
 
 
 @router.post("/ask")
@@ -95,24 +96,35 @@ async def ask(
     async def events() -> AsyncIterator[str]:
         try:
             async with AsyncSessionLocal() as s:  # own session: the request's one may be closed while we stream
-                q, good, hits = question, [], []
+                q, good, hits, attempts = question, [], [], []
                 for attempt in (0, 1):  # one retrieval, and at most one retry after a rewrite
                     hits, mode, note = await hybrid(s, uid, q, key, K)
                     yield ev("retrieved", query=q, mode=mode, note=note, hits=[_brief(h) for h in hits])
                     good = await grade(key, q, hits) if hits else []
+                    attempts.append({"query": q, "mode": mode, "note": note, "hits": [_brief(h) for h in hits], "relevant": good})
                     yield ev("graded", relevant=good)
                     if good or attempt:
                         break
                     q = await rewrite(key, q)
                     yield ev("rewritten", query=q)
             sources = [hits[i] for i in good]
-            yield ev("sources", sources=[_brief(h, snippet=True) for h in sources])
+            brief = [_brief(h, full=True) for h in sources]
+            yield ev("sources", sources=brief)
+            answer = ""
             if not sources:
-                yield ev("token", text=NONE_FOUND)
+                answer = NONE_FOUND
+                yield ev("token", text=answer)
             else:
                 async for t in answer_stream(key, question, sources):
+                    answer += t
                     yield ev("token", text=t)
-            yield ev("done")
+            try:
+                async with AsyncSessionLocal() as s:
+                    sid = str(await save_session(s, uid, "ask", question, {"answer": answer, "sources": brief, "attempts": attempts}))
+            except Exception as e:  # history is a convenience: the answer was already delivered
+                log.warning("saving ask session failed: %s", type(e).__name__)
+                sid = None
+            yield ev("done", session_id=sid)
         except Exception as e:
             log.warning("ask failed: %s", type(e).__name__)
             yield ev("error", detail=f"The OpenAI call failed ({type(e).__name__}). Check your key and try again.")

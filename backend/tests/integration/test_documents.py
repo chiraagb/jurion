@@ -60,6 +60,9 @@ if __name__ == "__main__":
             for g in got2:
                 assert lines[g["start_line"]]["t"].upper().startswith(g["clause_identifier"].split()[0].upper()), g  # starts at its heading
             assert got2[0]["end_line"] == got2[1]["start_line"]  # ranges tile the text, no gap
+            box = c.get(f"/documents/{real}/clauses/1/boxes").json()["boxes"]  # where clause 2 sits on the page, for the highlight
+            assert box and all(b["x1"] > b["x0"] and b["y1"] > b["y0"] and b["w"] > 0 and b["page"] >= 1 for b in box), box
+            assert c.get(f"/documents/{real}/clauses/999/boxes").status_code == 404
             off = [{**clauses[0], "end_line": 10**6}]
             assert c.post("/documents", files={"file": ("m3.pdf", make_number_column_pdf(), "application/pdf")},
                           data={"result": json.dumps({"method": "local", "clauses": off})}).status_code == 422  # range outside the text

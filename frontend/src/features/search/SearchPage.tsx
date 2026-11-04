@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { Loader2, Search } from "lucide-react";
-import { navigate } from "@/lib/router";
+import ClausePanel, { clauseHref, type ClauseRef } from "@/features/clause/ClausePanel";
+import { Link, navigate } from "@/lib/router";
 import EmbeddingExplainer from "./EmbeddingExplainer";
 import EmbeddingMap from "./EmbeddingMap";
-import { search, type Hit, type SearchResponse } from "./api";
+import HitList from "./HitList";
+import { search, type SearchResponse } from "./api";
 
 const errorText = (e: any) => e.response?.data?.detail ?? e.message ?? "Something went wrong.";
 
@@ -12,6 +14,7 @@ export default function SearchPage({ q: urlQuery }: { q: string }) { // the quer
   const [data, setData] = useState<(SearchResponse & { q: string }) | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [picked, setPicked] = useState<ClauseRef | null>(null);
 
   const run = async (q: string) => {
     setBusy(true);
@@ -39,8 +42,7 @@ export default function SearchPage({ q: urlQuery }: { q: string }) { // the quer
     else navigate(`/search?q=${encodeURIComponent(q)}`);
   };
 
-  const view = (h: { document_id: string; page_number: number | null }) =>
-    navigate(`/contracts/${h.document_id}${h.page_number ? `?page=${h.page_number}` : ""}`);
+  const view = (h: ClauseRef) => navigate(clauseHref(h)); // a map dot: straight to that clause in its contract
 
   return (
     <section aria-labelledby="search-title" className="space-y-6">
@@ -87,41 +89,14 @@ export default function SearchPage({ q: urlQuery }: { q: string }) { // the quer
             <p className="text-sm text-muted">
               {data.results.length} results · {data.mode === "hybrid" ? `vector + keyword (${data.model})` : "keyword only"}
             </p>
-            <ul className="space-y-3">
-              {data.results.map((h) => (
-                <li key={`${h.document_id}-${h.position}`}>
-                  <button
-                    onClick={() => view(h)}
-                    className="block w-full cursor-pointer rounded-md border border-line bg-surface p-4 text-left transition-colors duration-200 hover:border-line-strong focus-visible:outline-2 focus-visible:outline-accent"
-                  >
-                    <span className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-md bg-accent/10 px-2 py-1 font-mono text-xs font-medium text-accent-fg">{h.clause_identifier}</span>
-                      <span className="font-display text-lg font-semibold text-fg">{h.title}</span>
-                    </span>
-                    <span className="mt-1 block text-sm text-muted">
-                      {h.filename}{h.page_number ? ` · p.${h.page_number}` : ""}
-                    </span>
-                    <span className="mt-2 line-clamp-3 block text-sm text-fg-soft">{h.snippet}</span>
-                    <Scores h={h} />
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <HitList results={data.results} onPick={setPicked} />
+            {data.session_id && (
+              <p className="text-sm text-muted">Saved to <Link to={`/sessions/${data.session_id}`} className="underline">History</Link>, where you can compare it with other searches.</p>
+            )}
           </>
         )
       )}
+      <ClausePanel clause={picked} onClose={() => setPicked(null)} />
     </section>
-  );
-}
-
-/** Why this clause matched: its rank in the vector list, its rank in the keyword list, and the merged score. */
-function Scores({ h }: { h: Hit }) {
-  const chip = "rounded-sm border border-line px-1.5 py-0.5";
-  return (
-    <span className="mt-3 flex flex-wrap gap-2 font-mono text-xs tabular-nums text-muted">
-      <span className={chip}>vector {h.vector_rank ? `#${h.vector_rank} · sim ${h.vector_similarity?.toFixed(3)}` : "—"}</span>
-      <span className={chip}>keyword {h.keyword_rank ? `#${h.keyword_rank}` : "—"}</span>
-      <span className={chip}>fused {(h.score * 1000).toFixed(1)}</span>
-    </span>
   );
 }

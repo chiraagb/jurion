@@ -17,6 +17,23 @@ The API streams one JSON object per line (`retrieved`, `graded`, `rewritten`, `s
 - Numbered sources below it show the clause, contract, page and a snippet.
 - **How I got this answer** lists every retrieved clause with a tick (passed the relevance check) or a cross, and shows the rewritten question if there was one.
 
+## Sessions, clause jumps and comparing
+
+- **Every Ask and Search is saved** to the `query_sessions` table (kind, question, and the full result: answer, cited clauses with their text, and the retrieval trace). Asking the same question again within 10 minutes updates its session instead of adding a copy, so reloads and the back button don't fill the history.
+- **History tab** (`/sessions`): your past questions and searches. Open one at `/sessions/<id>`; delete with the bin icon. Sessions are private to you.
+- **Compare:** tick two sessions and press *Compare side by side* (`/sessions/compare?a=<id>&b=<id>`). The two answers (or result lists) sit in two columns, with a strip above listing the clauses that appear in **both**.
+- **Jump to the clause:** clicking a `[1]` citation, a source, a trace row, a search result or a clause in the "in both" strip opens a side panel with the clause's PDF page and its full text (the exact text the model saw), without leaving the page. *Jump to clause* in the panel opens `/contracts/<id>?page=N&clause=<n>` in a new tab: the contract scrolled to that clause, opened and outlined, with the PDF on its page. Clicking a dot on the embedding map goes there directly.
+
+## The highlighted PDF
+
+Saved contracts are drawn with **pdf.js** (`pdfjs-dist`, loaded only when a PDF is first shown), not the browser's built-in viewer, so the cited clause can be shaded.
+
+- `GET /documents/{id}/clauses/{n}/boxes` returns one rectangle per page for clause `n`. The stored lines keep their left edge, top and bottom but no right edge, so the server reads the PDF again and takes the right-most word inside that band as the right edge. Coordinates are PDF points, origin top-left, the same as the stored lines.
+- The viewer scales points to the screen width, draws the rectangle over the canvas, scrolls to it, and shows "Clause on p.6 p.7" buttons when a clause crosses pages.
+- It is used in the side panel (every citation, search hit and compare entry) and on the contract screen: opening any clause card there moves the PDF and shades that clause. The Parser Lab keeps the browser's viewer, since an unsaved parse has no stored lines.
+- Checked against the 5 saved contracts: each box's top-left matches where the clause heading is found in the PDF.
+- Limits: on a two-column page the box can extend over the other column (one rectangle per page, not per line); a scan has no highlight; the viewer has fit-width and page buttons only (no text search or zoom).
+
 ## Cost and safety
 
 - Per question: 1 embedding call, 1 grade call, 1 answer call; 2 more calls if it rewrites. All on the user's OpenAI key. `ASK_MODEL` (default `gpt-4o-mini`) in `.env` sets the model for grading, rewriting and answering.

@@ -51,6 +51,20 @@ def _open(pdf_bytes: bytes):
     return doc
 
 
+def clause_boxes(pdf_bytes: bytes, spans: List[Tuple[int, float, float, float]]) -> List[Dict[str, float]]:
+    """One highlight rectangle per page for a clause. `spans` is (page, left, top, bottom) from the stored lines, which keep no
+    right edge, so it is found here as the right-most word inside that band. PDF points, origin top-left, like the stored lines."""
+    doc = _open(pdf_bytes)
+    out = []
+    for page_no, left, top, bottom in spans:
+        page = doc[page_no - 1]
+        words = [w for w in page.get_text("words") if w[1] >= top - 1 and w[3] <= bottom + 1 and w[0] >= left - 2]
+        # ponytail: on a two-column page the band can include the other column's words; per-line boxes would fix that
+        right = max((w[2] for w in words), default=page.rect.x1 - 36)
+        out.append({"page": page_no, "x0": left, "y0": top, "x1": right, "y1": bottom, "w": page.rect.width, "h": page.rect.height})
+    return out
+
+
 def count_pages(pdf_bytes: bytes) -> int:
     """Opens the PDF once to validate it; raises on corrupt, encrypted or too long files."""
     return len(_open(pdf_bytes))

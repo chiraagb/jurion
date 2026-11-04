@@ -10,7 +10,7 @@ import { deleteDocument, embedDocument, listDocuments, openDocument, type DocSum
 const errorText = (e: any) => e.response?.data?.detail ?? e.message ?? "Something went wrong.";
 const METHOD = { local: "Local", gemini: "Gemini", openai: "OpenAI" };
 
-export default function ContractsPage({ id, page }: { id?: string; page?: number }) {
+export default function ContractsPage({ id, page, clause }: { id?: string; page?: number; clause?: number }) {
   const [docs, setDocs] = useState<DocSummary[] | null>(null);
   const [open, setOpen] = useState<{ id: string; result: ParseResult; file: File } | null>(null); // the contract at /contracts/:id
   const [error, setError] = useState<string | null>(null);
@@ -79,7 +79,7 @@ export default function ContractsPage({ id, page }: { id?: string; page?: number
 
   if (id) {
     if (open?.id === id)
-      return <ResultsView key={id} result={open.result} file={open.file} initialPage={page} onClear={() => navigate("/contracts")} clearLabel="Back to list" />;
+      return <ResultsView key={id} result={open.result} file={open.file} initialPage={page} focusClause={clause} documentId={id} onClear={() => navigate("/contracts")} clearLabel="Back to list" />;
     return error ? (
       <p role="alert" className="rounded-md border border-danger/40 bg-danger/10 p-3 text-sm text-danger">
         {error} <Link to="/contracts" className="underline">Back to My contracts</Link>

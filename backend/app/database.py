@@ -104,6 +104,19 @@ class Clause(Base):
     embedding = deferred(mapped_column(Vector(1536), nullable=True))
 
 
+# 2d. One Ask or Search the user ran, kept so it can be reopened and compared side by side
+class QuerySession(Base):
+    __tablename__ = "query_sessions"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    kind: Mapped[str] = mapped_column(String(8))  # ask | search
+    query: Mapped[str] = mapped_column(Text)
+    # ask: {answer, sources[{..., content}], attempts[{query, mode, note, hits, relevant}]}; search: {mode, note, model, results[...]}
+    data = mapped_column(JSONB)
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now(), index=True)
+
+
 # 3. Connection Engines & Drivers
 async_engine = create_async_engine(settings.DATABASE_URL, echo=False)
 AsyncSessionLocal = async_sessionmaker(

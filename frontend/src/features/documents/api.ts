@@ -40,3 +40,9 @@ export async function openDocument(id: string): Promise<{ result: ParseResult; f
 }
 
 export const embedDocument = async (id: string) => (await api.post<{ embedded_count: number }>(`/documents/${id}/embed`)).data;
+
+export const fetchPdf = async (id: string) => (await api.get<ArrayBuffer>(`/documents/${id}/pdf`, { responseType: "arraybuffer" })).data;
+
+/** Where one clause sits on its pages (for the PDF highlight). Empty for scans and for contracts saved without line ranges. */
+export const clauseBoxes = async (id: string, position: number) =>
+  (await api.get<{ boxes: import("@/features/pdf/PdfViewer").Box[] }>(`/documents/${id}/clauses/${position}/boxes`)).data.boxes;

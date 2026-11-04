@@ -54,6 +54,11 @@ if __name__ == "__main__":
             assert kinds == ["retrieved", "graded", "sources", "token", "token", "done"], kinds
             assert ev[2]["sources"][0]["clause_identifier"] == "1" and "".join(e["text"] for e in ev if e["event"] == "token") == "Thirty days [1]."
             assert not rewrites
+            sid = ev[-1]["session_id"]
+            saved = c.get(f"/sessions/{sid}").json()
+            assert saved["kind"] == "ask" and saved["data"]["answer"] == "Thirty days [1]." and saved["data"]["sources"][0]["content"]
+            assert saved["data"]["attempts"][0]["relevant"] == [0]
+            assert events(c.post("/ask", json={"question": "terminate notice"}))[-1]["session_id"] == sid  # re-run: same session, no copy
 
             # 2. nothing relevant at first, relevant after one rewrite
             async def grade_after_rewrite(_k, q, hits): return [] if q != "terminate notice" else [0]
@@ -73,6 +78,9 @@ if __name__ == "__main__":
             async def grade_fail(*_): raise RuntimeError("x")
             ask.grade = grade_fail
             assert events(c.post("/ask", json={"question": "terminate notice"}))[-1]["event"] == "error"
+
+            assert len(c.get("/sessions").json()) == 3  # the three finished questions; the failed one is not saved
+            assert c.delete(f"/sessions/{sid}").status_code == 204 and c.get(f"/sessions/{sid}").status_code == 404
 
             # 5. no key: refused up front
             ask.openai_key = no_key

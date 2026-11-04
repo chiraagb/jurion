@@ -8,6 +8,7 @@ export interface Brief {
   vector_rank: number | null;
   keyword_rank: number | null;
   snippet?: string;
+  content?: string; // the clause text the model saw (sources only)
 }
 
 export type AskEvent =
@@ -16,7 +17,7 @@ export type AskEvent =
   | { event: "rewritten"; query: string }
   | { event: "sources"; sources: Brief[] }
   | { event: "token"; text: string }
-  | { event: "done" }
+  | { event: "done"; session_id: string | null }
   | { event: "error"; detail: string };
 
 /** POST /ask and hand over each event as it arrives (one JSON object per line). axios can't stream in a browser, so fetch. */
