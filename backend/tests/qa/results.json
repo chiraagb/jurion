@@ -1,7 +1,7 @@
 {
- "ran_at": "2026-11-04T19:29:47.218395+00:00",
+ "ran_at": "2026-11-08T03:41:48.044859+00:00",
  "embedding_model": "text-embedding-3-small",
- "questions": 42,
+ "questions": 48,
  "baseline": {
   "summary": {
    "all": {
@@ -748,35 +748,43 @@
    "all": {
     "vector": {
      "hit@1": 0.5,
-     "hit@3": 0.711,
-     "hit@5": 0.789,
-     "hit@10": 0.921,
-     "mrr": 0.638,
-     "n": 38
+     "hit@3": 0.727,
+     "hit@5": 0.795,
+     "hit@10": 0.932,
+     "mrr": 0.646,
+     "n": 44
     },
     "keyword": {
-     "hit@1": 0.184,
-     "hit@3": 0.237,
-     "hit@5": 0.263,
-     "hit@10": 0.263,
-     "mrr": 0.217,
-     "n": 38
+     "hit@1": 0.205,
+     "hit@3": 0.25,
+     "hit@5": 0.273,
+     "hit@10": 0.273,
+     "mrr": 0.233,
+     "n": 44
     },
     "hybrid": {
-     "hit@1": 0.474,
-     "hit@3": 0.737,
-     "hit@5": 0.842,
-     "hit@10": 0.895,
-     "mrr": 0.627,
-     "n": 38
+     "hit@1": 0.477,
+     "hit@3": 0.75,
+     "hit@5": 0.841,
+     "hit@10": 0.909,
+     "mrr": 0.636,
+     "n": 44
     },
     "context": {
-     "hit@1": 0.579,
-     "hit@3": 0.842,
-     "hit@5": 0.895,
-     "hit@10": 0.921,
-     "mrr": 0.713,
-     "n": 38
+     "hit@1": 0.568,
+     "hit@3": 0.841,
+     "hit@5": 0.886,
+     "hit@10": 0.932,
+     "mrr": 0.709,
+     "n": 44
+    },
+    "graph": {
+     "hit@1": 0.545,
+     "hit@3": 0.841,
+     "hit@5": 0.886,
+     "hit@10": 0.932,
+     "mrr": 0.699,
+     "n": 44
     }
    },
    "direct": {
@@ -810,6 +818,14 @@
      "hit@5": 0.941,
      "hit@10": 0.941,
      "mrr": 0.755,
+     "n": 17
+    },
+    "graph": {
+     "hit@1": 0.529,
+     "hit@3": 0.882,
+     "hit@5": 0.882,
+     "hit@10": 0.941,
+     "mrr": 0.703,
      "n": 17
     }
    },
@@ -845,6 +861,14 @@
      "hit@10": 0.882,
      "mrr": 0.632,
      "n": 17
+    },
+    "graph": {
+     "hit@1": 0.529,
+     "hit@3": 0.765,
+     "hit@5": 0.882,
+     "hit@10": 0.882,
+     "mrr": 0.654,
+     "n": 17
     }
    },
    "broad": {
@@ -879,6 +903,56 @@
      "hit@10": 1.0,
      "mrr": 0.875,
      "n": 4
+    },
+    "graph": {
+     "hit@1": 0.75,
+     "hit@3": 1.0,
+     "hit@5": 1.0,
+     "hit@10": 1.0,
+     "mrr": 0.875,
+     "n": 4
+    }
+   },
+   "graph": {
+    "vector": {
+     "hit@1": 0.5,
+     "hit@3": 0.833,
+     "hit@5": 0.833,
+     "hit@10": 1.0,
+     "mrr": 0.69,
+     "n": 6
+    },
+    "keyword": {
+     "hit@1": 0.333,
+     "hit@3": 0.333,
+     "hit@5": 0.333,
+     "hit@10": 0.333,
+     "mrr": 0.333,
+     "n": 6
+    },
+    "hybrid": {
+     "hit@1": 0.5,
+     "hit@3": 0.833,
+     "hit@5": 0.833,
+     "hit@10": 1.0,
+     "mrr": 0.69,
+     "n": 6
+    },
+    "context": {
+     "hit@1": 0.5,
+     "hit@3": 0.833,
+     "hit@5": 0.833,
+     "hit@10": 1.0,
+     "mrr": 0.69,
+     "n": 6
+    },
+    "graph": {
+     "hit@1": 0.5,
+     "hit@3": 0.833,
+     "hit@5": 0.833,
+     "hit@10": 1.0,
+     "mrr": 0.694,
+     "n": 6
     }
    }
   },
@@ -891,12 +965,16 @@
      "vector": 1,
      "keyword": null,
      "hybrid": 1,
-     "context": 1
+     "context": 1,
+     "graph": 1
     },
     "top": [
      "1.3 Renewal (AgapeAtpCorp_2)",
      "1.2 Term (AgapeAtpCorp_2)",
      "5.1 This MSA shall commence on the Effective (master-service)"
+    ],
+    "scope": [
+     "AgapeAtpCorp_20191202_10"
     ]
    },
    {
@@ -907,13 +985,15 @@
      "vector": 1,
      "keyword": 1,
      "hybrid": 1,
-     "context": 1
+     "context": 1,
+     "graph": 1
     },
     "top": [
      "5.4 Payment terms (AgapeAtpCorp_2)",
      "5 SHIPPING AND PAYMENT TERMS (AgapeAtpCorp_2)",
      "4 TERMS. (CybergyHolding)"
-    ]
+    ],
+    "scope": []
    },
    {
     "id": 3,
@@ -923,13 +1003,15 @@
      "vector": 1,
      "keyword": null,
      "hybrid": 1,
-     "context": 1
+     "context": 1,
+     "graph": 1
     },
     "top": [
      "14.6 Assignment (AgapeAtpCorp_2)",
      "3.5 Intellectual Property (AgapeAtpCorp_2)",
      "3.5 (a) (AgapeAtpCorp_2)"
-    ]
+    ],
+    "scope": []
    },
    {
     "id": 4,
@@ -939,13 +1021,15 @@
      "vector": 4,
      "keyword": null,
      "hybrid": 4,
-     "context": 4
+     "context": 4,
+     "graph": 4
     },
     "top": [
      "11 DISPUTE RESOLUTION (OFGBANCORP_03_)",
      "10.6 The Parties shall attempt in good faith  (master-service)",
      "8.1 Any and all disputes, claims or differen (AgapeAtpCorp_2)"
-    ]
+    ],
+    "scope": []
    },
    {
     "id": 5,
@@ -955,13 +1039,15 @@
      "vector": 2,
      "keyword": null,
      "hybrid": 2,
-     "context": 2
+     "context": 2,
+     "graph": 2
     },
     "top": [
      "10.16 If any provision of this Agreement is he (master-service)",
      "14.4 Severability (AgapeAtpCorp_2)",
      "10.19 Failure to enforce any provision shall n (master-service)"
-    ]
+    ],
+    "scope": []
    },
    {
     "id": 6,
@@ -971,12 +1057,17 @@
      "vector": 1,
      "keyword": null,
      "hybrid": 1,
-     "context": 1
+     "context": 1,
+     "graph": 1
     },
     "top": [
      "12 TRANSFER OF INTELLECTUAL PROPERTY (AgapeAtpCorp_2)",
      "3.5 Intellectual Property (AgapeAtpCorp_2)",
      "11 INTELLECTUAL PROPERTY (AgapeAtpCorp_2)"
+    ],
+    "scope": [
+     "AgapeAtpCorp_20191202_10",
+     "OFGBANCORP_03_28_2007-EX"
     ]
    },
    {
@@ -987,12 +1078,16 @@
      "vector": 1,
      "keyword": null,
      "hybrid": 1,
-     "context": 1
+     "context": 1,
+     "graph": 1
     },
     "top": [
      "6.2 The Customer shall at all times during t (AgapeAtpCorp_2)",
      "6.1 The Manufacturing Companies utilised by  (AgapeAtpCorp_2)",
      "3.5 (b) (AgapeAtpCorp_2)"
+    ],
+    "scope": [
+     "AgapeAtpCorp_20191202_10"
     ]
    },
    {
@@ -1003,12 +1098,16 @@
      "vector": 1,
      "keyword": 1,
      "hybrid": 1,
-     "context": 1
+     "context": 1,
+     "graph": 1
     },
     "top": [
      "1.4 Study Drug and Study Supplies (EFC18326_Rosa_)",
      "2 Additional Procedural Fees (EFC18326_Rosa_)",
      "SEC_(WITH_INSTITUTI (with Institution and Investigator) (EFC18326_Rosa_)"
+    ],
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
     ]
    },
    {
@@ -1019,12 +1118,16 @@
      "vector": 1,
      "keyword": null,
      "hybrid": 1,
-     "context": 1
+     "context": 1,
+     "graph": 1
     },
     "top": [
      "9.3 Termination by the Institution or the In (EFC18326_Rosa_)",
      "9.4 Unavailability of the Investigator (EFC18326_Rosa_)",
      "9.2 Termination by the Sponsor (EFC18326_Rosa_)"
+    ],
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
     ]
    },
    {
@@ -1035,12 +1138,16 @@
      "vector": null,
      "keyword": null,
      "hybrid": null,
-     "context": null
+     "context": null,
+     "graph": 8
     },
     "top": [
      "SEC_(WITH_INSTITUTI (with Institution and Investigator) (EFC18326_Rosa_)",
      "SIGNATURES Signature Block (EFC18326_Rosa_)",
      "1.1 Conduct of the Study (EFC18326_Rosa_)"
+    ],
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
     ]
    },
    {
@@ -1051,13 +1158,15 @@
      "vector": null,
      "keyword": null,
      "hybrid": null,
-     "context": null
+     "context": null,
+     "graph": null
     },
     "top": [
      "1.3 Study Participants (EFC18326_Rosa_)",
      "9.4 Unavailability of the Investigator (EFC18326_Rosa_)",
      "5.2 Each Party (the “Indemnifying Party”) ag (EFC18326_Rosa_)"
-    ]
+    ],
+    "scope": []
    },
    {
     "id": 12,
@@ -1067,12 +1176,16 @@
      "vector": 1,
      "keyword": null,
      "hybrid": 2,
-     "context": 2
+     "context": 2,
+     "graph": 2
     },
     "top": [
      "3.2 In this respect INSTITUTION and/or INVES (EFC18326_Rosa_)",
      "4 Security measures (EFC18326_Rosa_)",
      "10.13 Each Party shall implement reasonable ad (master-service)"
+    ],
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
     ]
    },
    {
@@ -1083,12 +1196,16 @@
      "vector": 1,
      "keyword": 1,
      "hybrid": 1,
-     "context": 1
+     "context": 1,
+     "graph": 1
     },
     "top": [
      "7 INSURANCE, LIABILITY, INDEMNIFICATION (EFC18326_Rosa_)",
      "5.2 Each Party (the “Indemnifying Party”) ag (EFC18326_Rosa_)",
      "3.7 In the event of a Personal Data Breach t (EFC18326_Rosa_)"
+    ],
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
     ]
    },
    {
@@ -1099,12 +1216,20 @@
      "vector": 4,
      "keyword": null,
      "hybrid": 5,
-     "context": 5
+     "context": 5,
+     "graph": 5
     },
     "top": [
      "10.9 Any provisions which by their nature are (master-service)",
      "18 DEFINITIONS. (OFGBANCORP_03_)",
      "5.9 Any provisions which by their nature are (master-service)"
+    ],
+    "scope": [
+     "AgapeAtpCorp_20191202_10",
+     "CybergyHoldingsInc_20140",
+     "EFC18326_Rosa_CTA_-_Fina",
+     "OFGBANCORP_03_28_2007-EX",
+     "master-services-agreemen"
     ]
    },
    {
@@ -1115,13 +1240,15 @@
      "vector": 1,
      "keyword": 4,
      "hybrid": 3,
-     "context": 3
+     "context": 3,
+     "graph": 3
     },
     "top": [
      "1.1 “Applicable Data Protection Law” means,  (EFC18326_Rosa_)",
      "3.1 INSTITUTION and/or INVESTIGATOR expressl (EFC18326_Rosa_)",
      "4 DATA PROTECTION (EFC18326_Rosa_)"
-    ]
+    ],
+    "scope": []
    },
    {
     "id": 16,
@@ -1131,13 +1258,15 @@
      "vector": 1,
      "keyword": null,
      "hybrid": 1,
-     "context": 1
+     "context": 1,
+     "graph": 1
     },
     "top": [
      "5.3 The Client may terminate any Project Agr (master-service)",
      "5.4 Upon expiration or termination of this M (master-service)",
      "18.2 Either party may cancel this Agreement u (CybergyHolding)"
-    ]
+    ],
+    "scope": []
    },
    {
     "id": 17,
@@ -1147,12 +1276,19 @@
      "vector": 1,
      "keyword": null,
      "hybrid": 1,
-     "context": 1
+     "context": 1,
+     "graph": 1
     },
     "top": [
      "3.2 Each invoice shall be payable within thi (master-service)",
      "4.1 Implementation of Services. (OFGBANCORP_03_)",
      "7.4 Payment for Services, Training and Suppo (CybergyHolding)"
+    ],
+    "scope": [
+     "AgapeAtpCorp_20191202_10",
+     "CybergyHoldingsInc_20140",
+     "OFGBANCORP_03_28_2007-EX",
+     "master-services-agreemen"
     ]
    },
    {
@@ -1163,13 +1299,15 @@
      "vector": 7,
      "keyword": null,
      "hybrid": 7,
-     "context": 3
+     "context": 3,
+     "graph": 3
     },
     "top": [
      "3.5 Intellectual Property (AgapeAtpCorp_2)",
      "11 INTELLECTUAL PROPERTY (AgapeAtpCorp_2)",
      "7 INTELLECTUAL PROPERTY (master-service)"
-    ]
+    ],
+    "scope": []
    },
    {
     "id": 19,
@@ -1179,13 +1317,15 @@
      "vector": 7,
      "keyword": 1,
      "hybrid": 1,
-     "context": 1
+     "context": 1,
+     "graph": 1
     },
     "top": [
      "10.5 This Agreement shall be governed by the  (master-service)",
      "12 APPLICABLE LAW AND PLACE OF JURISDICTION (EFC18326_Rosa_)",
      "8.1 Any and all disputes, claims or differen (AgapeAtpCorp_2)"
-    ]
+    ],
+    "scope": []
    },
    {
     "id": 20,
@@ -1195,13 +1335,15 @@
      "vector": 1,
      "keyword": null,
      "hybrid": 1,
-     "context": 1
+     "context": 1,
+     "graph": 1
     },
     "top": [
      "6.4 Upon termination or expiry of this Agree (master-service)",
      "6.5 The obligations of confidentiality under (master-service)",
      "6.6 Where the Parties have entered into a se (master-service)"
-    ]
+    ],
+    "scope": []
    },
    {
     "id": 21,
@@ -1211,12 +1353,16 @@
      "vector": 1,
      "keyword": null,
      "hybrid": 1,
-     "context": 1
+     "context": 1,
+     "graph": null
     },
     "top": [
      "4.4 Risk of loss or damage to materials shal (master-service)",
      "4.6 Where third-party carriers or logistics  (master-service)",
      "5.1 Shipping (AgapeAtpCorp_2)"
+    ],
+    "scope": [
+     "AgapeAtpCorp_20191202_10"
     ]
    },
    {
@@ -1227,12 +1373,20 @@
      "vector": 1,
      "keyword": 1,
      "hybrid": 1,
-     "context": 1
+     "context": 1,
+     "graph": 1
     },
     "top": [
      "10.7 Neither Party shall be liable for failur (master-service)",
      "14.7 Force Majeure (AgapeAtpCorp_2)",
      "18.2 Either party may cancel this Agreement u (CybergyHolding)"
+    ],
+    "scope": [
+     "AgapeAtpCorp_20191202_10",
+     "CybergyHoldingsInc_20140",
+     "EFC18326_Rosa_CTA_-_Fina",
+     "OFGBANCORP_03_28_2007-EX",
+     "master-services-agreemen"
     ]
    },
    {
@@ -1243,13 +1397,15 @@
      "vector": 1,
      "keyword": null,
      "hybrid": 1,
-     "context": 1
+     "context": 1,
+     "graph": 1
     },
     "top": [
      "10.11 Each Party shall maintain throughout the (master-service)",
      "4.5 Each Party shall ensure that appropriate (master-service)",
      "6.2 The Customer shall at all times during t (AgapeAtpCorp_2)"
-    ]
+    ],
+    "scope": []
    },
    {
     "id": 24,
@@ -1259,13 +1415,15 @@
      "vector": 1,
      "keyword": 2,
      "hybrid": 1,
-     "context": 1
+     "context": 1,
+     "graph": 1
     },
     "top": [
      "10.1 Neither Party may assign or transfer thi (master-service)",
      "18.2 Either party may cancel this Agreement u (CybergyHolding)",
      "7.3 Rights to termination (AgapeAtpCorp_2)"
-    ]
+    ],
+    "scope": []
    },
    {
     "id": 25,
@@ -1275,12 +1433,16 @@
      "vector": 2,
      "keyword": null,
      "hybrid": 3,
-     "context": 3
+     "context": 3,
+     "graph": 2
     },
     "top": [
      "EXHIBIT 10.27 MARKETING AFFILIATE AGREEMENT (CybergyHolding)",
      "16 MISCELLANEOUS PROVISIONS (OFGBANCORP_03_)",
      "14 Relationship of the Parties. (CybergyHolding)"
+    ],
+    "scope": [
+     "CybergyHoldingsInc_20140"
     ]
    },
    {
@@ -1291,12 +1453,16 @@
      "vector": 2,
      "keyword": null,
      "hybrid": 2,
-     "context": 1
+     "context": 1,
+     "graph": 1
     },
     "top": [
      "EXHIBIT 10.27 MARKETING AFFILIATE AGREEMENT (CybergyHolding)",
      "SEC_MOUNT_KNOWLEDGE Mount Knowledge Holdings Inc. (CybergyHolding)",
      "24 Governing Law; Attorney’s Fee. (CybergyHolding)"
+    ],
+    "scope": [
+     "CybergyHoldingsInc_20140"
     ]
    },
    {
@@ -1307,13 +1473,15 @@
      "vector": 2,
      "keyword": null,
      "hybrid": 2,
-     "context": 2
+     "context": 2,
+     "graph": 2
     },
     "top": [
      "9.3 Neither Party shall be liable to the oth (master-service)",
      "16.3 IN NO EVENT SHALL COMPANY BE LIABLE TO “ (CybergyHolding)",
      "25 Equitable Relief. (CybergyHolding)"
-    ]
+    ],
+    "scope": []
    },
    {
     "id": 28,
@@ -1323,13 +1491,15 @@
      "vector": 2,
      "keyword": null,
      "hybrid": 2,
-     "context": 2
+     "context": 2,
+     "graph": 2
     },
     "top": [
      "18.2 Either party may cancel this Agreement u (CybergyHolding)",
      "18.1 This Agreement may be terminated by eith (CybergyHolding)",
      "5.2 Either Party may terminate this MSA or a (master-service)"
-    ]
+    ],
+    "scope": []
    },
    {
     "id": 29,
@@ -1339,13 +1509,15 @@
      "vector": 1,
      "keyword": null,
      "hybrid": 1,
-     "context": 1
+     "context": 1,
+     "graph": 1
     },
     "top": [
      "12.3 MA shall not have the right to modify th (CybergyHolding)",
      "18 DEFINITIONS. (OFGBANCORP_03_)",
      "EXHIBIT 10.27 MARKETING AFFILIATE AGREEMENT (CybergyHolding)"
-    ]
+    ],
+    "scope": []
    },
    {
     "id": 30,
@@ -1355,13 +1527,15 @@
      "vector": 1,
      "keyword": null,
      "hybrid": 1,
-     "context": 1
+     "context": 1,
+     "graph": 1
     },
     "top": [
      "2.1 Core System Service Level. (OFGBANCORP_03_)",
      "2.3 Operations Center Availability Service L (OFGBANCORP_03_)",
      "2.9 CMS Electronic Funds Delivery Service Le (OFGBANCORP_03_)"
-    ]
+    ],
+    "scope": []
    },
    {
     "id": 31,
@@ -1371,12 +1545,16 @@
      "vector": 8,
      "keyword": null,
      "hybrid": 8,
-     "context": 8
+     "context": 8,
+     "graph": 3
     },
     "top": [
      "1.3 Reporting On Service Levels. (OFGBANCORP_03_)",
      "3.7 The Client shall remain responsible for  (master-service)",
      "3.5 Where the Client designates, mandates, s (master-service)"
+    ],
+    "scope": [
+     "OFGBANCORP_03_28_2007-EX"
     ]
    },
    {
@@ -1387,13 +1565,15 @@
      "vector": null,
      "keyword": null,
      "hybrid": null,
-     "context": null
+     "context": null,
+     "graph": null
     },
     "top": [
      "18.2 Either party may cancel this Agreement u (CybergyHolding)",
      "8 TERMINATION/DEFAULT (OFGBANCORP_03_)",
      "5.4 Upon expiration or termination of this M (master-service)"
-    ]
+    ],
+    "scope": []
    },
    {
     "id": 33,
@@ -1403,13 +1583,15 @@
      "vector": 2,
      "keyword": 1,
      "hybrid": 2,
-     "context": 2
+     "context": 2,
+     "graph": 2
     },
     "top": [
      "6.2 Performance Warranty Exclusions. (OFGBANCORP_03_)",
      "6 PERFORMANCE WARRANTY/DISCLAIMER OF ALL O (OFGBANCORP_03_)",
      "6.3 DISCLAIMER OF ALL OTHER WARRANTIES. (OFGBANCORP_03_)"
-    ]
+    ],
+    "scope": []
    },
    {
     "id": 34,
@@ -1419,13 +1601,15 @@
      "vector": 2,
      "keyword": 1,
      "hybrid": 2,
-     "context": 2
+     "context": 2,
+     "graph": 2
     },
     "top": [
      "10.6 The Parties shall attempt in good faith  (master-service)",
      "11 DISPUTE RESOLUTION (OFGBANCORP_03_)",
      "3.2 Each invoice shall be payable within thi (master-service)"
-    ]
+    ],
+    "scope": []
    },
    {
     "id": 35,
@@ -1435,13 +1619,15 @@
      "vector": null,
      "keyword": null,
      "hybrid": null,
-     "context": null
+     "context": null,
+     "graph": null
     },
     "top": [
      "3 SERVICE FEE. (CybergyHolding)",
      "13.2 The Manufacturer grants exclusive rights (AgapeAtpCorp_2)",
      "5 FEES (OFGBANCORP_03_)"
-    ]
+    ],
+    "scope": []
    },
    {
     "id": 36,
@@ -1451,13 +1637,15 @@
      "vector": null,
      "keyword": null,
      "hybrid": null,
-     "context": null
+     "context": null,
+     "graph": null
     },
     "top": [
      "3.4 Where the Client designates specific ven (master-service)",
      "3.5 Where the Client designates, mandates, s (master-service)",
      "10 INSURANCE AND INDEMNITY. (OFGBANCORP_03_)"
-    ]
+    ],
+    "scope": []
    },
    {
     "id": 37,
@@ -1467,13 +1655,15 @@
      "vector": null,
      "keyword": null,
      "hybrid": null,
-     "context": null
+     "context": null,
+     "graph": null
     },
     "top": [
      "8.1 Any and all disputes, claims or differen (AgapeAtpCorp_2)",
      "8.2 The language to be used in the Arbitrati (AgapeAtpCorp_2)",
      "8.3 The award/decision of the Arbitration Co (AgapeAtpCorp_2)"
-    ]
+    ],
+    "scope": []
    },
    {
     "id": 38,
@@ -1483,12 +1673,16 @@
      "vector": null,
      "keyword": null,
      "hybrid": null,
-     "context": null
+     "context": null,
+     "graph": null
     },
     "top": [
      "1 GENERAL PROVISIONS (OFGBANCORP_03_)",
      "ADDITIONAL CUSTOMER CONVERSION RESPONSIBILITIES ADDITIONAL CUSTOMER CONVERSION RESPONSIB (OFGBANCORP_03_)",
      "2.11 Teller Transactions Response Time Servic (OFGBANCORP_03_)"
+    ],
+    "scope": [
+     "OFGBANCORP_03_28_2007-EX"
     ]
    },
    {
@@ -1499,13 +1693,15 @@
      "vector": 6,
      "keyword": 2,
      "hybrid": 2,
-     "context": 1
+     "context": 1,
+     "graph": 1
     },
     "top": [
      "TERMS AND CONDITIONS TERMS AND CONDITIONS (OFGBANCORP_03_)",
      "1.1 Definitions. (OFGBANCORP_03_)",
      "14.3 Conflicting Terms (AgapeAtpCorp_2)"
-    ]
+    ],
+    "scope": []
    },
    {
     "id": 40,
@@ -1515,13 +1711,15 @@
      "vector": 10,
      "keyword": null,
      "hybrid": null,
-     "context": 1
+     "context": 1,
+     "graph": 1
     },
     "top": [
      "1 TERMS OF AGREEMENT (AgapeAtpCorp_2)",
      "1.2 Term (AgapeAtpCorp_2)",
      "1.1 Definitions. (OFGBANCORP_03_)"
-    ]
+    ],
+    "scope": []
    },
    {
     "id": 41,
@@ -1531,12 +1729,16 @@
      "vector": 4,
      "keyword": null,
      "hybrid": 4,
-     "context": 2
+     "context": 2,
+     "graph": 2
     },
     "top": [
      "3.4 Ability to Perform (AgapeAtpCorp_2)",
      "3 COVENANTS BY THE MANUFACTURER (AgapeAtpCorp_2)",
      "3.5 (a) (AgapeAtpCorp_2)"
+    ],
+    "scope": [
+     "AgapeAtpCorp_20191202_10"
     ]
    },
    {
@@ -1547,18 +1749,803 @@
      "vector": 3,
      "keyword": null,
      "hybrid": 5,
-     "context": 1
+     "context": 1,
+     "graph": 1
     },
     "top": [
      "2 PROVISION OF DOCUMENTATION (AgapeAtpCorp_2)",
      "3.2 In this respect INSTITUTION and/or INVES (EFC18326_Rosa_)",
      "2.2 Provision by the Customer (AgapeAtpCorp_2)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 43,
+    "question": "What notice must the Marketing Affiliate give to end the agreement?",
+    "kind": "graph",
+    "ranks": {
+     "vector": 2,
+     "keyword": null,
+     "hybrid": 2,
+     "context": 2,
+     "graph": 2
+    },
+    "top": [
+     "EXHIBIT 10.27 MARKETING AFFILIATE AGREEMENT (CybergyHolding)",
+     "18.1 This Agreement may be terminated by eith (CybergyHolding)",
+     "18.3 Upon termination or cancellation of this (CybergyHolding)"
+    ],
+    "scope": [
+     "CybergyHoldingsInc_20140"
+    ]
+   },
+   {
+    "id": 44,
+    "question": "What insurance does the Sponsor maintain for the study?",
+    "kind": "graph",
+    "ranks": {
+     "vector": 1,
+     "keyword": 1,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "7 INSURANCE, LIABILITY, INDEMNIFICATION (EFC18326_Rosa_)",
+     "1.4 Study Drug and Study Supplies (EFC18326_Rosa_)",
+     "1.1 Conduct of the Study (EFC18326_Rosa_)"
+    ],
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
+    ]
+   },
+   {
+    "id": 45,
+    "question": "What does Metavante warrant about its services?",
+    "kind": "graph",
+    "ranks": {
+     "vector": 2,
+     "keyword": 1,
+     "hybrid": 2,
+     "context": 2,
+     "graph": 2
+    },
+    "top": [
+     "12.1 Metavante. (OFGBANCORP_03_)",
+     "6 PERFORMANCE WARRANTY/DISCLAIMER OF ALL O (OFGBANCORP_03_)",
+     "10 INSURANCE AND INDEMNITY. (OFGBANCORP_03_)"
+    ],
+    "scope": [
+     "OFGBANCORP_03_28_2007-EX"
+    ]
+   },
+   {
+    "id": 46,
+    "question": "What must the Client pay the Service Provider if it ends a project early?",
+    "kind": "graph",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "5.4 Upon expiration or termination of this M (master-service)",
+     "5.5 the Service Provider shall deliver to th (master-service)",
+     "3.1 The Service Provider shall invoice the C (master-service)"
+    ],
+    "scope": [
+     "OFGBANCORP_03_28_2007-EX",
+     "master-services-agreemen"
+    ]
+   },
+   {
+    "id": 47,
+    "question": "Which law and courts apply under the clinical trial agreement?",
+    "kind": "graph",
+    "ranks": {
+     "vector": 7,
+     "keyword": null,
+     "hybrid": 7,
+     "context": 7,
+     "graph": 6
+    },
+    "top": [
+     "4.2 All shipments shall be packaged, labelle (master-service)",
+     "1.2 Regulatory Compliance of the Study (EFC18326_Rosa_)",
+     "SEC_(WITH_INSTITUTI (with Institution and Investigator) (EFC18326_Rosa_)"
+    ],
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
+    ]
+   },
+   {
+    "id": 48,
+    "question": "What are the Manufacturer's packaging obligations?",
+    "kind": "graph",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "3.3 Packaging (AgapeAtpCorp_2)",
+     "5.2 Guarantee of packaging quality (AgapeAtpCorp_2)",
+     "2.1 Provision by the Manufacturer (AgapeAtpCorp_2)"
+    ],
+    "scope": [
+     "AgapeAtpCorp_20191202_10"
     ]
    }
   ],
-  "ran_at": "2026-11-04T19:29:47.218410+00:00"
+  "ran_at": "2026-11-08T03:41:48.044877+00:00"
  },
  "answers": {
+  "summary": {
+   "all": {
+    "n": 44,
+    "answered": 1.0,
+    "right_clause_in_context": 0.977,
+    "right_clause_cited": 0.955,
+    "answered_wrong_clause": 0.045,
+    "faithfulness": 1.0,
+    "addresses_question": 1.0
+   },
+   "direct": {
+    "n": 17,
+    "answered": 1.0,
+    "right_clause_in_context": 1.0,
+    "right_clause_cited": 0.941,
+    "answered_wrong_clause": 0.059,
+    "faithfulness": 1.0,
+    "addresses_question": 1.0
+   },
+   "paraphrase": {
+    "n": 17,
+    "answered": 1.0,
+    "right_clause_in_context": 1.0,
+    "right_clause_cited": 1.0,
+    "answered_wrong_clause": 0.0,
+    "faithfulness": 1.0,
+    "addresses_question": 1.0
+   },
+   "broad": {
+    "n": 4,
+    "answered": 1.0,
+    "right_clause_in_context": 0.75,
+    "right_clause_cited": 0.75,
+    "answered_wrong_clause": 0.25,
+    "faithfulness": 1.0,
+    "addresses_question": 1.0
+   },
+   "graph": {
+    "n": 6,
+    "answered": 1.0,
+    "right_clause_in_context": 1.0,
+    "right_clause_cited": 1.0,
+    "answered_wrong_clause": 0.0,
+    "faithfulness": 1.0,
+    "addresses_question": 1.0
+   },
+   "none": {
+    "n": 4,
+    "correctly_refused": 1.0
+   }
+  },
+  "rows": [
+   {
+    "id": 1,
+    "question": "How long does the supply agreement last, and does it roll over?",
+    "kind": "paraphrase",
+    "answer": "The supply agreement lasts for a term of ten (10) years and will be automatically renewed at the end of each ten (10) year term, provided that a six (6) months notice of termination is not given by either party for reasons other than breach of the agreement [1].",
+    "sources": 2,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 2,
+    "question": "What are the payment terms?",
+    "kind": "direct",
+    "answer": "The payment terms vary by contract:\n\n1. **Supply Agreement** (Agape ATP International Holding Limited & Organic Preparations INC.):\n   - 50% of the Total Order Cost must be paid upon placement of the customer's order.\n   - The remaining 50% must be paid prior to the goods leaving the warehouse. The Manufacturer will notify the Customer when the goods are ready for shipment [1].\n\n2. **Affiliate Agreement** (Cybergy Holdings Inc.):\n   - Payment terms are Net 30 days for Technology licensed from the Company unless otherwise approved [3].\n   - If fees are not collected directly from the corporate user, MA agrees to pay the fees as specified in the current price list at the time an order is received [4].\n   - Services, training, and support are paid for according to agreed-upon terms, with late payment charges applicable for overdue accounts [5].\n\nThis summarizes the payment terms from both contracts.",
+    "sources": 5,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 3,
+    "question": "Can the manufacturer hand its rights to someone else?",
+    "kind": "paraphrase",
+    "answer": "No, the Manufacturer cannot transfer or assign any of its rights or obligations under the agreement without the prior written consent of the Customer, as stated in clause 14.6 of the Supply Agreement [1].",
+    "sources": 1,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 4,
+    "question": "Who pays for the lawyers if there is a dispute?",
+    "kind": "paraphrase",
+    "answer": "The payment for legal costs depends on the specific contract involved. \n\nIn the **Supply Agreement** from AgapeAtpCorp, clause 9 states that each party shall bear its own legal costs and expenses incurred in connection with the agreement [1]. \n\nIn the **Affiliate Agreement** from Cybergy Holdings Inc., clause 24 specifies that the prevailing party in any legal action is entitled to recover all attorney fees, court costs, and expenses [2].\n\nTherefore, if the dispute arises under the Supply Agreement, each party pays for its own lawyers. If the dispute arises under the Affiliate Agreement, the prevailing party will be entitled to recover legal costs.",
+    "sources": 2,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 5,
+    "question": "What happens if a provision is held invalid by a court?",
+    "kind": "direct",
+    "answer": "In the first contract (Master Services Agreement), clause 10.16 states that if any provision is held to be invalid or unenforceable, the remaining provisions shall remain in full force and effect [1]. \n\nIn the second contract (Supply Agreement), clause 14.4 also indicates that if any provision is held invalid by a court, the remaining provisions will nonetheless remain in full force and effect, and the parties agree to renegotiate the invalid provisions [2]. \n\nIn the third contract (Affiliate Agreement), clause 22 similarly states that if any part of the agreement is declared invalid, the remaining portions will remain valid and enforceable as if the invalid portion had been eliminated [3]. \n\nOverall, all three contracts have similar clauses ensuring that invalid provisions do not affect the validity of the remaining provisions.",
+    "sources": 3,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 6,
+    "question": "Does the customer get priority if the manufacturer sells its intellectual property?",
+    "kind": "paraphrase",
+    "answer": "Yes, the Customer has the first right of refusal to purchase the intellectual property for the products listed in Schedule A of the agreement, based on agreed terms [1]. This is outlined in the Supply Agreement from AgapeAtpCorp.",
+    "sources": 1,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 7,
+    "question": "Must the customer name the manufacturer as additional insured?",
+    "kind": "direct",
+    "answer": "Yes, the Customer must name the Manufacturer as an Additional Insured on the product liability insurance policy, as stated in Clause 6.2 of the Supply Agreement [1].",
+    "sources": 1,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 8,
+    "question": "Who provides the study drug and at what cost?",
+    "kind": "direct",
+    "answer": "The Sponsor provides the Study Drug at no cost in amounts sufficient for the conduct of the Study. This information is stated in clause 1.4(a) of the contract.",
+    "sources": 1,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": false,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 9,
+    "question": "When can the investigator walk away from the study immediately?",
+    "kind": "paraphrase",
+    "answer": "The Investigator can terminate the Agreement with immediate effect if: (i) the Sponsor breaches the Agreement and fails to cure such breach within thirty (30) calendar days from the receipt of written notice; or (ii) if the Investigator, in good faith, believes that the continuation of the Study presents an unreasonable medical risk to the Study Participants [1]. This information comes from the contract titled EFC18326_Rosa_CTA_-_Final_Clean.",
+    "sources": 1,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 10,
+    "question": "When does the clinical trial agreement start?",
+    "kind": "direct",
+    "answer": "The clinical trial agreement starts on the last date of signature by the Parties, as stated in clause 9.1. This clause indicates that the agreement shall commence at that point unless terminated earlier in accordance with the termination section [1].",
+    "sources": 2,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 11,
+    "question": "What is a participant who fails the entry checks called?",
+    "kind": "paraphrase",
+    "answer": "A participant who fails the entry checks is called a \"Screen Failure,\" as defined in clause 1.6 of the contract [1].",
+    "sources": 1,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 12,
+    "question": "What security measures must the institution maintain for personal data?",
+    "kind": "direct",
+    "answer": "The institution must implement and maintain all appropriate technical and organizational security measures to ensure the confidentiality, integrity, availability, and resilience of its processing systems and services. This includes measures for physical security of equipment and premises, file backup provisions, access to data management, identification and authentication measures, procedures ensuring traceability of access to medical information and connection history, and specific security measures for data transfer. Importantly, study data must not be entered on any tools other than those necessary to conduct the study in accordance with the protocol [1]. \n\nThis information comes from the contract titled \"EFC18326_Rosa_CTA_-_Final_Clean.\"",
+    "sources": 1,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 13,
+    "question": "Who covers injury to participants during the study?",
+    "kind": "paraphrase",
+    "answer": "The Sponsor agrees to defend, indemnify, and hold harmless the Institution, the Investigator, and Study Personnel from claims arising out of injuries to Study Participants caused by the administration of the Study Drug or required procedures, except under specific circumstances detailed in the clause. The Institution and Investigator are also required to maintain their own liability insurance for their liability under the Agreement. This is detailed in clause [1].",
+    "sources": 1,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 14,
+    "question": "Which duties continue after the agreement ends?",
+    "kind": "paraphrase",
+    "answer": "The duties that continue after the agreement ends are detailed in both the master services agreement and the clinical trial agreement:\n\n1. Master Services Agreement: Provisions related to confidentiality, data protection, intellectual property, liability, and payment obligations are specified to survive termination or expiry [1][2].\n\n2. Clinical Trial Agreement: Section 9.5 outlines that obligations relating to various provisions, including confidentiality, data protection, insurance, liability, and indemnification, continue after the termination or expiration of the agreement [4].\n\nThus, both contracts ensure specific duties persist beyond their termination.",
+    "sources": 7,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 15,
+    "question": "How is personal data defined?",
+    "kind": "direct",
+    "answer": "Personal data is defined as any information relating to an identified or identifiable natural person. An identifiable natural person is one who can be identified, directly or indirectly, particularly by reference to an identifier such as a name, identification number, location data, online identifier, or factors specific to the person's physical, physiological, genetic, mental, economic, cultural, or social identity. This definition is covered in clause 4[a] of the first contract [1] and also appears in clause 1.4 of the same document [2].",
+    "sources": 2,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 16,
+    "question": "Can the client cancel a project early, and with how much notice?",
+    "kind": "paraphrase",
+    "answer": "Yes, the Client can cancel a project early, providing thirty (30) or sixty (60) days’ prior written notice, as per the terms of the master services agreement [1].",
+    "sources": 1,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 17,
+    "question": "When must invoices be paid?",
+    "kind": "direct",
+    "answer": "The payment terms for invoices are outlined in both contracts. \n\n1. In the master services agreement (clauses [1]), each invoice is payable within thirty (30) days from receipt, and if there is a disputed portion, the undisputed part must be paid when due.\n2. In the affiliate agreement (clauses [2]), the payment terms for Technology licensed from the Company are also set to Net 30 days unless otherwise approved by the Company.\n\nTherefore, invoices must be paid within thirty (30) days in both contracts.",
+    "sources": 2,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 18,
+    "question": "Who owns the new inventions created during the work?",
+    "kind": "paraphrase",
+    "answer": "According to the clauses, all Foreground Intellectual Property, which includes new inventions created during the performance of the Services, shall be the exclusive property of the Client. The Service Provider is required to assign all rights, title, and interest in such Foreground Intellectual Property to the Client if they do not automatically vest in the Client [1], [2].",
+    "sources": 2,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 19,
+    "question": "Which courts have jurisdiction over disputes?",
+    "kind": "direct",
+    "answer": "The jurisdiction over disputes depends on the specific contract in question:\n\n1. For the master services agreement, disputes shall be subject to the jurisdiction of the competent courts specified in the applicable Project Agreement, or if none is specified, shall be governed by the laws of Mauritius [1].\n   \n2. For the EFC18326 Agreement, the competent courts of Pretoria, South Africa have jurisdiction, and the parties waive any other forum [2].",
+    "sources": 2,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 20,
+    "question": "What happens to secret information when the contract ends?",
+    "kind": "paraphrase",
+    "answer": "Upon termination or expiry of the Agreement, the Receiving Party is required to promptly return or securely destroy all Confidential Information, except where retention is required by Applicable Law or regulatory requirements, as stated in clause [1]. Additionally, the obligations of confidentiality with respect to trade secrets and personal data remain in effect indefinitely, in accordance with clause [2]. Therefore, trade secrets are protected beyond the termination of the contract. This information comes from the master services agreement.",
+    "sources": 4,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 21,
+    "question": "Who bears the risk of loss during shipments?",
+    "kind": "direct",
+    "answer": "The clauses provide the following guidance on the risk of loss during shipments:\n\n1. If shipments are arranged directly by the Client, the risk of loss or damage remains with the Client [1].\n2. If materials are under the control of the Service Provider or its subcontractors, the risk remains with the Service Provider until delivery to the designated recipient [1].\n3. If not specified in the applicable Project Agreement, risk of loss remains with the Service Provider while materials are under its control and handling [4].\n\nThus, the risk of loss during shipments will depend on who arranges the shipment and the control of the materials at that time.",
+    "sources": 4,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 22,
+    "question": "Is a party excused if a pandemic or war stops it performing?",
+    "kind": "paraphrase",
+    "answer": "Yes, a party is excused from performance due to a pandemic or war under both contracts. \n\nIn the master services agreement, clause 10.7 states that neither party shall be liable for failure or delay in performance due to events beyond their reasonable control, which includes pandemics and war [1]. \n\nIn the supply agreement, clause 14.7 explicitly mentions that a party is not liable for a breach of the agreement as a result of war, civil disturbance, and the occurrence of a pandemic would fall under events beyond reasonable control [2].",
+    "sources": 2,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 23,
+    "question": "What insurance must each party maintain?",
+    "kind": "direct",
+    "answer": "Each party must maintain the following types of insurance throughout the term of the agreement as outlined in the relevant clauses:\n\n1. Commercial General Liability insurance\n2. Professional Liability / Errors & Omissions insurance\n3. Cyber Liability insurance\n4. Workers Compensation insurance\n5. Any additional insurance required by Applicable Laws or the applicable Project Agreement\n\nFurthermore, certificates of insurance must be provided upon reasonable request [1]. The insurance coverage must also be appropriate for the risks within each party's responsibility as stated in the applicable Project Agreement [2].",
+    "sources": 2,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 24,
+    "question": "Can either party assign the agreement?",
+    "kind": "direct",
+    "answer": "In the master services agreement, neither party may assign or transfer the agreement without prior written consent from the other party, except in specific cases involving an affiliate or certain corporate transactions, where written notice is required ([1]). \n\nIn the supply agreement, both parties may not assign the agreement without prior written consent of the other party, with additional stipulations regarding breaches and other events ([2], [3]).\n\nHence, in both contracts, assignments are generally prohibited without consent, though there are exceptions.",
+    "sources": 8,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 25,
+    "question": "Is the affiliate an employee of the company?",
+    "kind": "paraphrase",
+    "answer": "No, the affiliate (referred to as MA) is not considered an employee of the company. Clause 14 explicitly states that MA shall be deemed an independent contractor and shall not hold itself out as an employee or agent of the company, except for limited purposes related to marketing the technology. Furthermore, it clarifies that MA will not be treated as an employee for any tax purposes related to the services it performs [1].",
+    "sources": 1,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 26,
+    "question": "Which state's law governs the marketing affiliate agreement?",
+    "kind": "direct",
+    "answer": "The marketing affiliate agreement is governed by the laws of the State of Nevada, as stated in clause 24 of the document [1].",
+    "sources": 1,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 27,
+    "question": "Can the company be made to pay for lost profits?",
+    "kind": "paraphrase",
+    "answer": "Based on the clauses provided, the company cannot be made to pay for lost profits. \n\nIn the master services agreement, clause 9.3 states that neither party shall be liable to the other for any indirect, incidental, consequential, special, punitive, or exemplary damages, including loss of profits, even if advised of the possibility of such damages [1]. \n\nSimilarly, the affiliate agreement specifies in clause 16.3 that the company shall not be liable for any indirect, special, general, incidental, or consequential damages, including but not limited to loss of profits or anticipated profits [2]. \n\nIn the outsourcing agreement, clause 9.2 also states that neither party will be liable for incidental, consequential, special, punitive, or exemplary damages, including lost profits [3].\n\nThus, these clauses collectively indicate that the company cannot be held liable for lost profits in any of the agreements referenced.",
+    "sources": 4,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 28,
+    "question": "Can either party end the agreement when the term expires?",
+    "kind": "direct",
+    "answer": "Yes, either party can terminate the agreement at the expiration of its term upon thirty (30) days written notice to the other party, as stated in clause [1]. This applies to both the initial term and any renewal term.",
+    "sources": 2,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 29,
+    "question": "Is the affiliate allowed to change the software?",
+    "kind": "paraphrase",
+    "answer": "According to the clauses, the affiliate (referred to as MA) is not allowed to modify the source code of the Technology without the written consent of the Company, as stated in clause 12.3. Therefore, any changes to the software require prior approval. Additionally, clause 3.4 specifies that MA agrees not to remove or alter any copyright or proprietary notices, which further restricts alterations to the Technology. \n\nIn summary, the affiliate is not allowed to change the software unless they have written consent from the Company [1], [2].",
+    "sources": 2,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 30,
+    "question": "What availability must the core systems reach?",
+    "kind": "direct",
+    "answer": "The core systems must have ninety-nine percent (99%) Availability, meaning the customer can access the systems and perform necessary transactions during the Scheduled Hours of Availability, which are from 7:00 a.m. to 10:00 p.m. each Processing Day, provided that the customer meets its input data commitment by 11:00 p.m. [1]. This information comes from the Outsourcing Agreement.",
+    "sources": 1,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 31,
+    "question": "What do I get back if the vendor misses its service targets?",
+    "kind": "paraphrase",
+    "answer": "If the vendor, Metavante, misses its service targets, you may receive Service Level Credits as compensation. For the Year-End Batch Report Service Level, if there is a failure, you would receive a credit of four percent (4%) if the processing is not completed and reports are not available by 6:00 a.m. the first Business Day following submission of the end of year command [1]. For the EFD Reports Service Level, a credit of six percent (6%) is applicable for each instance where reports are not available by 3:00 p.m. the following day, provided this occurs three times in a month [2].",
+    "sources": 2,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 32,
+    "question": "What does the bank owe if it ends the contract early?",
+    "kind": "paraphrase",
+    "answer": "If the bank (referred to as \"Customer\" in the agreement) terminates the contract early, it must pay a termination fee, which is computed in accordance with Section 8.4 of the Agreement ([2], [3]). The specific amount of the termination fee is not detailed in the provided clauses, but it indicates that it will be determined as set forth in that section. Thus, the bank is responsible for the termination fee according to the terms outlined in the contract.",
+    "sources": 6,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 33,
+    "question": "What is the performance warranty?",
+    "kind": "direct",
+    "answer": "The performance warranty, as described in the Outsourcing Agreement, states that Metavante warrants it will provide all Services in a commercially reasonable manner in material conformance with the applicable Documentation. If the parties have agreed upon Service Levels for any aspect of Metavante’s performance, those Service Levels will apply instead of the Performance Warranty. This warranty is also subject to certain exclusions listed in the agreement [1].",
+    "sources": 3,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 34,
+    "question": "How are disputes between the parties resolved?",
+    "kind": "direct",
+    "answer": "Dispute resolution varies across the three contracts:\n\n1. **Master Services Agreement**: Disputes must first be attempted to be resolved through negotiation in good faith. If unresolved within 30 days, the parties may then refer the dispute to mediation or another agreed dispute resolution mechanism before initiating formal proceedings [1].\n\n2. **Outsourcing Agreement**: Disputes are initially referred to the representatives of each party. If unresolved within five business days, the managers and then the senior executives will attempt to resolve the dispute, culminating with the CEOs. Legal proceedings cannot commence until these procedures are completed, except for preserving rights or maintaining positions against other creditors [2].\n\n3. **Supply Agreement**: Disputes are to be settled through mutual consultation in good faith. If amicable settlement fails, disputes will be decided by arbitration by the International Chamber of Commerce in Switzerland [3], [4].\n\nEach contract outlines a distinct process for resolving disputes involving negotiation, escalation through management, or arbitration.",
+    "sources": 4,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 35,
+    "question": "What is the vendor's annual revenue?",
+    "kind": "none",
+    "answer": "I couldn't find this in your saved contracts.",
+    "sources": 0,
+    "refused": true
+   },
+   {
+    "id": 36,
+    "question": "What is the vacation policy for the vendor's employees?",
+    "kind": "none",
+    "answer": "I couldn't find this in your saved contracts.",
+    "sources": 0,
+    "refused": true
+   },
+   {
+    "id": 37,
+    "question": "Which contract requires the parties to use ICC arbitration in Paris?",
+    "kind": "none",
+    "answer": "The clauses do not mention requiring the parties to use ICC arbitration in Paris. Clause [1] specifies arbitration by the Arbitration Committee of the International Chamber of Commerce located in Switzerland, not Paris. Therefore, the contract does not cover your question.",
+    "sources": 1,
+    "refused": true
+   },
+   {
+    "id": 38,
+    "question": "What is the maximum number of staff the vendor may assign to the bank?",
+    "kind": "none",
+    "answer": "The clauses do not cover the maximum number of staff the vendor may assign to the bank.",
+    "sources": 1,
+    "refused": true
+   },
+   {
+    "id": 39,
+    "question": "What are the terms and conditions?",
+    "kind": "broad",
+    "answer": "The terms and conditions of the Outsourcing Agreement include:\n\n1. **Construction**: This section outlines definitions, references, and interpretations within the Agreement. It specifies that capitalized terms have meanings defined in Article 18, and that terms like \"includes\" mean \"includes, without limitation\" [1].\n\n2. **Affiliates**: The Customer is responsible for ensuring compliance with the Agreement by its Affiliates and is liable for any fees owed for services rendered to them. Affiliates also include entities that become affiliates after the Agreement date due to reorganization or restructuring [1.4].\n\n3. **Term**: This outlines the duration of the Agreement, including renewal processes and conditions for extending the Agreement after the Initial Term. It specifies that the Agreement can automatically renew unless the Customer notifies Metavante otherwise within a specified period [4].\n\nOverall, these clauses form the basis of the obligations and liabilities of the Customer and Metavante under the Agreement. For detailed legal interpretation or implementation of specific terms, consulting a legal professional is recommended.",
+    "sources": 6,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 40,
+    "question": "What are the terms of the agreement?",
+    "kind": "broad",
+    "answer": "The terms of the agreement based on the supplied clauses include:\n\n1. **Term**: The agreement is for a term of ten (10) years ([1]).\n2. **Renewal**: The agreement will be automatically renewed for subsequent ten (10) year terms, unless terminated by either party with a six (6) months notice for reasons other than breach of the agreement ([1]). \n\nThese clauses establish the duration and renewal conditions for the supply agreement between the parties.",
+    "sources": 1,
+    "refused": false,
+    "context_has_gold": false,
+    "cited_gold": false,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 41,
+    "question": "What does the manufacturer promise to do?",
+    "kind": "broad",
+    "answer": "The Manufacturer promises to do the following under the Supply Agreement:\n\n1. Comply with all Local Laws and Regulations, including those related to business practices, workplace relations, safety, and taxation [4].\n2. Maintain compliance with all International standards in production and manufacturing [2].\n3. Adhere to all packaging laws and regulations in all Territories [3].\n4. Be willing and able to perform all obligations under the agreement [1].\n5. Ensure that the Products are free of any Intellectual Property claims by third parties and that the Customer has full rights to sell and market the Products worldwide, indemnifying the Customer for any claims [1].\n6. Focus on the design and formulation of new products, providing the Customer with one new product each quarter, granting exclusive rights to marketing, promotion, and sales if the Customer chooses to take on the new products [5].\n7. Guarantee that the Products are packaged to protect against foreseeable damage during shipment [6].\n\nThese commitments are outlined in the clauses specified from the Supply Agreement.",
+    "sources": 6,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 42,
+    "question": "What documentation must each party provide?",
+    "kind": "broad",
+    "answer": "In the Supply Agreement outlined in the clauses from [1], the parties have specific documentation obligations:\n\n1. **Manufacturer's Obligation**: The Manufacturer must supply all documentation and information related to the Products and their Manufacture, necessary for the registration of the Products in the relevant Territories. This must be done within a reasonable period of time, and the Customer is responsible for any documentation fees and costs related to this provision [3].\n\n2. **Customer's Obligation**: The Customer agrees to provide the Manufacturer with all documentation and information that is reasonably required or beneficial for the Manufacturer to fulfill its obligations under the agreement, also within a reasonable period of time and at its own expense [2].\n\nThe clauses do not cover any additional contracts or parties outside of those specified in the Supply Agreement.",
+    "sources": 4,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 43,
+    "question": "What notice must the Marketing Affiliate give to end the agreement?",
+    "kind": "graph",
+    "answer": "The Marketing Affiliate must provide thirty (30) days written notice to the other party to terminate the agreement. This is specified in clause 18.1 of the Affiliate Agreement [1].",
+    "sources": 2,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 44,
+    "question": "What insurance does the Sponsor maintain for the study?",
+    "kind": "graph",
+    "answer": "The Sponsor has subscribed to and shall maintain in effect, for the duration of the Study, a liability insurance policy to cover its liability as required by applicable law [1]. This information comes from the contract titled \"EFC18326_Rosa_CTA_-_Final_Clean_-_26_Jan_26docx.pdf.\"",
+    "sources": 1,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 45,
+    "question": "What does Metavante warrant about its services?",
+    "kind": "graph",
+    "answer": "Metavante warrants that it will provide all services in a commercially reasonable manner and in material conformance with the applicable documentation as part of its Performance Warranty [2]. Additionally, Metavante warrants that it has the right to provide the services, is validly existing as a corporation in Wisconsin, has the authority to perform its obligations under the agreement, and that the agreement is enforceable against it [1]. However, Metavante disclaims any other warranties, conditions, or representations regarding the services provided, including implied warranties of merchantability or fitness for a particular purpose [3].",
+    "sources": 4,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 46,
+    "question": "What must the Client pay the Service Provider if it ends a project early?",
+    "kind": "graph",
+    "answer": "If the Client ends a project early, they must pay the Service Provider for the following:\n\na. Services properly performed up to the effective date of termination;\nb. reasonable and documented wind-down costs; and\nc. any non-cancellable commitments expressly approved by the Client. \n\nThis comes from the master services agreement, specifically clause 5.4 [1].",
+    "sources": 1,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 47,
+    "question": "Which law and courts apply under the clinical trial agreement?",
+    "kind": "graph",
+    "answer": "Under the clinical trial agreement, the applicable law is the laws of South Africa, and any disputes should be settled in the competent courts of Pretoria, South Africa, as stated in clause 12 [1].",
+    "sources": 1,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 48,
+    "question": "What are the Manufacturer's packaging obligations?",
+    "kind": "graph",
+    "answer": "The Manufacturer's packaging obligations include two main aspects:\n\n1. The Manufacturer must comply with all packaging laws and regulations in all of the Territories for the duration of the agreement [1].\n2. The Manufacturer guarantees that the Products, when shipped, will be packaged to protect against any foreseeable damage during shipment [2].\n\nThese clauses are from the Supply Agreement.",
+    "sources": 2,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   }
+  ],
+  "ran_at": "2026-11-08T03:44:01.661095+00:00",
+  "answer_model": "gpt-4o-mini",
+  "judge_model": "gpt-4o"
+ },
+ "answers_before_graph": {
   "summary": {
    "all": {
     "n": 38,
@@ -2130,5 +3117,1132 @@
   "ran_at": "2026-11-04T19:33:16.250133+00:00",
   "answer_model": "gpt-4o-mini",
   "judge_model": "gpt-4o"
+ },
+ "retrieval_graph_v1": {
+  "summary": {
+   "all": {
+    "vector": {
+     "hit@1": 0.5,
+     "hit@3": 0.727,
+     "hit@5": 0.795,
+     "hit@10": 0.932,
+     "mrr": 0.646,
+     "n": 44
+    },
+    "keyword": {
+     "hit@1": 0.205,
+     "hit@3": 0.25,
+     "hit@5": 0.273,
+     "hit@10": 0.273,
+     "mrr": 0.233,
+     "n": 44
+    },
+    "hybrid": {
+     "hit@1": 0.477,
+     "hit@3": 0.75,
+     "hit@5": 0.841,
+     "hit@10": 0.909,
+     "mrr": 0.636,
+     "n": 44
+    },
+    "context": {
+     "hit@1": 0.568,
+     "hit@3": 0.841,
+     "hit@5": 0.886,
+     "hit@10": 0.932,
+     "mrr": 0.709,
+     "n": 44
+    },
+    "graph": {
+     "hit@1": 0.523,
+     "hit@3": 0.795,
+     "hit@5": 0.841,
+     "hit@10": 0.909,
+     "mrr": 0.672,
+     "n": 44
+    }
+   },
+   "direct": {
+    "vector": {
+     "hit@1": 0.588,
+     "hit@3": 0.882,
+     "hit@5": 0.882,
+     "hit@10": 0.941,
+     "mrr": 0.744,
+     "n": 17
+    },
+    "keyword": {
+     "hit@1": 0.294,
+     "hit@3": 0.353,
+     "hit@5": 0.412,
+     "hit@10": 0.412,
+     "mrr": 0.338,
+     "n": 17
+    },
+    "hybrid": {
+     "hit@1": 0.529,
+     "hit@3": 0.941,
+     "hit@5": 0.941,
+     "hit@10": 0.941,
+     "mrr": 0.725,
+     "n": 17
+    },
+    "context": {
+     "hit@1": 0.588,
+     "hit@3": 0.941,
+     "hit@5": 0.941,
+     "hit@10": 0.941,
+     "mrr": 0.755,
+     "n": 17
+    },
+    "graph": {
+     "hit@1": 0.529,
+     "hit@3": 0.882,
+     "hit@5": 0.882,
+     "hit@10": 0.941,
+     "mrr": 0.703,
+     "n": 17
+    }
+   },
+   "paraphrase": {
+    "vector": {
+     "hit@1": 0.529,
+     "hit@3": 0.647,
+     "hit@5": 0.765,
+     "hit@10": 0.882,
+     "mrr": 0.633,
+     "n": 17
+    },
+    "keyword": {
+     "hit@1": 0.118,
+     "hit@3": 0.118,
+     "hit@5": 0.118,
+     "hit@10": 0.118,
+     "mrr": 0.118,
+     "n": 17
+    },
+    "hybrid": {
+     "hit@1": 0.529,
+     "hit@3": 0.647,
+     "hit@5": 0.765,
+     "hit@10": 0.882,
+     "mrr": 0.621,
+     "n": 17
+    },
+    "context": {
+     "hit@1": 0.529,
+     "hit@3": 0.706,
+     "hit@5": 0.824,
+     "hit@10": 0.882,
+     "mrr": 0.632,
+     "n": 17
+    },
+    "graph": {
+     "hit@1": 0.529,
+     "hit@3": 0.706,
+     "hit@5": 0.824,
+     "hit@10": 0.882,
+     "mrr": 0.643,
+     "n": 17
+    }
+   },
+   "broad": {
+    "vector": {
+     "hit@1": 0.0,
+     "hit@3": 0.25,
+     "hit@5": 0.5,
+     "hit@10": 1.0,
+     "mrr": 0.212,
+     "n": 4
+    },
+    "keyword": {
+     "hit@1": 0.0,
+     "hit@3": 0.25,
+     "hit@5": 0.25,
+     "hit@10": 0.25,
+     "mrr": 0.125,
+     "n": 4
+    },
+    "hybrid": {
+     "hit@1": 0.0,
+     "hit@3": 0.25,
+     "hit@5": 0.75,
+     "hit@10": 0.75,
+     "mrr": 0.237,
+     "n": 4
+    },
+    "context": {
+     "hit@1": 0.75,
+     "hit@3": 1.0,
+     "hit@5": 1.0,
+     "hit@10": 1.0,
+     "mrr": 0.875,
+     "n": 4
+    },
+    "graph": {
+     "hit@1": 0.75,
+     "hit@3": 1.0,
+     "hit@5": 1.0,
+     "hit@10": 1.0,
+     "mrr": 0.875,
+     "n": 4
+    }
+   },
+   "graph": {
+    "vector": {
+     "hit@1": 0.5,
+     "hit@3": 0.833,
+     "hit@5": 0.833,
+     "hit@10": 1.0,
+     "mrr": 0.69,
+     "n": 6
+    },
+    "keyword": {
+     "hit@1": 0.333,
+     "hit@3": 0.333,
+     "hit@5": 0.333,
+     "hit@10": 0.333,
+     "mrr": 0.333,
+     "n": 6
+    },
+    "hybrid": {
+     "hit@1": 0.5,
+     "hit@3": 0.833,
+     "hit@5": 0.833,
+     "hit@10": 1.0,
+     "mrr": 0.69,
+     "n": 6
+    },
+    "context": {
+     "hit@1": 0.5,
+     "hit@3": 0.833,
+     "hit@5": 0.833,
+     "hit@10": 1.0,
+     "mrr": 0.69,
+     "n": 6
+    },
+    "graph": {
+     "hit@1": 0.333,
+     "hit@3": 0.667,
+     "hit@5": 0.667,
+     "hit@10": 0.833,
+     "mrr": 0.528,
+     "n": 6
+    }
+   }
+  },
+  "rows": [
+   {
+    "id": 1,
+    "question": "How long does the supply agreement last, and does it roll over?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "1.3 Renewal (AgapeAtpCorp_2)",
+     "1.2 Term (AgapeAtpCorp_2)",
+     "5.1 This MSA shall commence on the Effective (master-service)"
+    ],
+    "scope": [
+     "AgapeAtpCorp_20191202_10"
+    ]
+   },
+   {
+    "id": 2,
+    "question": "What are the payment terms?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 1,
+     "keyword": 1,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "5.4 Payment terms (AgapeAtpCorp_2)",
+     "5 SHIPPING AND PAYMENT TERMS (AgapeAtpCorp_2)",
+     "4 TERMS. (CybergyHolding)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 3,
+    "question": "Can the manufacturer hand its rights to someone else?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "14.6 Assignment (AgapeAtpCorp_2)",
+     "3.5 Intellectual Property (AgapeAtpCorp_2)",
+     "3.5 (a) (AgapeAtpCorp_2)"
+    ],
+    "scope": [
+     "AgapeAtpCorp_20191202_10"
+    ]
+   },
+   {
+    "id": 4,
+    "question": "Who pays for the lawyers if there is a dispute?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 4,
+     "keyword": null,
+     "hybrid": 4,
+     "context": 4,
+     "graph": 4
+    },
+    "top": [
+     "11 DISPUTE RESOLUTION (OFGBANCORP_03_)",
+     "10.6 The Parties shall attempt in good faith  (master-service)",
+     "8.1 Any and all disputes, claims or differen (AgapeAtpCorp_2)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 5,
+    "question": "What happens if a provision is held invalid by a court?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 2,
+     "keyword": null,
+     "hybrid": 2,
+     "context": 2,
+     "graph": 2
+    },
+    "top": [
+     "10.16 If any provision of this Agreement is he (master-service)",
+     "14.4 Severability (AgapeAtpCorp_2)",
+     "10.19 Failure to enforce any provision shall n (master-service)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 6,
+    "question": "Does the customer get priority if the manufacturer sells its intellectual property?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "12 TRANSFER OF INTELLECTUAL PROPERTY (AgapeAtpCorp_2)",
+     "3.5 Intellectual Property (AgapeAtpCorp_2)",
+     "11 INTELLECTUAL PROPERTY (AgapeAtpCorp_2)"
+    ],
+    "scope": [
+     "AgapeAtpCorp_20191202_10"
+    ]
+   },
+   {
+    "id": 7,
+    "question": "Must the customer name the manufacturer as additional insured?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "6.2 The Customer shall at all times during t (AgapeAtpCorp_2)",
+     "6.1 The Manufacturing Companies utilised by  (AgapeAtpCorp_2)",
+     "3.5 (b) (AgapeAtpCorp_2)"
+    ],
+    "scope": [
+     "AgapeAtpCorp_20191202_10"
+    ]
+   },
+   {
+    "id": 8,
+    "question": "Who provides the study drug and at what cost?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 1,
+     "keyword": 1,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "1.4 Study Drug and Study Supplies (EFC18326_Rosa_)",
+     "2 Additional Procedural Fees (EFC18326_Rosa_)",
+     "SEC_(WITH_INSTITUTI (with Institution and Investigator) (EFC18326_Rosa_)"
+    ],
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
+    ]
+   },
+   {
+    "id": 9,
+    "question": "When can the investigator walk away from the study immediately?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "9.3 Termination by the Institution or the In (EFC18326_Rosa_)",
+     "9.4 Unavailability of the Investigator (EFC18326_Rosa_)",
+     "9.2 Termination by the Sponsor (EFC18326_Rosa_)"
+    ],
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
+    ]
+   },
+   {
+    "id": 10,
+    "question": "When does the clinical trial agreement start?",
+    "kind": "direct",
+    "ranks": {
+     "vector": null,
+     "keyword": null,
+     "hybrid": null,
+     "context": null,
+     "graph": 8
+    },
+    "top": [
+     "SEC_(WITH_INSTITUTI (with Institution and Investigator) (EFC18326_Rosa_)",
+     "SIGNATURES Signature Block (EFC18326_Rosa_)",
+     "1.1 Conduct of the Study (EFC18326_Rosa_)"
+    ],
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
+    ]
+   },
+   {
+    "id": 11,
+    "question": "What is a participant who fails the entry checks called?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": null,
+     "keyword": null,
+     "hybrid": null,
+     "context": null,
+     "graph": null
+    },
+    "top": [
+     "1.3 Study Participants (EFC18326_Rosa_)",
+     "9.4 Unavailability of the Investigator (EFC18326_Rosa_)",
+     "5.2 Each Party (the “Indemnifying Party”) ag (EFC18326_Rosa_)"
+    ],
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
+    ]
+   },
+   {
+    "id": 12,
+    "question": "What security measures must the institution maintain for personal data?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 2,
+     "context": 2,
+     "graph": 2
+    },
+    "top": [
+     "3.2 In this respect INSTITUTION and/or INVES (EFC18326_Rosa_)",
+     "4 Security measures (EFC18326_Rosa_)",
+     "10.13 Each Party shall implement reasonable ad (master-service)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 13,
+    "question": "Who covers injury to participants during the study?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 1,
+     "keyword": 1,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "7 INSURANCE, LIABILITY, INDEMNIFICATION (EFC18326_Rosa_)",
+     "5.2 Each Party (the “Indemnifying Party”) ag (EFC18326_Rosa_)",
+     "3.7 In the event of a Personal Data Breach t (EFC18326_Rosa_)"
+    ],
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
+    ]
+   },
+   {
+    "id": 14,
+    "question": "Which duties continue after the agreement ends?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 4,
+     "keyword": null,
+     "hybrid": 5,
+     "context": 5,
+     "graph": 5
+    },
+    "top": [
+     "10.9 Any provisions which by their nature are (master-service)",
+     "18 DEFINITIONS. (OFGBANCORP_03_)",
+     "5.9 Any provisions which by their nature are (master-service)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 15,
+    "question": "How is personal data defined?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 1,
+     "keyword": 4,
+     "hybrid": 3,
+     "context": 3,
+     "graph": 3
+    },
+    "top": [
+     "1.1 “Applicable Data Protection Law” means,  (EFC18326_Rosa_)",
+     "3.1 INSTITUTION and/or INVESTIGATOR expressl (EFC18326_Rosa_)",
+     "4 DATA PROTECTION (EFC18326_Rosa_)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 16,
+    "question": "Can the client cancel a project early, and with how much notice?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "5.3 The Client may terminate any Project Agr (master-service)",
+     "5.4 Upon expiration or termination of this M (master-service)",
+     "18.2 Either party may cancel this Agreement u (CybergyHolding)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 17,
+    "question": "When must invoices be paid?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "3.2 Each invoice shall be payable within thi (master-service)",
+     "4.1 Implementation of Services. (OFGBANCORP_03_)",
+     "7.4 Payment for Services, Training and Suppo (CybergyHolding)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 18,
+    "question": "Who owns the new inventions created during the work?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 7,
+     "keyword": null,
+     "hybrid": 7,
+     "context": 3,
+     "graph": null
+    },
+    "top": [
+     "3.5 Intellectual Property (AgapeAtpCorp_2)",
+     "11 INTELLECTUAL PROPERTY (AgapeAtpCorp_2)",
+     "7 INTELLECTUAL PROPERTY (master-service)"
+    ],
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
+    ]
+   },
+   {
+    "id": 19,
+    "question": "Which courts have jurisdiction over disputes?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 7,
+     "keyword": 1,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "10.5 This Agreement shall be governed by the  (master-service)",
+     "12 APPLICABLE LAW AND PLACE OF JURISDICTION (EFC18326_Rosa_)",
+     "8.1 Any and all disputes, claims or differen (AgapeAtpCorp_2)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 20,
+    "question": "What happens to secret information when the contract ends?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "6.4 Upon termination or expiry of this Agree (master-service)",
+     "6.5 The obligations of confidentiality under (master-service)",
+     "6.6 Where the Parties have entered into a se (master-service)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 21,
+    "question": "Who bears the risk of loss during shipments?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": null
+    },
+    "top": [
+     "4.4 Risk of loss or damage to materials shal (master-service)",
+     "4.6 Where third-party carriers or logistics  (master-service)",
+     "5.1 Shipping (AgapeAtpCorp_2)"
+    ],
+    "scope": [
+     "AgapeAtpCorp_20191202_10"
+    ]
+   },
+   {
+    "id": 22,
+    "question": "Is a party excused if a pandemic or war stops it performing?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 1,
+     "keyword": 1,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "10.7 Neither Party shall be liable for failur (master-service)",
+     "14.7 Force Majeure (AgapeAtpCorp_2)",
+     "18.2 Either party may cancel this Agreement u (CybergyHolding)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 23,
+    "question": "What insurance must each party maintain?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "10.11 Each Party shall maintain throughout the (master-service)",
+     "4.5 Each Party shall ensure that appropriate (master-service)",
+     "6.2 The Customer shall at all times during t (AgapeAtpCorp_2)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 24,
+    "question": "Can either party assign the agreement?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 1,
+     "keyword": 2,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "10.1 Neither Party may assign or transfer thi (master-service)",
+     "18.2 Either party may cancel this Agreement u (CybergyHolding)",
+     "7.3 Rights to termination (AgapeAtpCorp_2)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 25,
+    "question": "Is the affiliate an employee of the company?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 2,
+     "keyword": null,
+     "hybrid": 3,
+     "context": 3,
+     "graph": 2
+    },
+    "top": [
+     "EXHIBIT 10.27 MARKETING AFFILIATE AGREEMENT (CybergyHolding)",
+     "16 MISCELLANEOUS PROVISIONS (OFGBANCORP_03_)",
+     "14 Relationship of the Parties. (CybergyHolding)"
+    ],
+    "scope": [
+     "CybergyHoldingsInc_20140"
+    ]
+   },
+   {
+    "id": 26,
+    "question": "Which state's law governs the marketing affiliate agreement?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 2,
+     "keyword": null,
+     "hybrid": 2,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "EXHIBIT 10.27 MARKETING AFFILIATE AGREEMENT (CybergyHolding)",
+     "SEC_MOUNT_KNOWLEDGE Mount Knowledge Holdings Inc. (CybergyHolding)",
+     "24 Governing Law; Attorney’s Fee. (CybergyHolding)"
+    ],
+    "scope": [
+     "CybergyHoldingsInc_20140"
+    ]
+   },
+   {
+    "id": 27,
+    "question": "Can the company be made to pay for lost profits?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 2,
+     "keyword": null,
+     "hybrid": 2,
+     "context": 2,
+     "graph": 2
+    },
+    "top": [
+     "9.3 Neither Party shall be liable to the oth (master-service)",
+     "16.3 IN NO EVENT SHALL COMPANY BE LIABLE TO “ (CybergyHolding)",
+     "25 Equitable Relief. (CybergyHolding)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 28,
+    "question": "Can either party end the agreement when the term expires?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 2,
+     "keyword": null,
+     "hybrid": 2,
+     "context": 2,
+     "graph": 2
+    },
+    "top": [
+     "18.2 Either party may cancel this Agreement u (CybergyHolding)",
+     "18.1 This Agreement may be terminated by eith (CybergyHolding)",
+     "5.2 Either Party may terminate this MSA or a (master-service)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 29,
+    "question": "Is the affiliate allowed to change the software?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "12.3 MA shall not have the right to modify th (CybergyHolding)",
+     "18 DEFINITIONS. (OFGBANCORP_03_)",
+     "EXHIBIT 10.27 MARKETING AFFILIATE AGREEMENT (CybergyHolding)"
+    ],
+    "scope": [
+     "CybergyHoldingsInc_20140"
+    ]
+   },
+   {
+    "id": 30,
+    "question": "What availability must the core systems reach?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "2.1 Core System Service Level. (OFGBANCORP_03_)",
+     "2.3 Operations Center Availability Service L (OFGBANCORP_03_)",
+     "2.9 CMS Electronic Funds Delivery Service Le (OFGBANCORP_03_)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 31,
+    "question": "What do I get back if the vendor misses its service targets?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 8,
+     "keyword": null,
+     "hybrid": 8,
+     "context": 8,
+     "graph": 3
+    },
+    "top": [
+     "1.3 Reporting On Service Levels. (OFGBANCORP_03_)",
+     "3.7 The Client shall remain responsible for  (master-service)",
+     "3.5 Where the Client designates, mandates, s (master-service)"
+    ],
+    "scope": [
+     "OFGBANCORP_03_28_2007-EX"
+    ]
+   },
+   {
+    "id": 32,
+    "question": "What does the bank owe if it ends the contract early?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": null,
+     "keyword": null,
+     "hybrid": null,
+     "context": null,
+     "graph": 7
+    },
+    "top": [
+     "18.2 Either party may cancel this Agreement u (CybergyHolding)",
+     "8 TERMINATION/DEFAULT (OFGBANCORP_03_)",
+     "5.4 Upon expiration or termination of this M (master-service)"
+    ],
+    "scope": [
+     "OFGBANCORP_03_28_2007-EX"
+    ]
+   },
+   {
+    "id": 33,
+    "question": "What is the performance warranty?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 2,
+     "keyword": 1,
+     "hybrid": 2,
+     "context": 2,
+     "graph": 2
+    },
+    "top": [
+     "6.2 Performance Warranty Exclusions. (OFGBANCORP_03_)",
+     "6 PERFORMANCE WARRANTY/DISCLAIMER OF ALL O (OFGBANCORP_03_)",
+     "6.3 DISCLAIMER OF ALL OTHER WARRANTIES. (OFGBANCORP_03_)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 34,
+    "question": "How are disputes between the parties resolved?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 2,
+     "keyword": 1,
+     "hybrid": 2,
+     "context": 2,
+     "graph": 2
+    },
+    "top": [
+     "10.6 The Parties shall attempt in good faith  (master-service)",
+     "11 DISPUTE RESOLUTION (OFGBANCORP_03_)",
+     "3.2 Each invoice shall be payable within thi (master-service)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 35,
+    "question": "What is the vendor's annual revenue?",
+    "kind": "none",
+    "ranks": {
+     "vector": null,
+     "keyword": null,
+     "hybrid": null,
+     "context": null,
+     "graph": null
+    },
+    "top": [
+     "3 SERVICE FEE. (CybergyHolding)",
+     "13.2 The Manufacturer grants exclusive rights (AgapeAtpCorp_2)",
+     "5 FEES (OFGBANCORP_03_)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 36,
+    "question": "What is the vacation policy for the vendor's employees?",
+    "kind": "none",
+    "ranks": {
+     "vector": null,
+     "keyword": null,
+     "hybrid": null,
+     "context": null,
+     "graph": null
+    },
+    "top": [
+     "3.4 Where the Client designates specific ven (master-service)",
+     "3.5 Where the Client designates, mandates, s (master-service)",
+     "10 INSURANCE AND INDEMNITY. (OFGBANCORP_03_)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 37,
+    "question": "Which contract requires the parties to use ICC arbitration in Paris?",
+    "kind": "none",
+    "ranks": {
+     "vector": null,
+     "keyword": null,
+     "hybrid": null,
+     "context": null,
+     "graph": null
+    },
+    "top": [
+     "8.1 Any and all disputes, claims or differen (AgapeAtpCorp_2)",
+     "8.2 The language to be used in the Arbitrati (AgapeAtpCorp_2)",
+     "8.3 The award/decision of the Arbitration Co (AgapeAtpCorp_2)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 38,
+    "question": "What is the maximum number of staff the vendor may assign to the bank?",
+    "kind": "none",
+    "ranks": {
+     "vector": null,
+     "keyword": null,
+     "hybrid": null,
+     "context": null,
+     "graph": null
+    },
+    "top": [
+     "1 GENERAL PROVISIONS (OFGBANCORP_03_)",
+     "ADDITIONAL CUSTOMER CONVERSION RESPONSIBILITIES ADDITIONAL CUSTOMER CONVERSION RESPONSIB (OFGBANCORP_03_)",
+     "2.11 Teller Transactions Response Time Servic (OFGBANCORP_03_)"
+    ],
+    "scope": [
+     "OFGBANCORP_03_28_2007-EX"
+    ]
+   },
+   {
+    "id": 39,
+    "question": "What are the terms and conditions?",
+    "kind": "broad",
+    "ranks": {
+     "vector": 6,
+     "keyword": 2,
+     "hybrid": 2,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "TERMS AND CONDITIONS TERMS AND CONDITIONS (OFGBANCORP_03_)",
+     "1.1 Definitions. (OFGBANCORP_03_)",
+     "14.3 Conflicting Terms (AgapeAtpCorp_2)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 40,
+    "question": "What are the terms of the agreement?",
+    "kind": "broad",
+    "ranks": {
+     "vector": 10,
+     "keyword": null,
+     "hybrid": null,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "1 TERMS OF AGREEMENT (AgapeAtpCorp_2)",
+     "1.2 Term (AgapeAtpCorp_2)",
+     "1.1 Definitions. (OFGBANCORP_03_)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 41,
+    "question": "What does the manufacturer promise to do?",
+    "kind": "broad",
+    "ranks": {
+     "vector": 4,
+     "keyword": null,
+     "hybrid": 4,
+     "context": 2,
+     "graph": 2
+    },
+    "top": [
+     "3.4 Ability to Perform (AgapeAtpCorp_2)",
+     "3 COVENANTS BY THE MANUFACTURER (AgapeAtpCorp_2)",
+     "3.5 (a) (AgapeAtpCorp_2)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 42,
+    "question": "What documentation must each party provide?",
+    "kind": "broad",
+    "ranks": {
+     "vector": 3,
+     "keyword": null,
+     "hybrid": 5,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "2 PROVISION OF DOCUMENTATION (AgapeAtpCorp_2)",
+     "3.2 In this respect INSTITUTION and/or INVES (EFC18326_Rosa_)",
+     "2.2 Provision by the Customer (AgapeAtpCorp_2)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 43,
+    "question": "What notice must the Marketing Affiliate give to end the agreement?",
+    "kind": "graph",
+    "ranks": {
+     "vector": 2,
+     "keyword": null,
+     "hybrid": 2,
+     "context": 2,
+     "graph": 2
+    },
+    "top": [
+     "EXHIBIT 10.27 MARKETING AFFILIATE AGREEMENT (CybergyHolding)",
+     "18.1 This Agreement may be terminated by eith (CybergyHolding)",
+     "18.3 Upon termination or cancellation of this (CybergyHolding)"
+    ],
+    "scope": [
+     "CybergyHoldingsInc_20140"
+    ]
+   },
+   {
+    "id": 44,
+    "question": "What insurance does the Sponsor maintain for the study?",
+    "kind": "graph",
+    "ranks": {
+     "vector": 1,
+     "keyword": 1,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "7 INSURANCE, LIABILITY, INDEMNIFICATION (EFC18326_Rosa_)",
+     "1.4 Study Drug and Study Supplies (EFC18326_Rosa_)",
+     "1.1 Conduct of the Study (EFC18326_Rosa_)"
+    ],
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
+    ]
+   },
+   {
+    "id": 45,
+    "question": "What does Metavante warrant about its services?",
+    "kind": "graph",
+    "ranks": {
+     "vector": 2,
+     "keyword": 1,
+     "hybrid": 2,
+     "context": 2,
+     "graph": 2
+    },
+    "top": [
+     "12.1 Metavante. (OFGBANCORP_03_)",
+     "6 PERFORMANCE WARRANTY/DISCLAIMER OF ALL O (OFGBANCORP_03_)",
+     "10 INSURANCE AND INDEMNITY. (OFGBANCORP_03_)"
+    ],
+    "scope": [
+     "OFGBANCORP_03_28_2007-EX"
+    ]
+   },
+   {
+    "id": 46,
+    "question": "What must the Client pay the Service Provider if it ends a project early?",
+    "kind": "graph",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": null
+    },
+    "top": [
+     "5.4 Upon expiration or termination of this M (master-service)",
+     "5.5 the Service Provider shall deliver to th (master-service)",
+     "3.1 The Service Provider shall invoice the C (master-service)"
+    ],
+    "scope": [
+     "OFGBANCORP_03_28_2007-EX"
+    ]
+   },
+   {
+    "id": 47,
+    "question": "Which law and courts apply under the clinical trial agreement?",
+    "kind": "graph",
+    "ranks": {
+     "vector": 7,
+     "keyword": null,
+     "hybrid": 7,
+     "context": 7,
+     "graph": 6
+    },
+    "top": [
+     "4.2 All shipments shall be packaged, labelle (master-service)",
+     "1.2 Regulatory Compliance of the Study (EFC18326_Rosa_)",
+     "SEC_(WITH_INSTITUTI (with Institution and Investigator) (EFC18326_Rosa_)"
+    ],
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
+    ]
+   },
+   {
+    "id": 48,
+    "question": "What are the Manufacturer's packaging obligations?",
+    "kind": "graph",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "3.3 Packaging (AgapeAtpCorp_2)",
+     "5.2 Guarantee of packaging quality (AgapeAtpCorp_2)",
+     "2.1 Provision by the Manufacturer (AgapeAtpCorp_2)"
+    ],
+    "scope": [
+     "AgapeAtpCorp_20191202_10"
+    ]
+   }
+  ],
+  "ran_at": "2026-11-08T03:37:19.805551+00:00"
  }
 }

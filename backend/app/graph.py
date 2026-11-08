@@ -129,6 +129,23 @@ async def drop_document(doc_id: uuid.UUID, user_id: uuid.UUID) -> None:
         log.warning("graph cleanup failed: %s", type(e).__name__)
 
 
+async def contract_cards(user_id: uuid.UUID) -> list[dict]:
+    """Each of the user's contracts with its parties: what the question-scoping step reads to decide which contracts a question means."""
+    async with neo4j_driver.session() as s:
+        return await (await s.run(
+            "MATCH (d:Document {user_id: $u})<-[r:PARTY_TO]-(p:Party) "
+            "RETURN d.id AS id, d.filename AS filename, collect({name: p.name, role: r.role, aliases: r.aliases}) AS parties ORDER BY d.filename", u=str(user_id))).data()
+
+
+async def references_from(clause_ids: list[str]) -> dict[str, list[str]]:
+    """clause id -> ids of the clauses it refers to ("subject to Section 8")."""
+    if not clause_ids:
+        return {}
+    async with neo4j_driver.session() as s:
+        rows = await (await s.run("MATCH (a:Clause)-[:REFERENCES]->(b:Clause) WHERE a.id IN $ids RETURN a.id AS a, collect(b.id) AS bs", ids=clause_ids)).data()
+    return {r["a"]: r["bs"] for r in rows}
+
+
 async def drop_user(user_id: uuid.UUID) -> None:
     """Removes everything a user has in the graph. Deleting a user in Postgres cascades to their contracts but cannot reach
     Neo4j, so anything that deletes users must call this too (the tests do)."""

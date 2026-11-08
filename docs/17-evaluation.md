@@ -4,13 +4,14 @@ Run: `cd backend && uv run python -W ignore -m tests.eval_qa` (about 40 embeddin
 
 ## The question set (`tests/qa/questions.json`)
 
-42 questions over the 5 saved contracts. Each has a *gold* definition: "a clause of the contract whose file name starts with `doc` and whose text contains `phrase`". A phrase, not a clause number, so re-parsing the contracts does not break it.
+48 questions over the 5 saved contracts (44 answerable: 17 direct, 17 paraphrase, 4 broad, 6 that name a party or document; plus 4 with no answer). Each has a *gold* definition: "a clause of the contract whose file name starts with `doc` and whose text contains `phrase`". A phrase, not a clause number, so re-parsing the contracts does not break it.
 
 | Kind | Count | What it tests |
 |---|---|---|
 | direct | 17 | The question reuses the clause's words |
 | paraphrase | 17 | Same meaning, different words ("walk away" for "terminate") |
 | broad | 4 | Names a whole section whose heading holds no text ("What are the terms and conditions?") |
+| graph | 6 | Names a company, role or kind of document ("the Marketing Affiliate", "Metavante", "the clinical trial agreement"): where narrowing by the graph should matter |
 | none | 4 | The contracts do not answer it (for refusal checks; not scored here) |
 
 Metrics: hit@k (the right clause is in the top k) and MRR (mean of 1 / rank of the right clause), over the 38 answerable questions. Four columns: vector only, keyword only, hybrid (what Search uses), and hybrid + context (what Ask uses).
@@ -56,6 +57,32 @@ Things found and fixed while building this (kept here because they change how fa
 - **A yes/no AI judge for "did it refuse" was unreliable**: with a bare true/false answer it said "yes" to nearly everything, and still flagged correct answers after a reason field was added. It was replaced by the pattern test above. Lesson: do not trust an LLM judge for a decision a pattern can make, and read some rows.
 - **The first "no answer" question about bitcoin was flawed**: "No, payments are in US dollars [clause]" is a legitimate evidence-based answer. It was replaced by "What is the vendor's annual revenue?".
 - A measure "addresses the question" is 100% for every row and tells us nothing; it is recorded but should be ignored.
+
+## Step 2: the graph in Ask (narrowing and widening)
+
+Ask now asks, before searching, which contracts the question names (by company, role or kind of document), using the parties in Neo4j, and searches those first; after grading, it adds clauses that the relevant ones refer to. See `docs/16-ask.md`. The evaluation has a fifth column, **+ Graph**, for retrieval, and the answers are re-scored.
+
+**First attempt, and why it was changed.** The first scoping prompt told the model to pick contracts the question was "clearly about". Retrieval got no better overall (the right clause in the top 5: 88.6% with plain context, 84.1% with the graph). It rescued the two failures it was built for (the "bank" question and the "clinical trial agreement" question) but broke four others:
+- "Who owns the new inventions created during the work?" and "Who bears the risk of loss during shipments?" were narrowed to a contract on weak topic cues, not names.
+- "What must the Client pay the Service Provider…?" was narrowed to one contract, although "Service Provider" is a role in two.
+
+**The fix** (principle, not tuned to those questions): decide only from words in the question (a company name, a role, a kind of document), never from the topic; and if the name fits several contracts, return all of them. Ask also retries across every contract when the narrowed search finds nothing relevant.
+
+**Result (second run, same 38 questions as before the graph):**
+
+| | Before the graph | With the graph |
+|---|---|---|
+| Answered (not refused) | 94.7% | 100% |
+| Cites the right clause | 89.5% | 94.7% |
+| Faithful to the clauses given | 98.4% | 100% |
+| Answered from the wrong clause | 5.3% | 5.3% (different questions) |
+| Retrieval, right clause in the top 5 (44 questions) | 88.6% (context only) | 88.6% |
+
+What changed question by question: Q10 ("When does the clinical trial agreement start?") and Q32 ("What does the bank owe…?") went from refused to answered with the right clause cited; Q41 improved; Q8 ("Who provides the study drug and at what cost?") got worse (it now cites another source than the right one).
+
+How to read it: **the graph fixed the failure it was built for, questions that name a contract, and did not change overall search quality.** Roughly half the questions (22 of 44) trigger narrowing because many of them name a role. One run on 44 questions cannot separate a small gain from noise, and AI answers differ slightly between runs (the wrong-clause rate has been 0% to 5% across runs).
+
+**The cross-reference widening is built and tested (`test_ask_graph.py`) but none of the evaluation questions isolates it**, because every question has a single right clause. It is not claimed to help.
 
 ## Limits
 

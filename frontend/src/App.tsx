@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { MobileNav, NAV_LABEL, Sidebar } from "@/components/layout/AppNav";
 import Header from "@/components/layout/Header";
 import LoginPage from "@/features/auth/LoginPage";
 import UserMenu from "@/features/auth/UserMenu";
@@ -13,58 +14,73 @@ import ProblemsPage from "@/features/problems/ProblemsPage";
 import EvaluationPage from "@/features/evaluation/EvaluationPage";
 import SessionsPage from "@/features/sessions/SessionsPage";
 import SearchPage from "@/features/search/SearchPage";
-import { Link, navigate, useRoute } from "@/lib/router";
+import { ReferenceDock, ReferenceProvider, useReference } from "@/features/clause/Reference";
+import { navigate, useRoute } from "@/lib/router";
 import SettingsDialog from "@/features/settings/SettingsDialog";
 
 export default function App() {
+  return (
+    <ReferenceProvider>
+      <Shell />
+    </ReferenceProvider>
+  );
+}
+
+function Shell() {
+  const { close: closeReference } = useReference();
   const { user, loading: authLoading, error, login, logout } = useAuth();
   const { services, apiDown, loading, refresh } = useHealth();
   const { segments, params } = useRoute();
-  const TABS = [["parser", "Parser Lab"], ["contracts", "My contracts"], ["ask", "Ask"], ["search", "Search"], ["sessions", "History"], ["problems", "Problems & fixes"], ["evaluation", "Evaluation"], ["report", "Parser report"]] as const;
-  const known = TABS.find(([id]) => id === segments[0]);
-  const tab = known?.[0] ?? "parser";
+  const known = segments[0] in NAV_LABEL ? segments[0] : undefined;
+  const tab = known ?? "ask";
   useEffect(() => {
-    if (!known) navigate("/parser", true); // "/" and unknown paths
-    document.title = `Jurion · ${(known ?? TABS[0])[1]}`;
-  }, [known]);
+    if (!known) navigate("/ask", true); // "/" and unknown paths
+    document.title = `Jurion · ${NAV_LABEL[tab]}`;
+    closeReference(); // a reference belongs to the page it was opened from
+  }, [known, tab, closeReference]);
+
+  // The header's real height (it can wrap on narrow screens), so full-height screens like Ask fill exactly the rest of the window.
+  useEffect(() => {
+    const h = document.getElementById("app-header");
+    if (!h) return;
+    const set = () => document.documentElement.style.setProperty("--header-h", `${h.offsetHeight}px`);
+    set();
+    const ro = new ResizeObserver(set);
+    ro.observe(h);
+    return () => ro.disconnect();
+  }, [user]);
 
   if (authLoading) return <div className="min-h-dvh" aria-busy />;
   if (!user) return <LoginPage onCredential={login} error={error} />;
 
   return (
     <div className="min-h-dvh">
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-surface focus:px-4 focus:py-2 focus:shadow-lg">Skip to content</a>
       <Header>
         <ServiceStatus services={services} loading={loading} onRefresh={refresh} />
         <SettingsDialog />
         <UserMenu user={user} onLogout={logout} />
       </Header>
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
-        <nav aria-label="Sections" className="mb-8 flex gap-1 border-b border-line">
-          {TABS.map(([id, label]) => (
-            <Link
-              key={id}
-              to={`/${id}`}
-              aria-current={tab === id ? "page" : undefined}
-              className={`-mb-px cursor-pointer border-b-2 px-4 py-2.5 text-base transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-accent ${
-                tab === id ? "border-accent font-bold text-fg" : "border-transparent text-muted hover:text-fg"
-              }`}
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
-        {/* Both stay mounted so switching tabs doesn't lose an unsaved parse result */}
-        <div hidden={tab !== "parser"}>
-          <ParserLab apiDown={apiDown} />
-        </div>
-        {tab === "contracts" && <ContractsPage id={segments[1]} page={Number(params.get("page")) || undefined} clause={params.has("clause") ? Number(params.get("clause")) : undefined} />}
-        {tab === "ask" && <AskPage q={params.get("q") ?? ""} />}
-        {tab === "search" && <SearchPage q={params.get("q") ?? ""} />}
-        {tab === "sessions" && <SessionsPage id={segments[1]} a={params.get("a") ?? undefined} b={params.get("b") ?? undefined} />}
-        {tab === "problems" && <ProblemsPage />}
-        {tab === "evaluation" && <EvaluationPage />}
-        {tab === "report" && <ReportPage />}
-      </main>
+      <MobileNav current={tab} />
+      <div className="lg:flex">
+        <Sidebar current={tab} />
+        <main id="main" className={`min-w-0 flex-1 ${tab === "ask" ? "" : "mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-10"}`}>
+          {/* Ask and the Parser Lab stay mounted, so a running answer or an unsaved parse survives a visit to another tab */}
+          <div hidden={tab !== "ask"}>
+            <AskPage q={params.get("q") ?? ""} active={tab === "ask"} />
+          </div>
+          <div hidden={tab !== "parser"}>
+            <ParserLab apiDown={apiDown} />
+          </div>
+          {tab === "contracts" && <ContractsPage id={segments[1]} page={Number(params.get("page")) || undefined} clause={params.has("clause") ? Number(params.get("clause")) : undefined} />}
+          {tab === "search" && <SearchPage q={params.get("q") ?? ""} />}
+          {tab === "sessions" && <SessionsPage id={segments[1]} a={params.get("a") ?? undefined} b={params.get("b") ?? undefined} />}
+          {tab === "problems" && <ProblemsPage />}
+          {tab === "evaluation" && <EvaluationPage />}
+          {tab === "report" && <ReportPage />}
+        </main>
+        <ReferenceDock />
+      </div>
     </div>
   );
 }

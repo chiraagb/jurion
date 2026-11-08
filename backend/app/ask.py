@@ -2,6 +2,7 @@
 are relevant, then stream an answer that cites the clauses it used. Events go out as one JSON object per line."""
 import json
 import logging
+import uuid
 from collections.abc import AsyncIterator
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
@@ -12,6 +13,9 @@ from app.auth import current_user
 from app.config import settings
 from app.database import AsyncSessionLocal, User, get_db
 from app.embeddings import expand_thin, hybrid, openai_key
+from app.graph import contract_cards, references_from
+from sqlalchemy import select
+from app.database import Clause, Document
 from app.ratelimit import limit
 from app.sessions import save_session
 
@@ -66,6 +70,50 @@ async def rewrite(key: str, q: str) -> str:
     return r.output_parsed.question.strip() or q
 
 
+class Scope(BaseModel):
+    reason: str  # written first: judges and routers answer more reliably after a sentence of reasoning
+    contract_numbers: list[int]  # the contracts the question clearly means; empty = it applies to all
+
+
+async def scope(key: str, q: str, cards: list[dict]) -> list[int]:
+    """Which contracts the question is clearly about, judged from each contract's parties and their roles (positions in `cards`)."""
+    listing = "\n".join(
+        f"[{i}] {c['filename']}: " + "; ".join(f"{p['name']} ({p['role']})" for p in c["parties"]) for i, c in enumerate(cards))
+    r = await _client(key).responses.parse(
+        model=settings.ASK_MODEL, text_format=Scope,
+        input=[{"role": "system", "content": "Decide which of the listed contracts a question is about, using ONLY words in the question itself: a company name, a role "
+                                             "(for example \"the Manufacturer\", \"the Sponsor\", \"Metavante\") or a kind of document (for example \"the clinical trial agreement\", \"the bank\"). "
+                                             "Never guess from the topic: a subject such as shipments, inventions or payment does not identify a contract. "
+                                             "If the name, role or kind of document fits SEVERAL contracts, return ALL of them. If the question names none of these, return an empty list. "
+                                             "When unsure, return an empty list."},
+               {"role": "user", "content": f"Question: {q}\n\nContracts:\n{listing}"}],
+    )
+    return sorted({i for i in r.output_parsed.contract_numbers if 0 <= i < len(cards)})
+
+
+async def widen(s: AsyncSession, relevant: list[dict], limit: int = 3) -> list[dict]:
+    """The clauses the relevant ones refer to ("subject to Section 8"), so the answer sees what it depends on. Not graded: a dependency, not a match."""
+    try:
+        links = await references_from([h["id"] for h in relevant])
+    except Exception as e:  # a down Neo4j just means no widening
+        log.warning("graph widen failed: %s", type(e).__name__)
+        return []
+    have = {h["id"] for h in relevant}
+    wanted: dict[str, str] = {}  # target id -> identifier of the clause that refers to it
+    for h in relevant:
+        for b in links.get(h["id"], []):
+            if b not in have and b not in wanted:
+                wanted[b] = h["clause_identifier"]
+    if not wanted:
+        return []
+    rows = (await s.execute(
+        select(Clause.id, Clause.document_id, Document.filename, Clause.position, Clause.clause_identifier, Clause.title, Clause.content, Clause.page_number)
+        .join(Document, Document.id == Clause.document_id).where(Clause.id.in_([uuid.UUID(b) for b in list(wanted)[:limit]]))
+    )).all()
+    return [{"id": str(r.id), "document_id": str(r.document_id), "filename": r.filename, "position": r.position, "clause_identifier": r.clause_identifier,
+             "title": r.title, "content": r.content, "page_number": r.page_number, "vector_rank": None, "keyword_rank": None, "via": wanted[str(r.id)]} for r in rows]
+
+
 async def answer_stream(key: str, q: str, sources: list[dict]) -> AsyncIterator[str]:
     ctx = "\n\n".join(
         f"[{n}] {s['filename']}, clause {s['clause_identifier']} {s['title']} (p.{s['page_number']})\n{s['content'][:3000]}"
@@ -81,7 +129,7 @@ async def answer_stream(key: str, q: str, sources: list[dict]) -> AsyncIterator[
 
 
 def _brief(h: dict, full: bool = False) -> dict:
-    out = {k: h[k] for k in ("document_id", "filename", "position", "clause_identifier", "title", "page_number", "vector_rank", "keyword_rank")} | {"expanded": h.get("expanded", 0)}
+    out = {k: h[k] for k in ("document_id", "filename", "position", "clause_identifier", "title", "page_number", "vector_rank", "keyword_rank")} | {"expanded": h.get("expanded", 0), "via": h.get("via")}
     return out | ({"snippet": h["content"][:300], "content": h["content"][:3000]} if full else {})  # content: exactly what the model saw
 
 
@@ -89,10 +137,18 @@ async def pipeline(s: AsyncSession, uid, key: str, question: str) -> AsyncIterat
     """The whole Ask flow as (event, data) pairs: retrieve, grade, rewrite once if nothing is relevant, then answer.
     The endpoint streams these to the browser; tests.eval_answers runs them to score the answers."""
     q, good, hits = question, [], []
+    only: list[dict] = []  # contracts the graph says the question is about; searched first, never the only chance
+    try:
+        cards = await contract_cards(uid)
+        if len(cards) > 1:
+            only = [cards[i] for i in await scope(key, question, cards)]
+    except Exception as e:  # no graph, or Neo4j down: search everything, as before
+        log.warning("scoping skipped: %s", type(e).__name__)
     for attempt in (0, 1):  # one retrieval, and at most one retry after a rewrite
-        hits, mode, note = await hybrid(s, uid, q, key, K)
+        narrowed = only if attempt == 0 else []  # the retry searches every contract, so a wrong narrowing is recoverable
+        hits, mode, note = await hybrid(s, uid, q, key, K, doc_ids=[c["id"] for c in narrowed] or None)
         await expand_thin(s, hits)  # a heading-only clause also brings the clauses after it
-        yield "retrieved", {"query": q, "mode": mode, "note": note, "hits": [_brief(h) for h in hits]}
+        yield "retrieved", {"query": q, "mode": mode, "note": note, "scope": [c["filename"] for c in narrowed], "hits": [_brief(h) for h in hits]}
         good = await grade(key, q, hits) if hits else []
         yield "graded", {"relevant": good}
         if good or attempt:
@@ -100,6 +156,7 @@ async def pipeline(s: AsyncSession, uid, key: str, question: str) -> AsyncIterat
         q = await rewrite(key, q)
         yield "rewritten", {"query": q}
     sources = [hits[i] for i in good]
+    sources += await widen(s, sources)  # plus what they point at
     yield "sources", {"sources": [_brief(h, full=True) for h in sources]}
     if not sources:
         yield "token", {"text": NONE_FOUND}

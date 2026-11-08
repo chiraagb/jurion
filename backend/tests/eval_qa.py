@@ -13,11 +13,13 @@ from pathlib import Path
 from sqlalchemy import select
 from app import embeddings
 from app.database import AsyncSessionLocal, Document
+from app import ask
 from app.embeddings import MODEL, expand_thin, hybrid, openai_key
+from app.graph import contract_cards
 
 QA = Path(__file__).parent / "qa"
 MODES = {"vector": dict(use_keyword=False), "keyword": dict(use_vector=False), "hybrid": {}}
-COLUMNS = (*MODES, "context")  # context = hybrid, then each heading-only clause is widened with the clauses after it (what Ask does)
+COLUMNS = (*MODES, "context", "graph")  # context = hybrid + heading expansion; graph = context after narrowing to the contracts the question names and widening by cross-reference (what Ask does now)
 KS = (1, 3, 5, 10)
 norm = lambda t: " ".join(t.split()).lower()
 
@@ -54,6 +56,7 @@ async def retrieval(questions: list[dict]) -> dict:
         async def memo(k, texts):
             return await _memo(real, cache, k, texts)
         embeddings.embed_texts = memo
+        cards = await contract_cards(owner)
         rows = []
         for q in questions:
             row = {"id": q["id"], "question": q["question"], "kind": q["kind"], "ranks": {}}
@@ -64,6 +67,15 @@ async def retrieval(questions: list[dict]) -> dict:
                     await expand_thin(db, hits)
                     row["ranks"]["context"] = gold_rank(hits, q)
                     row["top"] = [f"{h['clause_identifier']} {h['title'][:40]} ({h['filename'][:14]})" for h in hits[:3]]
+            # graph: the question's contracts first (the retry searches everything if that finds nothing), then what the top hits refer to
+            only = [cards[i] for i in await ask.scope(key, q["question"], cards)] if len(cards) > 1 else []
+            hits, _, _ = await hybrid(db, owner, q["question"], key, 10, doc_ids=[c["id"] for c in only] or None)
+            if not hits and only:
+                hits, _, _ = await hybrid(db, owner, q["question"], key, 10)
+            await expand_thin(db, hits)
+            hits += await ask.widen(db, hits[:3])
+            row["ranks"]["graph"] = gold_rank(hits, q)
+            row["scope"] = [c["filename"][:24] for c in only]
             rows.append(row)
         embeddings.embed_texts = real
     return {"rows": rows, "owner": str(owner)}
@@ -79,14 +91,14 @@ async def _memo(real, cache, key, texts):
 def report(rows: list[dict]) -> dict:
     answerable = [r for r in rows if r["kind"] != "none"]
     out = {"all": {m: summarize([r["ranks"][m] for r in answerable]) for m in COLUMNS}}
-    for kind in ("direct", "paraphrase", "broad"):
+    for kind in ("direct", "paraphrase", "broad", "graph"):
         out[kind] = {m: summarize([r["ranks"][m] for r in answerable if r["kind"] == kind]) for m in COLUMNS}
     return out
 
 
 def show(rep: dict):
     print(f"{'':<31}" + "".join(f"{m:>10}" for m in COLUMNS))
-    for group, label in (("all", "all answerable"), ("direct", "direct (same words)"), ("paraphrase", "paraphrase (other words)"), ("broad", "broad (a whole section)")):
+    for group, label in (("all", "all answerable"), ("direct", "direct (same words)"), ("paraphrase", "paraphrase (other words)"), ("broad", "broad (a whole section)"), ("graph", "names a party or document")):
         for metric in ("hit@1", "hit@3", "hit@5", "hit@10", "mrr"):
             print(f"{label if metric == 'hit@1' else '':<25}{metric:>6}" + "".join(f"{rep[group][m][metric]:>10.3f}" for m in COLUMNS))
         print(f"{'':<25}  n={rep[group]['hybrid']['n']}")

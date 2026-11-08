@@ -1,11 +1,11 @@
 import { Fragment, useEffect, useState } from "react";
 import { api } from "@/lib/api";
 
-type Mode = "vector" | "keyword" | "hybrid" | "context";
-type Kind = "direct" | "paraphrase" | "broad" | "none";
+type Mode = "vector" | "keyword" | "hybrid" | "context" | "graph";
+type Kind = "direct" | "paraphrase" | "broad" | "graph" | "none";
 interface Score { "hit@1": number; "hit@3": number; "hit@5": number; "hit@10": number; mrr: number; n: number }
-type Summary = Record<"all" | "direct" | "paraphrase" | "broad", Partial<Record<Mode, Score>>>;
-interface Row { id: number; question: string; kind: Kind; ranks: Partial<Record<Mode, number | null>>; top?: string[] }
+type Summary = Record<"all" | "direct" | "paraphrase" | "broad" | "graph", Partial<Record<Mode, Score>>>;
+interface Row { id: number; question: string; kind: Kind; ranks: Partial<Record<Mode, number | null>>; top?: string[]; scope?: string[] }
 interface Run { summary: Summary; rows: Row[]; ran_at?: string }
 interface AnswerRow {
   id: number; question: string; kind: Kind; answer: string; sources: number; refused: boolean;
@@ -13,15 +13,16 @@ interface AnswerRow {
 }
 interface AnswerStats { n: number; answered: number | null; right_clause_in_context: number | null; right_clause_cited: number | null; answered_wrong_clause: number | null; faithfulness: number | null; addresses_question: number | null }
 interface Answers { summary: Record<"all" | "direct" | "paraphrase" | "broad", AnswerStats> & { none: { n: number; correctly_refused: number | null } }; rows: AnswerRow[]; answer_model: string; judge_model: string; ran_at: string }
-interface Data { available?: false; ran_at: string; embedding_model: string; questions: number; baseline?: Run; retrieval: Run; answers?: Answers }
+interface Data { available?: false; ran_at: string; embedding_model: string; questions: number; baseline?: Run; retrieval: Run; answers?: Answers; answers_before_graph?: Answers }
 
 const MODES: { id: Mode; label: string; note: string }[] = [
   { id: "vector", label: "Vector only", note: "meaning match" },
   { id: "keyword", label: "Keyword only", note: "Postgres full-text" },
   { id: "hybrid", label: "Hybrid", note: "vector + keyword" },
-  { id: "context", label: "Hybrid + context", note: "what Ask uses" },
+  { id: "context", label: "Hybrid + context", note: "headings widened" },
+  { id: "graph", label: "+ Graph", note: "what Ask uses now" },
 ];
-const GROUPS = [["all", "All"], ["direct", "Same words"], ["paraphrase", "Other words"], ["broad", "Whole section"]] as const;
+const GROUPS = [["all", "All"], ["direct", "Same words"], ["paraphrase", "Other words"], ["broad", "Whole section"], ["graph", "Names a party"]] as const;
 const pct = (n: number) => `${Math.round(n * 100)}%`;
 
 export default function EvaluationPage() {
@@ -66,6 +67,8 @@ export default function EvaluationPage() {
           </p>
         </div>
       )}
+
+      <GraphEffect rows={data.retrieval.rows} />
 
       <div>
         <div role="group" aria-label="Question type" className="mb-3 flex flex-wrap gap-2">
@@ -115,7 +118,8 @@ export default function EvaluationPage() {
                     {MODES.map((m) => <td key={m.id} className="px-3 py-2">{r.kind === "none" ? <span className="text-subtle">n/a</span> : <Rank n={r.ranks[m.id]} />}</td>)}
                   </tr>
                   {open === r.id && (
-                    <tr className="bg-canvas"><td colSpan={5} className="px-3 py-2 text-xs text-muted">
+                    <tr className="bg-canvas"><td colSpan={MODES.length + 1} className="px-3 py-2 text-xs text-muted">
+                      {r.scope && r.scope.length > 0 ? <>The graph narrowed this to <b>{r.scope.join(", ")}</b>.<br /></> : null}
                       Hybrid's top results: {r.top?.length ? r.top.join("  ·  ") : "none"}
                     </td></tr>
                   )}
@@ -127,6 +131,7 @@ export default function EvaluationPage() {
       </div>
 
       {data.answers && <AnswerQuality a={data.answers} />}
+      {data.answers && data.answers_before_graph && <GraphAnswers before={data.answers_before_graph} after={data.answers} />}
 
       <div className="max-w-3xl space-y-2 text-sm text-fg-soft">
         <h2 className="text-lg font-semibold text-fg">What to trust, and what not</h2>
@@ -135,6 +140,7 @@ export default function EvaluationPage() {
           <li>Hybrid is about as good as vector-only here. Keyword search alone is weak because a question rarely has all its words in one clause. I tried matching any word: it helped questions that reuse the contract's words but hurt paraphrased ones, so I kept the original.</li>
           <li>“Hybrid + context” counts the text of the clauses that follow a heading-only clause, because that is what the Ask tab gives the model.</li>
           <li>Prefixing each sub-clause's embedding with its section title made no measurable difference.</li>
+          <li>The graph fixed the failures it was built for (questions that name a contract) and left overall search quality about the same. Narrowing can also hurt: the first version broke four questions by guessing a contract from the topic.</li>
           <li>Answer scores come from an AI judge, not a person: a different, larger model than the one that wrote the answers, but still a model. Read a few answers yourself.</li>
         </ul>
       </div>
@@ -204,6 +210,65 @@ function AnswerQuality({ a }: { a: Answers }) {
           </tbody>
         </table>
       </div>
+    </div>
+  );
+}
+
+/** Did narrowing by the graph help? Counted question by question: rescued (missed before, found now) vs broken (found before, missed now). */
+function GraphEffect({ rows }: { rows: Row[] }) {
+  const ans = rows.filter((r) => r.kind !== "none" && r.ranks.graph !== undefined);
+  if (ans.length === 0) return null;
+  const rescued = ans.filter((r) => r.ranks.context == null && r.ranks.graph != null);
+  const broken = ans.filter((r) => r.ranks.context != null && r.ranks.graph == null);
+  const better = ans.filter((r) => r.ranks.context != null && r.ranks.graph != null && r.ranks.graph < r.ranks.context).length;
+  const worse = ans.filter((r) => r.ranks.context != null && r.ranks.graph != null && r.ranks.graph > r.ranks.context).length;
+  const List = ({ rs }: { rs: Row[] }) => <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-fg-soft">{rs.map((r) => <li key={r.id}>{r.question}{r.scope && r.scope.length > 0 ? <span className="text-muted"> (narrowed to {r.scope.join(", ")})</span> : null}</li>)}</ul>;
+  return (
+    <div className="rounded-md border border-line bg-surface p-5">
+      <p className="font-semibold">Step 2: using the graph in Ask, counted question by question</p>
+      <p className="mt-1 max-w-3xl text-sm text-muted">The graph narrows a question to the contracts it names (by company, role or kind of document) and pulls in clauses that a found clause refers to. Compared with the same search without it:</p>
+      <div className="mt-3 grid gap-4 md:grid-cols-2">
+        <div><p className="text-sm"><b className="text-accent-fg">{rescued.length} rescued</b> <span className="text-muted">(missed in the top 10 before, found now)</span></p>{rescued.length ? <List rs={rescued} /> : <p className="mt-1 text-sm text-muted">none</p>}</div>
+        <div><p className="text-sm"><b className="text-warn">{broken.length} broken</b> <span className="text-muted">(found before, missed now)</span></p>{broken.length ? <List rs={broken} /> : <p className="mt-1 text-sm text-muted">none</p>}</div>
+      </div>
+      <p className="mt-3 text-sm text-muted">Of the questions found both ways, {better} ranked higher with the graph and {worse} lower. If these two lists are about the same size, the graph is not paying for itself yet, and we say so.</p>
+    </div>
+  );
+}
+
+/** Answers on the SAME questions before and after the graph went into Ask (the set grew since, so only shared questions count). */
+function GraphAnswers({ before, after }: { before: Answers; after: Answers }) {
+  const prior = new Map(before.rows.map((r) => [r.id, r]));
+  const ids = after.rows.filter((r) => r.kind !== "none" && prior.has(r.id)).map((r) => r.id);
+  const now = new Map(after.rows.map((r) => [r.id, r]));
+  const stat = (rows: AnswerRow[]) => {
+    const f = rows.filter((r) => !r.refused && r.faithfulness != null).map((r) => r.faithfulness as number);
+    return {
+      answered: rows.filter((r) => !r.refused).length / rows.length,
+      cited: rows.filter((r) => r.cited_gold).length / rows.length,
+      wrong: rows.filter((r) => !r.refused && !r.cited_gold).length / rows.length,
+      faith: f.length ? f.reduce((a, b) => a + b, 0) / f.length : null,
+    };
+  };
+  const b = stat(ids.map((i) => prior.get(i)!)), a = stat(ids.map((i) => now.get(i)!));
+  const rows: [string, number | null, number | null][] = [["Answered, not refused", b.answered, a.answered], ["Cites the right clause", b.cited, a.cited], ["Answered from the wrong clause", b.wrong, a.wrong], ["Faithful to the clauses given", b.faith, a.faith]];
+  const changed = ids.filter((i) => { const x = prior.get(i)!, y = now.get(i)!; return x.refused !== y.refused || !!x.cited_gold !== !!y.cited_gold; });
+  const p = (n: number | null) => (n === null ? "—" : `${Math.round(n * 1000) / 10}%`);
+  return (
+    <div className="space-y-3">
+      <h2 className="text-lg font-semibold">Answers before and after the graph (same {ids.length} questions)</h2>
+      <div className="overflow-x-auto rounded-md border border-line">
+        <table className="w-full border-collapse text-sm">
+          <thead className="bg-raised text-left"><tr><th className="px-3 py-2">Measure</th><th className="px-3 py-2">Before</th><th className="px-3 py-2">With the graph</th></tr></thead>
+          <tbody>{rows.map(([l, x, y]) => <tr key={l} className="border-t border-line"><td className="px-3 py-2 text-fg-soft">{l}</td><td className="px-3 py-2 tabular-nums">{p(x)}</td><td className="px-3 py-2 tabular-nums font-semibold">{p(y)}</td></tr>)}</tbody>
+        </table>
+      </div>
+      {changed.length > 0 && (
+        <ul className="list-disc space-y-1 pl-5 text-sm text-fg-soft">
+          {changed.map((i) => { const x = prior.get(i)!, y = now.get(i)!; return <li key={i}>{x.question}: <span className="text-muted">{x.refused ? "refused" : x.cited_gold ? "right clause" : "wrong clause"}</span> → <b>{y.refused ? "refused" : y.cited_gold ? "right clause" : "wrong clause"}</b></li>; })}
+        </ul>
+      )}
+      <p className="max-w-3xl text-xs text-muted">Single runs: answers differ slightly between runs, and one question is about {(100 / ids.length).toFixed(1)} points.</p>
     </div>
   );
 }

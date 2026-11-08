@@ -34,7 +34,8 @@ Parties were correct in all 5 (for example the clinical trial: the institution, 
 ## Limits
 
 - Schedules and exhibits ("Schedule A") are not linked.
-- The graph is not used by Ask yet. Next: use the parties to narrow retrieval ("the bank" means the contract with a bank), and follow references to bring in the clause a retrieved clause depends on, measured on the Evaluation tab.
+- Ask uses the graph in two ways (see `docs/16-ask.md`), and the measured gain is small and mostly on questions that name a contract; the cross-reference widening is built and tested but not isolated by any evaluation question.
+- Narrowing can be wrong: the first version guessed a contract from the topic and broke 4 questions, so it now decides only from a company name, a role or a kind of document in the question, includes every contract that fits, and Ask retries across all contracts when the narrowed search finds nothing relevant.
 - Party names are matched by lowercase name only, so "Acme Corp." and "Acme Corporation" are two nodes.
 
 Check: `uv run python -W ignore -m tests.integration.test_graph` (fake party extractor, real Neo4j).

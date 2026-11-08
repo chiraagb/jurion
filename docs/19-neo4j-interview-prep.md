@@ -396,7 +396,7 @@ For each: the **short answer**, an **example you can say**, and a **follow-up** 
 - **Answer:** A relationship `(:Clause)-[:OVERRIDES]->(:Clause)` with properties like the source text and a confidence score; found with an AI call, since a pattern cannot detect it.
 
 ### 15. What is the weakest part of your graph?
-- **Answer:** Party names are matched by lowercase text; references miss schedules and can mis-link when numbering restarts in an attachment; party extraction was checked by eye on five contracts, not measured; and the graph is not used by Ask yet.
+- **Answer:** Party names are matched by lowercase text; references miss schedules and can mis-link when numbering restarts in an attachment; party extraction was checked by eye on five contracts, not measured; and the measured benefit of using it in Ask is small (it fixed the two questions that name a contract, with little change elsewhere).
 - (Saying your own weaknesses calmly is a strength in interviews.)
 
 ### 16. Community vs Enterprise edition?
@@ -419,11 +419,15 @@ For each: the **short answer**, an **example you can say**, and a **follow-up** 
 - Cross-reference finder: 15, 14 and 5 links in the three contracts that use numbered references; 0 in the other two, which is true (one has almost none; the other refers to "Schedule A/B", which is not linked yet).
 - Build on save, a rebuild button, cleanup on delete and replace, indexes and constraints, a Graph panel in the app, and a test against a real Neo4j.
 
+**Used by Ask (built, tested, measured)**
+- **Narrowing:** before searching, one cheap AI call reads the question and each contract's parties and roles and says which contracts the question names ("the bank" → the Oriental Financial contract). Ask searches those first and falls back to all contracts if nothing relevant turns up.
+- **Widening:** after the relevant clauses are chosen, clauses they refer to ("subject to Section 8") are added and marked "pulled in by 9.1".
+- **The honest result:** on the same 38 questions, the right clause was cited 89.5% → 94.7% of the time, fully faithful answers, and the two failures that named a contract (the "bank" and the "clinical trial agreement" questions) now work. Overall search quality is about the same. **Do not say "GraphRAG greatly improved my answers."** Say: *"It fixed a specific failure, questions that name a contract, with a small overall gain; my first version actually hurt four questions by guessing a contract from the topic, and I fixed it by deciding only from names, roles and document kinds."* The cross-reference widening is built but I cannot yet show it helps.
+
 **NOT built yet**
-- **The graph is not used by Ask.** Today it stores and shows what was extracted, nothing more. **Never claim "GraphRAG improved my answers."** Say: *"The graph is built; using it in retrieval is the next step, and I will measure it before claiming a benefit."*
 - Also missing: links to schedules, entity resolution for company names, a drawn graph inside the app, and an outbox/reconcile job.
 
-**What you would do next, in order:** use parties to narrow and references to widen retrieval in Ask → add about six graph-dependent questions to the evaluation and report before and after → entity resolution → outbox.
+**What you would do next, in order:** write questions that need a cross-reference (so widening can be measured on its own) → entity resolution for company names → an outbox for reliable graph updates.
 
 ---
 

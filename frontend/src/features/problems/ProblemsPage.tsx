@@ -67,8 +67,8 @@ function stages(e: Eval | null): Stage[] {
           title: "Which contract do you mean?",
           wrong: "With several contracts saved, search can pull a good-looking clause from the wrong one, and the AI then fills the gap with a guess.",
           example: "Asked “What does the bank owe if it ends the contract early?”, the app used a template services agreement that has no bank in it and wrote “(in this case, the bank)”. Only the Oriental Financial contract has a bank.",
-          fix: <>The relevance check now sees each clause's <b>contract name</b> and rejects clauses from a contract that does not contain the party the question names. The answer must say which contract each statement comes from and must never guess which party you mean. <b>Next:</b> the Neo4j graph already knows which parties belong to which contract, and will be used to search only the right contract. It is built, but Ask does not use it yet.</>,
-          result: <>Answers that were confident, cited, but from the wrong clause: <b>{pct(ans?.all?.answered_wrong_clause)}</b> in the latest run (it moves between 0% and 5% from run to run, because AI answers are not identical every time). That exact question is now refused instead of guessed.</>,
+          fix: <>The relevance check now sees each clause's <b>contract name</b> and rejects clauses from a contract that does not contain the party the question names. The answer must say which contract each statement comes from and must never guess which party you mean. <b>Then the graph:</b> before searching, Ask now asks which contracts the question names (by company, role or kind of document, such as “the bank” or “the clinical trial agreement”), using the parties stored in Neo4j, and searches only those first. If that finds nothing relevant it searches everything.</>,
+          result: <>The two questions that named a contract and used to fail (“the bank…”, “the clinical trial agreement…”) are now answered from the right contract with the right clause cited. Answers that were confident, cited, but from the wrong clause: <b>{pct(ans?.all?.answered_wrong_clause)}</b> in the latest run (it moves between 0% and 5% from run to run, because AI answers are not identical every time).</>,
           status: "improved",
         },
       ],
@@ -336,15 +336,16 @@ function WhyRag({ docs }: { docs: { graph_parties: number | null; graph_refs: nu
         <div className="rounded-md border border-warn/40 bg-warn/10 p-5">
           <p className="flex flex-wrap items-center gap-2 font-semibold">
             Where we really are
-            <span className="rounded-md bg-warn/20 px-2 py-0.5 font-mono text-xs font-normal">Graph built · not yet used by Ask · not yet proven</span>
+            <span className="rounded-md bg-warn/20 px-2 py-0.5 font-mono text-xs font-normal">Graph used by Ask · small, measured gain</span>
           </p>
           <ul className="mt-2 list-disc space-y-1.5 pl-5 text-sm text-fg-soft">
             <li>
               <b>Built:</b> the graph exists and is filled for your saved contracts: <b>{built.length}</b> contracts, <b>{parties}</b> companies and people, <b>{refs}</b> “refers to” links
               (see the Graph panel on each contract, or Neo4j at localhost:7474).
             </li>
-            <li><b>Not yet connected:</b> Ask does not read the graph today. So the “which contract?” problem is only <i>reduced</i> for now, using contract names in the relevance check, not <i>solved</i>.</li>
-            <li><b>How we will prove it:</b> add about six questions that need the graph (a named party, a cross-reference), run them with and without it, and publish the before and after on the Evaluation tab. If it does not help, we say so.</li>
+            <li><b>Used by Ask:</b> it narrows a question to the contracts it names, and pulls in clauses that a found clause refers to (they are marked “pulled in by 9.1” on the reference cards).</li>
+            <li><b>What the numbers say</b> (Evaluation tab): on the same 38 questions, the right clause was cited <b>89.5% → 94.7%</b> of the time and answers were fully faithful, mostly because the two “name a contract” questions that always failed now work. Overall search is about the same as without the graph. It is a real fix for one kind of failure, not a large across-the-board gain, and one run on 44 questions cannot say more.</li>
+            <li><b>Not proven:</b> the cross-reference widening is built and tested, but our questions do not isolate it, so we claim nothing for it yet. And narrowing can hurt: our first version, which guessed a contract from the topic, broke 4 questions before we limited it to names, roles and kinds of document.</li>
           </ul>
         </div>
 

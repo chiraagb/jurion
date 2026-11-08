@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Loader2, Search } from "lucide-react";
-import ClausePanel, { clauseHref, type ClauseRef } from "@/features/clause/ClausePanel";
+import { clauseHref, type ClauseRef } from "@/features/clause/ClausePanel";
+import { useReference } from "@/features/clause/Reference";
 import { Link, navigate } from "@/lib/router";
 import EmbeddingExplainer from "./EmbeddingExplainer";
 import EmbeddingMap from "./EmbeddingMap";
@@ -14,7 +15,7 @@ export default function SearchPage({ q: urlQuery }: { q: string }) { // the quer
   const [data, setData] = useState<(SearchResponse & { q: string }) | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [picked, setPicked] = useState<ClauseRef | null>(null);
+  const { open: openReference } = useReference();
 
   const run = async (q: string) => {
     setBusy(true);
@@ -89,14 +90,13 @@ export default function SearchPage({ q: urlQuery }: { q: string }) { // the quer
             <p className="text-sm text-muted">
               {data.results.length} results · {data.mode === "hybrid" ? `vector + keyword (${data.model})` : "keyword only"}
             </p>
-            <HitList results={data.results} onPick={setPicked} />
+            <HitList results={data.results} onPick={openReference} />
             {data.session_id && (
               <p className="text-sm text-muted">Saved to <Link to={`/sessions/${data.session_id}`} className="underline">History</Link>, where you can compare it with other searches.</p>
             )}
           </>
         )
       )}
-      <ClausePanel clause={picked} onClose={() => setPicked(null)} />
     </section>
   );
 }

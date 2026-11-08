@@ -4,12 +4,12 @@ import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 
 export default function Header({ children }: { children?: ReactNode }) {
   return (
-    <header className="sticky top-0 z-10 border-b border-line bg-canvas/85 backdrop-blur">
+    <header id="app-header" className="sticky top-0 z-20 border-b border-line bg-canvas/85 backdrop-blur">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
         <div className="flex items-center gap-2.5">
           <Scale className="h-6 w-6 text-accent" aria-hidden />
           <span className="font-display text-2xl font-semibold tracking-tight">Jurion</span>
-          <span className="caption hidden border-l border-line-strong pl-2.5 sm:inline">Contract Parser Lab</span>
+          <span className="caption hidden border-l border-line-strong pl-2.5 sm:inline">Contract intelligence</span>
         </div>
 
         <div className="flex items-center gap-2">

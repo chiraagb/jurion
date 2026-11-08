@@ -9,10 +9,11 @@ export interface Brief {
   keyword_rank: number | null;
   snippet?: string;
   content?: string; // the clause text the model saw (sources only)
+  via?: string | null; // pulled in because this clause refers to it (the graph)
 }
 
 export type AskEvent =
-  | { event: "retrieved"; query: string; mode: "hybrid" | "keyword"; note: string | null; hits: Brief[] }
+  | { event: "retrieved"; query: string; mode: "hybrid" | "keyword"; note: string | null; scope?: string[]; hits: Brief[] }
   | { event: "graded"; relevant: number[] } // positions in the last "retrieved" hits
   | { event: "rewritten"; query: string }
   | { event: "sources"; sources: Brief[] }

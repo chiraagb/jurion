@@ -4,9 +4,11 @@ The **Ask** tab (`/ask?q=...`) answers a question from your saved contracts and 
 
 ## The pipeline (`backend/app/ask.py`)
 
+0. **Narrow with the graph (when 2+ contracts have graphs):** one cheap AI call reads the question and each contract's parties and roles, and returns the contracts the question names by company, role or kind of document ("the bank", "the clinical trial agreement"). It must not guess from the topic, and if a name fits several contracts it returns all of them. Those contracts are searched first; the retry (step 3) searches every contract, so a wrong narrowing is recoverable.
 1. **Retrieve:** the same hybrid search as the Search tab (vector + keyword, merged), top 8 clauses.
 2. **Grade (the corrective step of CRAG):** one LLM call reads the 8 clauses and returns which ones actually help answer the question.
 3. **Rewrite, at most once:** if none passed, the question is rewritten in the wording a contract would use ("cancel early" becomes "termination for convenience") and steps 1–2 run again. A second miss stops there; there is no loop.
+3b. **Widen with the graph:** clauses that a relevant clause refers to ("subject to Section 8") are added to the references, marked "pulled in by 9.1". They are dependencies, not matches, so they are not graded.
 4. **Answer:** the relevant clauses are numbered `[1] [2] …` and given to the model with the rule "use only these clauses and cite them". With no relevant clause the answer is "I couldn't find this in your saved contracts." and the answer model is never called, so it cannot make something up.
 
 The API streams one JSON object per line (`retrieved`, `graded`, `rewritten`, `sources`, `token`, `done` or `error`), so the page shows each step as it happens.
@@ -42,3 +44,10 @@ Saved contracts are drawn with **pdf.js** (`pdfjs-dist`, loaded only when a PDF 
 - The page re-asks when you reload or come back to `/ask?q=...`.
 
 Check: `uv run python -W ignore -m tests.integration.test_ask` (fake OpenAI calls, covers rewrite-once, no evidence, error, no key).
+
+## The chat screen
+
+- A conversation thread with the message box pinned at the bottom (Enter sends, Shift+Enter adds a line, a Stop button replaces Send while it answers).
+- Each new question scrolls to the **top** of the thread, so attention is on it while the answer streams in beneath.
+- Every `[1]` chip and every reference card opens the clause **beside the answer** (docked on wide screens, a sheet on narrow ones) with its PDF page and the clause shaded, plus previous/next buttons across the references. References can be **minimized** to a row of chips (remembered).
+- The Ask tab stays mounted, so a running answer and the thread survive a visit to another tab; New chat clears it. Every answer is saved to History.

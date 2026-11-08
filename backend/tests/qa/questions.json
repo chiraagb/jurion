@@ -295,5 +295,47 @@
   "kind": "broad",
   "doc": "AgapeAtpCorp",
   "phrase": "agrees to supply to the Customer, within a reasonable period of time, all documentation"
+ },
+ {
+  "id": 43,
+  "question": "What notice must the Marketing Affiliate give to end the agreement?",
+  "kind": "graph",
+  "doc": "CybergyHoldings",
+  "phrase": "upon thirty (30) days written notice to the other party"
+ },
+ {
+  "id": 44,
+  "question": "What insurance does the Sponsor maintain for the study?",
+  "kind": "graph",
+  "doc": "EFC18326_Rosa",
+  "phrase": "has subscribed to and shall maintain in effect, for the duration of the Study"
+ },
+ {
+  "id": 45,
+  "question": "What does Metavante warrant about its services?",
+  "kind": "graph",
+  "doc": "OFGBANCORP",
+  "phrase": "warrants that it will provide all Services in a commercially"
+ },
+ {
+  "id": 46,
+  "question": "What must the Client pay the Service Provider if it ends a project early?",
+  "kind": "graph",
+  "doc": "master-services",
+  "phrase": "Services properly performed up to the effective date of termination"
+ },
+ {
+  "id": 47,
+  "question": "Which law and courts apply under the clinical trial agreement?",
+  "kind": "graph",
+  "doc": "EFC18326_Rosa",
+  "phrase": "shall be governed by and construed in accordance"
+ },
+ {
+  "id": 48,
+  "question": "What are the Manufacturer's packaging obligations?",
+  "kind": "graph",
+  "doc": "AgapeAtpCorp",
+  "phrase": "packaging laws and regulations"
  }
 ]

@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Columns2, MessageSquareText, Search, Trash2 } from "lucide-react";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { AnswerCard, Trace } from "@/features/ask/AnswerCard";
-import ClausePanel, { type ClauseRef } from "@/features/clause/ClausePanel";
+import type { ClauseRef } from "@/features/clause/ClausePanel";
+import { useReference } from "@/features/clause/Reference";
 import HitList from "@/features/search/HitList";
 import { Link, navigate } from "@/lib/router";
 import { deleteSession, getSession, listSessions, type AskData, type SessionFull, type SessionItem } from "./api";
@@ -163,7 +164,7 @@ const Head = ({ s }: { s: SessionFull }) => (
 
 function One({ id }: { id: string }) {
   const s = useSession(id);
-  const [picked, setPicked] = useState<ClauseRef | null>(null);
+  const { open: setPicked } = useReference();
   return (
     <section className="space-y-6">
       <Link to="/sessions" className="text-sm text-muted underline">← History</Link>
@@ -172,14 +173,13 @@ function One({ id }: { id: string }) {
       ) : (
         <><Head s={s} /><Body s={s} onPick={setPicked} /></>
       )}
-      <ClausePanel clause={picked} onClose={() => setPicked(null)} />
     </section>
   );
 }
 
 function Compare({ a, b }: { a?: string; b?: string }) {
   const [sa, sb] = [useSession(a), useSession(b)];
-  const [picked, setPicked] = useState<ClauseRef | null>(null);
+  const { open: setPicked } = useReference();
   const both = useMemo(() => {
     if (!sa || !sb || typeof sa === "string" || typeof sb === "string") return [];
     const other = new Set(clausesOf(sb).map(key));
@@ -206,18 +206,17 @@ function Compare({ a, b }: { a?: string; b?: string }) {
               </div>
             )}
           </div>
-          <div className="grid gap-8 lg:grid-cols-2">
+          <div className="@container"><div className="grid gap-8 @4xl:grid-cols-2">
             {[sa, sb].map((s) => (
               <div key={s.id} className="min-w-0">
                 <Head s={s} />
                 <Body s={s} onPick={setPicked} />
               </div>
             ))}
-          </div>
+          </div></div>
         </>
       )}
       {(sa === null || sb === null) && <p className="text-muted" aria-busy>Loading…</p>}
-      <ClausePanel clause={picked} onClose={() => setPicked(null)} />
     </section>
   );
 }

@@ -1,5 +1,5 @@
 import { useMemo, useSyncExternalStore } from "react";
-import type { AnchorHTMLAttributes } from "react";
+import type { ComponentProps } from "react";
 
 // A tiny History-API router: the app has five routes, so react-router would be more code than this.
 const subscribe = (cb: () => void) => {
@@ -27,7 +27,7 @@ export function useRoute() {
 }
 
 /** A real <a href>: opens in a new tab, copies as a link, and a plain click stays in the app. */
-export function Link({ to, onClick, ...rest }: { to: string } & AnchorHTMLAttributes<HTMLAnchorElement>) {
+export function Link({ to, onClick, ...rest }: { to: string } & ComponentProps<"a">) {
   return (
     <a
       href={to}

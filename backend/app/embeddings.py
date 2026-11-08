@@ -84,10 +84,12 @@ async def expand_thin(db: AsyncSession, hits: list[dict], following: int = 6, ma
         h["content"], h["expanded"] = text, n  # expanded: how many following clauses were added
 
 
-async def hybrid(db: AsyncSession, user_id: uuid.UUID, q: str, key: str | None, top: int = 10, *, use_vector: bool = True, use_keyword: bool = True) -> tuple[list[dict], str, str | None]:
+async def hybrid(db: AsyncSession, user_id: uuid.UUID, q: str, key: str | None, top: int = 10, *, use_vector: bool = True, use_keyword: bool = True, doc_ids: list[str] | None = None) -> tuple[list[dict], str, str | None]:
     """Hybrid search over one user's clauses: vector similarity + keyword rank, merged with reciprocal rank fusion."""
     mine = select(Clause.id, Clause.document_id, Document.filename, Clause.position, Clause.clause_identifier, Clause.title,
                   Clause.content, Clause.page_number).join(Document, Document.id == Clause.document_id).where(Document.user_id == user_id)
+    if doc_ids:  # the graph narrowed the question to these contracts
+        mine = mine.where(Document.id.in_([uuid.UUID(d) for d in doc_ids]))
     tsq = func.websearch_to_tsquery("english", q)  # all words must match; tried "any word" and AND-then-OR, both worse overall (docs/17)
     tsv = func.to_tsvector("english", Clause.title + " " + Clause.content)  # ponytail: no GIN index; add one past ~100k clauses
     keyword = (await db.execute(mine.add_columns(func.ts_rank_cd(tsv, tsq).label("r")).where(tsv.op("@@")(tsq)).order_by(desc("r")).limit(20))).all() if use_keyword else []
@@ -111,7 +113,7 @@ async def hybrid(db: AsyncSession, user_id: uuid.UUID, q: str, key: str | None, 
     for name, rows in (("vector", vector), ("keyword", keyword)):
         for rank, r in enumerate(rows, 1):
             h = hits.setdefault(r.id, {
-                "document_id": str(r.document_id), "filename": r.filename, "position": r.position,
+                "id": str(r.id), "document_id": str(r.document_id), "filename": r.filename, "position": r.position,
                 "clause_identifier": r.clause_identifier, "title": r.title, "content": r.content,
                 "page_number": r.page_number, "vector_rank": None, "vector_similarity": None, "keyword_rank": None, "score": 0.0,
             })
