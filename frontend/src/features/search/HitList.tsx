@@ -1,4 +1,4 @@
-import type { ClauseRef } from "@/features/clause/ClausePanel";
+import { niceId, type ClauseRef } from "@/features/clause/ClausePanel";
 import type { Hit } from "./api";
 
 /** Search results; a click opens the clause itself (PDF page and full text) in the side panel. */
@@ -12,7 +12,7 @@ export default function HitList({ results, onPick }: { results: Hit[]; onPick: (
             className="block w-full cursor-pointer rounded-md border border-line bg-surface p-4 text-left transition-colors duration-200 hover:border-line-strong focus-visible:outline-2 focus-visible:outline-accent"
           >
             <span className="flex flex-wrap items-center gap-2">
-              <span className="rounded-md bg-accent/10 px-2 py-1 font-mono text-xs font-medium text-accent-fg">{h.clause_identifier}</span>
+              {niceId(h.clause_identifier) && <span className="rounded-md bg-accent/10 px-2 py-1 font-mono text-xs font-medium text-accent-fg">{niceId(h.clause_identifier)}</span>}
               <span className="font-display text-lg font-semibold text-fg">{h.title}</span>
             </span>
             <span className="mt-1 block text-sm text-muted">{h.filename}{h.page_number ? ` · p.${h.page_number}` : ""}</span>

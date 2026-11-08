@@ -17,6 +17,9 @@ export interface ClauseRef {
   snippet?: string;
 }
 
+/** The clause's number as a person would say it. Unnumbered headings carry an internal id ("SEC_(WITH_INSTITUTI"): those show no number. */
+export const niceId = (id: string) => (id.startsWith("SEC_") ? "" : id === "PREAMBLE" ? "Preamble" : id === "SIGNATURES" ? "Signatures" : id);
+
 /** The contract screen scrolled to that clause, opened and highlighted, with the PDF on its page. */
 export const clauseHref = (c: ClauseRef) =>
   `/contracts/${c.document_id}?${c.page_number ? `page=${c.page_number}&` : ""}clause=${c.position}`;
@@ -48,7 +51,7 @@ export function ClauseViewer({ clause: c, onClose, nav, expanded, onExpand }: {
       <header className="flex items-start gap-1.5 border-b border-line p-4">
         <div className="min-w-0 flex-1">
           <p className="flex items-center gap-2">
-            <span className="rounded-md bg-accent/10 px-2 py-1 font-mono text-xs font-medium text-accent-fg">{c.clause_identifier}</span>
+            {niceId(c.clause_identifier) && <span className="rounded-md bg-accent/10 px-2 py-1 font-mono text-xs font-medium text-accent-fg">{niceId(c.clause_identifier)}</span>}
             <span className="truncate font-display text-xl font-semibold">{c.title}</span>
           </p>
           <p className="mt-1 truncate text-sm text-muted" title={c.filename}>{c.filename}{c.page_number ? ` · p.${c.page_number}` : ""}</p>

@@ -1,6 +1,6 @@
 import { Fragment, useId, useState } from "react";
 import { Check, ChevronDown, FileText, Loader2, Network, PanelRight, X } from "lucide-react";
-import type { ClauseRef } from "@/features/clause/ClausePanel";
+import { niceId, type ClauseRef } from "@/features/clause/ClausePanel";
 import type { Brief } from "./api";
 
 export interface Attempt {
@@ -55,7 +55,7 @@ export function ReferenceCards({ sources, selected, onPick }: { sources: Brief[]
                   }`}
                 >
                   <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full font-mono text-xs font-semibold ${on ? "bg-accent text-canvas" : "bg-accent/10 text-accent-fg"}`}>{i + 1}</span>
-                  <span className="shrink-0 font-mono text-xs text-muted">{s.clause_identifier}</span>
+                  {niceId(s.clause_identifier) && <span className="shrink-0 font-mono text-xs text-muted">{niceId(s.clause_identifier)}</span>}
                   <span className="min-w-0 truncate">{s.title}</span>
                 </button>
               </li>
@@ -77,7 +77,7 @@ export function ReferenceCards({ sources, selected, onPick }: { sources: Brief[]
               >
                 <span className="flex items-center gap-2">
                   <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full font-mono text-xs font-semibold ${on ? "bg-accent text-canvas" : "bg-accent/10 text-accent-fg"}`}>{i + 1}</span>
-                  <span className="rounded-md bg-raised px-1.5 py-0.5 font-mono text-xs text-fg-soft">{s.clause_identifier}</span>
+                  {niceId(s.clause_identifier) && <span className="rounded-md bg-raised px-1.5 py-0.5 font-mono text-xs text-fg-soft">{niceId(s.clause_identifier)}</span>}
                   {s.via && (
                     <span className="inline-flex items-center gap-1 rounded-md bg-warn/15 px-1.5 py-0.5 text-xs text-fg" title="Not a search match: the graph pulled this clause in because a matched clause refers to it">
                       <Network className="h-3 w-3" aria-hidden /> pulled in by {s.via}
@@ -180,11 +180,15 @@ export function Trace({ attempts, sources = [], onPick }: { attempts: Attempt[];
                 const why = a.reasons?.[String(i)];
                 return (
                   <li key={i}>
-                    <button onClick={() => onPick(h)} className={`flex min-h-8 w-full cursor-pointer items-center gap-2 rounded-md px-1.5 text-left text-sm hover:bg-raised focus-visible:outline-2 focus-visible:outline-accent ${ok ? "text-fg" : "text-muted"}`}>
-                      {a.relevant === null ? <Loader2 className="h-3.5 w-3.5 shrink-0 motion-safe:animate-spin" aria-hidden /> : ok ? <Check className="h-3.5 w-3.5 shrink-0 text-accent" aria-label="relevant" /> : <X className="h-3.5 w-3.5 shrink-0" aria-label="not relevant" />}
-                      <span className="shrink-0 font-mono text-xs">{h.clause_identifier}</span>
-                      <span className="min-w-0 truncate">{h.title}</span>
-                      <span className="hidden shrink-0 text-xs text-subtle sm:inline">{shortName(h.filename, 26)}</span>
+                    <button onClick={() => onPick(h)} className={`flex min-h-9 w-full cursor-pointer items-start gap-2 rounded-md px-1.5 py-1 text-left text-sm hover:bg-raised focus-visible:outline-2 focus-visible:outline-accent ${ok ? "text-fg" : "text-muted"}`}>
+                      {a.relevant === null ? <Loader2 className="mt-0.5 h-3.5 w-3.5 shrink-0 motion-safe:animate-spin" aria-hidden /> : ok ? <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" aria-label="relevant" /> : <X className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-label="not relevant" />}
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-baseline gap-2">
+                          {niceId(h.clause_identifier) && <span className="max-w-[7rem] shrink-0 truncate font-mono text-xs">{niceId(h.clause_identifier)}</span>}
+                          <span className="min-w-0 truncate">{h.title}</span>
+                        </span>
+                        <span className="block truncate text-xs text-subtle" title={h.filename}>{shortName(h.filename, 44)}</span>
+                      </span>
                     </button>
                     {why && (
                       <p className={`ml-[1.65rem] max-w-prose pb-1 pr-2 text-xs leading-snug ${ok ? "text-subtle" : "text-fg-soft"}`}>

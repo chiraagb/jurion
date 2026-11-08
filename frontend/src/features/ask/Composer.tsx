@@ -41,8 +41,8 @@ export default function Composer({ busy, onSend, onStop, focusKey }: { busy: boo
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); send(); }
             }}
-            placeholder="Ask about your contracts…  e.g. Who can terminate, and with how much notice?"
-            className="max-h-[10.5rem] min-h-11 flex-1 resize-none bg-transparent px-3 py-2.5 text-base leading-snug text-fg outline-none placeholder:text-subtle"
+            placeholder="Ask about your contracts…"
+            className="max-h-[10.5rem] min-h-11 min-w-0 flex-1 resize-none overflow-y-auto bg-transparent px-3 py-2.5 text-base leading-snug text-fg outline-none placeholder:text-subtle"
           />
           {busy ? (
             <button type="button" onClick={onStop} aria-label="Stop answering" className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-xl bg-fg text-canvas transition-opacity hover:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
@@ -54,7 +54,7 @@ export default function Composer({ busy, onSend, onStop, focusKey }: { busy: boo
             </button>
           )}
         </div>
-        <p className="mt-2 text-center text-xs text-subtle">
+        <p className="mt-2 truncate text-center text-xs text-subtle">
           <kbd className="rounded border border-line px-1 font-mono">Enter</kbd> to send · <kbd className="rounded border border-line px-1 font-mono">Shift</kbd>+<kbd className="rounded border border-line px-1 font-mono">Enter</kbd> for a new line · every claim cites your contracts
         </p>
       </div>
