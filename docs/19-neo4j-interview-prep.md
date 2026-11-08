@@ -420,7 +420,7 @@ For each: the **short answer**, an **example you can say**, and a **follow-up** 
 - Build on save, a rebuild button, cleanup on delete and replace, indexes and constraints, a Graph panel in the app, and a test against a real Neo4j.
 
 **Used by Ask (built, tested, measured)**
-- **Narrowing:** before searching, one cheap AI call reads the question and each contract's parties and roles and says which contracts the question names ("the bank" → the Oriental Financial contract). Ask searches those first and falls back to all contracts if nothing relevant turns up.
+- **Narrowing:** before searching, one cheap AI call reads the question and each contract's parties and roles and says which contracts the question names ("the bank" → the Oriental Financial contract). Ask searches those first, adds the best few results from every contract after them (so a wrong guess cannot hide the right clause), and falls back to all contracts if nothing relevant turns up.
 - **Widening:** after the relevant clauses are chosen, clauses they refer to ("subject to Section 8") are added and marked "pulled in by 9.1".
 - **The honest result:** on the same 38 questions, the right clause was cited 89.5% → 94.7% of the time, fully faithful answers, and the two failures that named a contract (the "bank" and the "clinical trial agreement" questions) now work. Overall search quality is about the same. **Do not say "GraphRAG greatly improved my answers."** Say: *"It fixed a specific failure, questions that name a contract, with a small overall gain; my first version actually hurt four questions by guessing a contract from the topic, and I fixed it by deciding only from names, roles and document kinds."* The cross-reference widening is built but I cannot yet show it helps.
 

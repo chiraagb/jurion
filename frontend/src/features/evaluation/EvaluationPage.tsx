@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useState } from "react";
 import { api } from "@/lib/api";
 
-type Mode = "vector" | "keyword" | "hybrid" | "context" | "scope" | "graph";
+type Mode = "vector" | "keyword" | "hybrid" | "context" | "scope" | "soft" | "graph";
 type Kind = "direct" | "paraphrase" | "broad" | "graph" | "multi" | "none";
 interface Score { "hit@1": number; "hit@3": number; "hit@5": number; "hit@10": number; mrr: number; n: number }
 type Summary = Record<"all" | "direct" | "paraphrase" | "broad" | "graph" | "multi", Partial<Record<Mode, Score>>>;
@@ -13,15 +13,16 @@ interface AnswerRow {
 }
 interface AnswerStats { n: number; answered: number | null; right_clause_in_context: number | null; right_clause_cited: number | null; answered_wrong_clause: number | null; faithfulness: number | null; addresses_question: number | null }
 interface Answers { summary: Record<"all" | "direct" | "paraphrase" | "broad", AnswerStats> & { none: { n: number; correctly_refused: number | null } }; rows: AnswerRow[]; answer_model: string; judge_model: string; ran_at: string }
-interface Data { available?: false; ran_at: string; embedding_model: string; questions: number; baseline?: Run; retrieval: Run; answers?: Answers; answers_before_graph?: Answers }
+interface Data { available?: false; ran_at: string; embedding_model: string; questions: number; baseline?: Run; retrieval: Run; answers?: Answers; answers_5_contracts?: Answers }
 
 const MODES: { id: Mode; label: string; note: string }[] = [
   { id: "vector", label: "Vector only", note: "meaning match" },
   { id: "keyword", label: "Keyword only", note: "Postgres full-text" },
   { id: "hybrid", label: "Hybrid", note: "vector + keyword" },
   { id: "context", label: "Hybrid + context", note: "headings widened" },
-  { id: "scope", label: "+ Narrowed", note: "graph picks the contract" },
-  { id: "graph", label: "+ Widened", note: "narrowed, plus linked clauses (Ask)" },
+  { id: "scope", label: "Hard narrowing", note: "only the contracts the graph picks" },
+  { id: "soft", label: "Soft narrowing", note: "picked contracts first, plus the best of all" },
+  { id: "graph", label: "+ Widened", note: "soft narrowing + linked clauses (Ask)" },
 ];
 const GROUPS = [["all", "All"], ["direct", "Same words"], ["paraphrase", "Other words"], ["broad", "Whole section"], ["graph", "Names a party"], ["multi", "Needs two clauses"]] as const;
 const pct = (n: number) => `${Math.round(n * 100)}%`;
@@ -132,7 +133,7 @@ export default function EvaluationPage() {
       </div>
 
       {data.answers && <AnswerQuality a={data.answers} />}
-      {data.answers && data.answers_before_graph && <GraphAnswers before={data.answers_before_graph} after={data.answers} />}
+      {data.answers && data.answers_5_contracts && <CorpusGrowth before={data.answers_5_contracts} after={data.answers} />}
 
       <div className="max-w-3xl space-y-2 text-sm text-fg-soft">
         <h2 className="text-lg font-semibold text-fg">What to trust, and what not</h2>
@@ -224,11 +225,16 @@ function GraphEffect({ rows }: { rows: Row[] }) {
   const better = ans.filter((r) => r.ranks.context != null && r.ranks.graph != null && r.ranks.graph < r.ranks.context).length;
   const worse = ans.filter((r) => r.ranks.context != null && r.ranks.graph != null && r.ranks.graph > r.ranks.context).length;
   // Widening alone: narrowed vs narrowed + widened, on the same questions.
-  const wGain = ans.filter((r) => r.ranks.scope == null && r.ranks.graph != null);
-  const wLoss = ans.filter((r) => r.ranks.scope != null && r.ranks.graph == null);
-  const wUp = ans.filter((r) => r.ranks.scope != null && r.ranks.graph != null && r.ranks.graph < r.ranks.scope).length;
-  const wDown = ans.filter((r) => r.ranks.scope != null && r.ranks.graph != null && r.ranks.graph > r.ranks.scope).length;
+  const wGain = ans.filter((r) => r.ranks.soft == null && r.ranks.graph != null);
+  const wLoss = ans.filter((r) => r.ranks.soft != null && r.ranks.graph == null);
+  const wUp = ans.filter((r) => r.ranks.soft != null && r.ranks.graph != null && r.ranks.graph < r.ranks.soft).length;
+  const wDown = ans.filter((r) => r.ranks.soft != null && r.ranks.graph != null && r.ranks.graph > r.ranks.soft).length;
   const widenedAny = ans.filter((r) => (r.widened?.length ?? 0) > 0).length;
+  // Hard vs soft narrowing on the same questions: did hedging recover what a wrong guess lost?
+  const hs = ans.filter((r) => r.ranks.soft !== undefined);
+  const hLost = hs.filter((r) => r.ranks.context != null && r.ranks.scope == null);
+  const hBack = hs.filter((r) => r.ranks.context != null && r.ranks.scope == null && r.ranks.soft != null);
+  const hStill = hs.filter((r) => r.ranks.context != null && r.ranks.soft == null);
   const List = ({ rs }: { rs: Row[] }) => <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-fg-soft">{rs.map((r) => <li key={r.id}>{r.question}{r.scope && r.scope.length > 0 ? <span className="text-muted"> (narrowed to {r.scope.join(", ")})</span> : null}</li>)}</ul>;
   return (
     <div className="rounded-md border border-line bg-surface p-5">
@@ -238,8 +244,18 @@ function GraphEffect({ rows }: { rows: Row[] }) {
         <div><p className="text-sm"><b className="text-accent-fg">{rescued.length} rescued</b> <span className="text-muted">(missed in the top 10 before, found now)</span></p>{rescued.length ? <List rs={rescued} /> : <p className="mt-1 text-sm text-muted">none</p>}</div>
         <div><p className="text-sm"><b className="text-warn">{broken.length} broken</b> <span className="text-muted">(found before, missed now)</span></p>{broken.length ? <List rs={broken} /> : <p className="mt-1 text-sm text-muted">none</p>}</div>
       </div>
+      {hs.length > 0 && (
+        <div className="mt-4 border-t border-line pt-3">
+          <p className="text-sm font-semibold">Hard vs soft narrowing</p>
+          <p className="mt-1 text-sm text-fg-soft">
+            Searching only the contracts the graph picks lost the right clause for <b className="text-warn">{hLost.length}</b> question{hLost.length === 1 ? "" : "s"} that plain search found (a wrong guess hides the answer).
+            Adding the best results from every contract brought <b className="text-accent-fg">{hBack.length}</b> back; <b>{hStill.length}</b> {hStill.length === 1 ? "is" : "are"} still lost compared with no narrowing.
+          </p>
+          {hLost.length > 0 && <List rs={hLost} />}
+        </div>
+      )}
       <div className="mt-4 border-t border-line pt-3">
-        <p className="text-sm font-semibold">Widening on its own (narrowed vs narrowed + pulled-in clauses)</p>
+        <p className="text-sm font-semibold">Widening on its own (soft narrowing vs soft narrowing + pulled-in clauses)</p>
         <p className="mt-1 text-sm text-fg-soft">
           Widening added clauses for <b>{widenedAny}</b> of {ans.length} questions. It rescued <b className="text-accent-fg">{wGain.length}</b>, broke <b className="text-warn">{wLoss.length}</b>, and of those found both ways ranked {wUp} higher and {wDown} lower.
           {wGain.length === 0 && wLoss.length === 0 && wUp === 0 ? " So on these questions it changes nothing measurable." : ""}
@@ -251,8 +267,8 @@ function GraphEffect({ rows }: { rows: Row[] }) {
   );
 }
 
-/** Answers on the SAME questions before and after the graph went into Ask (the set grew since, so only shared questions count). */
-function GraphAnswers({ before, after }: { before: Answers; after: Answers }) {
+/** Answers on the SAME questions when the library was 5 contracts and when it is 15: more contracts means more look-alike clauses. */
+function CorpusGrowth({ before, after }: { before: Answers; after: Answers }) {
   const prior = new Map(before.rows.map((r) => [r.id, r]));
   const ids = after.rows.filter((r) => r.kind !== "none" && prior.has(r.id)).map((r) => r.id);
   const now = new Map(after.rows.map((r) => [r.id, r]));
@@ -271,10 +287,10 @@ function GraphAnswers({ before, after }: { before: Answers; after: Answers }) {
   const p = (n: number | null) => (n === null ? "—" : `${Math.round(n * 1000) / 10}%`);
   return (
     <div className="space-y-3">
-      <h2 className="text-lg font-semibold">Answers before and after the graph (same {ids.length} questions)</h2>
+      <h2 className="text-lg font-semibold">The same {ids.length} questions: 5 contracts vs 15 contracts</h2>
       <div className="overflow-x-auto rounded-md border border-line">
         <table className="w-full border-collapse text-sm">
-          <thead className="bg-raised text-left"><tr><th className="px-3 py-2">Measure</th><th className="px-3 py-2">Before</th><th className="px-3 py-2">With the graph</th></tr></thead>
+          <thead className="bg-raised text-left"><tr><th className="px-3 py-2">Measure</th><th className="px-3 py-2">5 contracts</th><th className="px-3 py-2">15 contracts</th></tr></thead>
           <tbody>{rows.map(([l, x, y]) => <tr key={l} className="border-t border-line"><td className="px-3 py-2 text-fg-soft">{l}</td><td className="px-3 py-2 tabular-nums">{p(x)}</td><td className="px-3 py-2 tabular-nums font-semibold">{p(y)}</td></tr>)}</tbody>
         </table>
       </div>
@@ -283,7 +299,7 @@ function GraphAnswers({ before, after }: { before: Answers; after: Answers }) {
           {changed.map((i) => { const x = prior.get(i)!, y = now.get(i)!; return <li key={i}>{x.question}: <span className="text-muted">{x.refused ? "refused" : x.cited_gold ? "right clause" : "wrong clause"}</span> → <b>{y.refused ? "refused" : y.cited_gold ? "right clause" : "wrong clause"}</b></li>; })}
         </ul>
       )}
-      <p className="max-w-3xl text-xs text-muted">Single runs: answers differ slightly between runs, and one question is about {(100 / ids.length).toFixed(1)} points.</p>
+      <p className="max-w-3xl text-xs text-muted">More contracts means more clauses that look alike, so search has more to confuse. Some of the drop is questions that now have several valid answers in different contracts while the test accepts one. Single runs: answers differ slightly between runs, and one question is about {(100 / ids.length).toFixed(1)} points.</p>
     </div>
   );
 }

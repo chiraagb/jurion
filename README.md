@@ -47,17 +47,18 @@ flowchart LR
 
 ## Measured results
 
-From the latest runs on 5 contracts (retrieval: 50 answerable questions; answers: 44) (see the Evaluation tab for the live numbers and the question-by-question detail):
+From the latest runs: 83 questions (77 with an answer) over **15 public contracts**, 847 clauses (see the Evaluation tab for the live numbers and the question-by-question detail):
 
 | | Result |
 |---|---|
-| Right clause in the top 5 results: meaning only / words only / hybrid / + heading context / + narrowed by the graph / + widened | 76% / 24% / 80% / 84% / 86% / 88% |
-| Answers that cite the right clause | 95.5% |
-| Claims supported by the clauses given | about 98–100% |
-| Unanswerable questions correctly refused | 4 of 4 |
-| Answers that are confident but from the wrong clause | 0–5% (varies between runs) |
+| Right clause in the top 5 results: meaning only / words only / hybrid / + heading context / + widened by the graph | 77% / 18% / 77% / 78% / 79% |
+| Right clause inside the clauses Ask gives the grader: no narrowing / hard / soft narrowing | 88% / 90% / 92% |
+| Answers that cite the right clause (95.5% when the library was 5 contracts) | 84.4% |
+| Claims supported by the clauses given | 99.1% |
+| Unanswerable questions correctly refused | 6 of 6 |
+| Answers that are confident but from the wrong clause (4.5% on 5 contracts) | 6.5% |
 
-**Read these honestly:** it is a small set (one question is about 2.3 points), answers differ slightly between runs, and faithfulness is scored by an AI judge. The graph fixed the failures it was built for (questions that name a contract) and left overall search quality about the same. [`docs/17-evaluation.md`](docs/17-evaluation.md) records what was tried, what did not work, and the bugs found in the measuring itself.
+**Read these honestly:** accuracy fell when the library tripled, because there are more look-alike clauses (the same 44 questions: 95.5% on 5 contracts, 84.1% on 15). Part of that drop is generic questions that now have several valid answers in different contracts while the test accepts one. The set is still small (one question is about 1.3 points), answers differ slightly between runs, and faithfulness is scored by an AI judge. The graph fixed the failures it was built for (questions that name a contract) and left overall search quality about the same. [`docs/17-evaluation.md`](docs/17-evaluation.md) records what was tried, what did not work, and the bugs found in the measuring itself.
 
 ## Run it
 

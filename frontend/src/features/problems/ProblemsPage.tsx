@@ -68,7 +68,7 @@ function stages(e: Eval | null): Stage[] {
           wrong: "With several contracts saved, search can pull a good-looking clause from the wrong one, and the AI then fills the gap with a guess.",
           example: "Asked “What does the bank owe if it ends the contract early?”, the app used a template services agreement that has no bank in it and wrote “(in this case, the bank)”. Only the Oriental Financial contract has a bank.",
           fix: <>The relevance check now sees each clause's <b>contract name</b> and rejects clauses from a contract that does not contain the party the question names. The answer must say which contract each statement comes from and must never guess which party you mean. <b>Then the graph:</b> before searching, Ask now asks which contracts the question names (by company, role or kind of document, such as “the bank” or “the clinical trial agreement”), using the parties stored in Neo4j, and searches only those first. If that finds nothing relevant it searches everything.</>,
-          result: <>The two questions that named a contract and used to fail (“the bank…”, “the clinical trial agreement…”) are now answered from the right contract with the right clause cited. Answers that were confident, cited, but from the wrong clause: <b>{pct(ans?.all?.answered_wrong_clause)}</b> in the latest run (it moves between 0% and 5% from run to run, because AI answers are not identical every time).</>,
+          result: <>The two questions that named a contract and used to fail (“the bank…”, “the clinical trial agreement…”) are now answered from the right contract with the right clause cited. Answers that were confident, cited, but from the wrong clause: <b>{pct(ans?.all?.answered_wrong_clause)}</b> in the latest run on 15 contracts (it was 4.5% on 5 contracts, and it moves from run to run because AI answers are not identical every time). Two of the remaining mistakes are still questions that name a contract but were answered from a look-alike one.</>,
           status: "improved",
         },
       ],
@@ -117,7 +117,7 @@ function stages(e: Eval | null): Stage[] {
         {
           title: "Numbers, not feelings",
           wrong: "It is easy to believe a fix works because it sounds clever.",
-          fix: <>42 questions with known answers across 5 contracts (same-words, other-words, whole-section, and unanswerable) are run after every change; see the <b>Evaluation</b> tab. Measuring showed two sensible-sounding ideas did <b>not</b> help (matching any word, and adding the section title to each embedding), so we dropped or ignored them.</>,
+          fix: <>83 questions with known answers across 15 contracts (same-words, other-words, whole-section, naming a contract, needing two clauses, and unanswerable) are run after every change; see the <b>Evaluation</b> tab. Measuring showed two sensible-sounding ideas did <b>not</b> help (matching any word, and adding the section title to each embedding), so we dropped or ignored them.</>,
           result: "The set is small: one question is worth about 2.6 points, so a point or two is noise.",
           status: "improved",
         },
@@ -209,7 +209,7 @@ export default function ProblemsPage() {
       ))}
 
       <p className="max-w-3xl text-sm text-muted">
-        Numbers marked above come from the most recent run on the <b>Evaluation</b> tab (38 answerable questions across 5 contracts) and update when it is re-run.
+        Numbers marked above come from the most recent run on the <b>Evaluation</b> tab (77 answerable questions across 15 contracts) and update when it is re-run.
         “?” means that run has no value for it yet.
       </p>
     </section>

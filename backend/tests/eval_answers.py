@@ -23,7 +23,7 @@ from tests.eval_qa import QA, is_gold
 
 PARALLEL = 4
 # How a refusal starts: "I couldn't find this in your saved contracts", "The clauses provided do not mention ...", "There is no ..."
-REFUSAL = re.compile(r"^\W*(?:the\s+(?:provided\s+)?(?:clauses?|contracts?|text|documents?)(?:\s+provided)?\s+(?:do(?:es)?\s+not|don'?t)|i\s+(?:couldn'?t|could\s+not|cannot|can'?t)|there\s+(?:is|are)\s+no|no\s+(?:information|mention)|unable\s+to)", re.I)
+REFUSAL = re.compile(r"^\W*(?:the\s+(?:provided\s+)?(?:clauses?|contracts?|text|documents?)(?:\s+(?:you\s+|we\s+)?provided)?\s+(?:do(?:es)?\s+not|don'?t)|i\s+(?:couldn'?t|could\s+not|cannot|can'?t)|there\s+(?:is|are)\s+no|no\s+(?:information|mention)|unable\s+to)", re.I)
 
 
 class Claim(BaseModel):

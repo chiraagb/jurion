@@ -421,5 +421,208 @@
    "Capitalized terms shall have the meaning ascribed to them in Article 18",
    "ACH” shall mean"
   ]
+ },
+ {
+  "id": 55,
+  "question": "Who joins the board under the cooperation agreement with the Marathon parties?",
+  "kind": "paraphrase",
+  "doc": "ELFBEAUTY",
+  "phrase": "Lori Keith"
+ },
+ {
+  "id": 56,
+  "question": "What does the support period covenant in the cooperation agreement cover, and when does it end?",
+  "kind": "direct",
+  "doc": "ELFBEAUTY",
+  "phrase": "ending at 11:59 pm New York Time"
+ },
+ {
+  "id": 57,
+  "question": "Are the company and the shareholder group allowed to criticise each other in public?",
+  "kind": "paraphrase",
+  "doc": "ELFBEAUTY",
+  "phrase": "covenants and agrees that, during the Support Period"
+ },
+ {
+  "id": 58,
+  "question": "What counts as an impression for the sponsorship guarantee?",
+  "kind": "direct",
+  "doc": "N2KINC",
+  "phrase": "means any appearance of a link to the Sponsor Site"
+ },
+ {
+  "id": 59,
+  "question": "Who owns the material the sponsor supplies to Excite?",
+  "kind": "paraphrase",
+  "doc": "N2KINC",
+  "phrase": "Sponsor will retain all right, title and interest in and to the Content worldwide"
+ },
+ {
+  "id": 60,
+  "question": "What can the sponsor do if Excite does not deliver the promised visibility?",
+  "kind": "paraphrase",
+  "doc": "N2KINC",
+  "phrase": "If Excite fails to deliver the guaranteed number of Impressions"
+ },
+ {
+  "id": 61,
+  "question": "How long does the WeChat app development agreement last?",
+  "kind": "direct",
+  "doc": "VgrabCommunications",
+  "phrase": "maximum period of six (6) months"
+ },
+ {
+  "id": 62,
+  "question": "Who sets up the WeChat account for the coffee app?",
+  "kind": "paraphrase",
+  "doc": "VgrabCommunications",
+  "phrase": "Developer will register a WeChat Official Account on behalf of VAL"
+ },
+ {
+  "id": 63,
+  "question": "What is a change order in the app development agreement?",
+  "kind": "direct",
+  "doc": "VgrabCommunications",
+  "phrase": "Definition of Change Order"
+ },
+ {
+  "id": 64,
+  "question": "Which golf clubs must the golfer use in public?",
+  "kind": "paraphrase",
+  "doc": "PerformanceSportsBrands",
+  "phrase": "F2 branded wedges when competing professionally"
+ },
+ {
+  "id": 65,
+  "question": "What happens if the advertising materials fall under the Screen Actors Guild?",
+  "kind": "direct",
+  "doc": "PerformanceSportsBrands",
+  "phrase": "Screen Actors Guild"
+ },
+ {
+  "id": 66,
+  "question": "When is the golfer in default of the endorsement agreement?",
+  "kind": "paraphrase",
+  "doc": "PerformanceSportsBrands",
+  "phrase": "North shall materially breach this Agreement and such breach remains uncured for a period of thirty (30) days"
+ },
+ {
+  "id": 67,
+  "question": "Can a supplier stop making a product under the outsourcing agreement with the mask suppliers?",
+  "kind": "paraphrase",
+  "doc": "PhotronicsInc",
+  "phrase": "end of life of such Product"
+ },
+ {
+  "id": 68,
+  "question": "Who pays the taxes on the products in the mask outsourcing agreement?",
+  "kind": "direct",
+  "doc": "PhotronicsInc",
+  "phrase": "The Company shall be responsible for and shall pay any applicable sales, use, excise or similar taxes"
+ },
+ {
+  "id": 69,
+  "question": "When do ownership and risk of the products pass to the company?",
+  "kind": "paraphrase",
+  "doc": "PhotronicsInc",
+  "phrase": "Risk of loss for the Products and title to the Products shall pass to the Company"
+ },
+ {
+  "id": 70,
+  "question": "What law governs the outsource technology development agreement?",
+  "kind": "direct",
+  "doc": "HfEnterprises",
+  "phrase": "laws of the State of New York without regard to conflict of laws principles"
+ },
+ {
+  "id": 71,
+  "question": "Is the developer's licence to the technology exclusive?",
+  "kind": "paraphrase",
+  "doc": "HfEnterprises",
+  "phrase": "non-exclusive, limited, and non-transferable license to install and use the Technology"
+ },
+ {
+  "id": 72,
+  "question": "Can a party ask a court to stop a breach of the technology development agreement?",
+  "kind": "paraphrase",
+  "doc": "HfEnterprises",
+  "phrase": "may be entitled to injunctive relief"
+ },
+ {
+  "id": 73,
+  "question": "Who owns the software in the license and hosting agreement?",
+  "kind": "direct",
+  "doc": "CORIOINC",
+  "phrase": "Commerce One hereby retains all of its right, title, and interest in and to the Software"
+ },
+ {
+  "id": 74,
+  "question": "Who is responsible for taxes in the hosting agreement with Commerce One?",
+  "kind": "paraphrase",
+  "doc": "CORIOINC",
+  "phrase": "Corio is responsible for payment of all taxes concerning the Corio Services"
+ },
+ {
+  "id": 75,
+  "question": "Can Corio resell Commerce One software to its customers?",
+  "kind": "direct",
+  "doc": "CORIOINC",
+  "phrase": "Corio shall have the right to resell licenses for Commerce One software"
+ },
+ {
+  "id": 76,
+  "question": "Can MBE check the company's shipping records?",
+  "kind": "paraphrase",
+  "doc": "StampscomInc",
+  "phrase": "MBE shall, at any time during the term of this Agreement, be entitled to audit"
+ },
+ {
+  "id": 77,
+  "question": "How long is the initial term of the manifest system services agreement?",
+  "kind": "direct",
+  "doc": "StampscomInc",
+  "phrase": "end on the fifth anniversary of the Effective Date"
+ },
+ {
+  "id": 78,
+  "question": "Who protects MBE and its centres against claims about the shipping service?",
+  "kind": "paraphrase",
+  "doc": "StampscomInc",
+  "phrase": "indemnify, defend and hold harmless MBE"
+ },
+ {
+  "id": 79,
+  "question": "Can Arizona sublicense the licences it receives under the intellectual property agreement?",
+  "kind": "direct",
+  "doc": "ArmstrongFlooring",
+  "phrase": "Arizona may sublicense the licenses granted herein to its Affiliates and Third Parties"
+ },
+ {
+  "id": 80,
+  "question": "How is the quality of trademark use controlled in the intellectual property agreement?",
+  "kind": "paraphrase",
+  "doc": "ArmstrongFlooring",
+  "phrase": "exercise of quality control over the use of the Seller Licensed Trademarks"
+ },
+ {
+  "id": 81,
+  "question": "What does each party indemnify the other for under the intellectual property agreement?",
+  "kind": "direct",
+  "doc": "ArmstrongFlooring",
+  "phrase": "agrees to indemnify, defend and hold harmless the other Party and its Affiliates"
+ },
+ {
+  "id": 82,
+  "question": "What is the chief executive's mobile phone number?",
+  "kind": "none",
+  "doc": null,
+  "phrase": null
+ },
+ {
+  "id": 83,
+  "question": "Which agreement requires disputes to be settled by a religious court?",
+  "kind": "none",
+  "doc": null,
+  "phrase": null
  }
 ]

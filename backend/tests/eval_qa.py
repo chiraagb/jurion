@@ -19,7 +19,7 @@ from app.graph import contract_cards
 
 QA = Path(__file__).parent / "qa"
 MODES = {"vector": dict(use_keyword=False), "keyword": dict(use_vector=False), "hybrid": {}}
-COLUMNS = (*MODES, "context", "scope", "graph")  # context = hybrid + heading expansion; graph = context after narrowing to the contracts the question names and widening by cross-reference (what Ask does now)
+COLUMNS = (*MODES, "context", "scope", "soft", "graph")  # context = hybrid + heading expansion; graph = context after narrowing to the contracts the question names and widening by cross-reference (what Ask does now)
 KS = (1, 3, 5, 10)
 norm = lambda t: " ".join(t.split()).lower()
 
@@ -82,7 +82,13 @@ async def retrieval(questions: list[dict]) -> dict:
             if not hits and only:
                 hits, _, _ = await hybrid(db, owner, q["question"], key, 10)
             await expand_thin(db, hits)
-            row["ranks"]["scope"] = gold_rank(hits, q)  # narrowing alone, so widening's own effect can be read off the difference
+            row["ranks"]["scope"] = gold_rank(hits, q)  # HARD narrowing alone (only the named contracts)
+            if only:  # SOFT narrowing, what Ask does: the named contracts first, plus the best of every contract
+                seen = {h["id"] for h in hits}
+                more = [h for h in (await hybrid(db, owner, q["question"], key, 10))[0] if h["id"] not in seen][:ask.PAD]
+                await expand_thin(db, more)
+                hits = hits + more
+            row["ranks"]["soft"] = gold_rank(hits, q)
             ordered = []  # a pulled-in clause sits right after the clause that referred to it
             extras = await ask.widen(db, hits[:3])
             for h in hits:

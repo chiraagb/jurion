@@ -74,7 +74,7 @@ if __name__ == "__main__":
             ask.grade = grade_first
             ev = events(c.post("/ask", json={"question": "When can the bank terminate?"}))
             first = next(e for e in ev if e["event"] == "retrieved")
-            assert first["scope"] == ["bank.pdf"] and {h["filename"] for h in first["hits"]} == {"bank.pdf"}, first
+            assert first["scope"] == ["bank.pdf"] and first["hits"][0]["filename"] == "bank.pdf", first  # the named contract comes first (soft narrowing adds the best of the others after it)
             srcs = next(e for e in ev if e["event"] == "sources")["sources"]
             assert [s["clause_identifier"] for s in srcs] == ["1", "2"] and srcs[1]["via"] == "1" and srcs[0]["via"] is None, srcs
 

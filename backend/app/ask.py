@@ -22,6 +22,7 @@ from app.sessions import save_session
 log = logging.getLogger("jurion")
 router = APIRouter()
 K = 8  # clauses retrieved per attempt
+PAD = 4  # when the graph narrows the search, this many top results from ALL contracts are added after the narrowed ones
 NONE_FOUND = "I couldn't find this in your saved contracts."
 SYSTEM = ("You answer questions about the user's contracts. Use ONLY the numbered clauses given. "
           "Cite the clauses you use as [1], [2] right after the claim. The number in brackets is the source number given below, "
@@ -149,6 +150,9 @@ async def pipeline(s: AsyncSession, uid, key: str, question: str) -> AsyncIterat
     for attempt in (0, 1):  # one retrieval, and at most one retry after a rewrite
         narrowed = only if attempt == 0 else []  # the retry searches every contract, so a wrong narrowing is recoverable
         hits, mode, note = await hybrid(s, uid, q, key, K, doc_ids=[c["id"] for c in narrowed] or None)
+        if narrowed:  # soft narrowing: the named contracts first, but a wrong guess must not hide the right clause, so add the best from every contract
+            seen = {h["id"] for h in hits}
+            hits += [h for h in (await hybrid(s, uid, q, key, K))[0] if h["id"] not in seen][:PAD]
         await expand_thin(s, hits)  # a heading-only clause also brings the clauses after it
         yield "retrieved", {"query": q, "mode": mode, "note": note, "scope": [c["filename"] for c in narrowed], "hits": [_brief(h) for h in hits]}
         good = await grade(key, q, hits) if hits else []

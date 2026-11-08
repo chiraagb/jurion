@@ -12,7 +12,7 @@ Before you start: the three databases and the API are running, you are signed in
 
 **5. The graph (45 seconds).** **My contracts** → open a contract → the **Graph** panel: parties and cross-references. Optionally show Neo4j at `localhost:7474` with `MATCH (p:Party)-[r:PARTY_TO]->(d:Document) RETURN p, r, d`. Say: *"Neo4j holds only the links; Postgres is the source of truth, so the graph can always be rebuilt."*
 
-**6. Measuring it (60 seconds).** **Evaluation**: the table of five search setups, the card on what the graph rescued and what it broke, and the answers before and after. Say: *"The graph fixed the failures it was built for, questions that name a contract, and changed overall search quality very little. My first version actually broke four questions by guessing a contract from the topic, so I limited it to names, roles and document kinds."* Close with the limits: small question set, AI-judged faithfulness, no OCR.
+**6. Measuring it (60 seconds).** **Evaluation**: the table of search setups (from plain meaning search up to the full Ask pipeline), the card on what narrowing and widening rescued and broke, and the answers on 5 versus 15 contracts. Say: *"The graph fixed the failures it was built for, questions that name a contract, and changed overall search quality very little. My first version actually broke four questions by guessing a contract from the topic, so I limited it to names, roles and document kinds."* Close with the limits: small question set, AI-judged faithfulness, no OCR.
 
 **Questions to expect**
 - *Why two databases?* Postgres for text, vectors and ownership; Neo4j only for links, and it can be rebuilt. See `docs/18-graph.md` and `docs/19-neo4j-interview-prep.md`.

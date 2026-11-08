@@ -96,6 +96,24 @@ Widening added clauses for 12 of the 50 questions. It **rescued one question out
 
 How to read it: this is the first evidence that cross-reference widening helps, and it is thin. It rests on six questions that I wrote knowing which clauses link, one clear rescue, and one run. It supports "widening helps on questions that need linked clauses", not a general claim. Narrowing alone also helped here (+2 points in the top 5 over all questions, 50% → 67% on the linked-clause questions).
 
+## Growing the library from 5 to 15 contracts
+
+Ten public contracts (cooperation, sponsorship, app development, endorsement, outsourcing, technology development, hosting, co-branding and intellectual-property agreements) were added to the same account through the app's own steps (`tests/qa/load_corpus.py`: parse, embed, build the graph), and 29 questions with verified answer text were added: 83 questions in all, 77 with an answer and 6 without. Nothing else changed, so the effect of a larger library is visible.
+
+**It got harder.** On the same 44 questions, the right clause was cited in **95.5% of answers with 5 contracts and 84.1% with 15**; right-clause-in-top-5 fell from the mid 80s to the high 70s. The 27 new questions scored about the same as the old ones did on 15 contracts (about 85%).
+
+**What the 12 answers that missed the right clause were** (15 contracts, soft narrowing):
+- 7 refusals: the right clause was not found, even after the retry (for example "What does the bank owe if it ends the contract early?" is refused again, now that there are more contracts to confuse it).
+- 2 real mistakes: the question named a contract, but the answer used a look-alike ("manifest system services agreement" was answered from a generic Master Services Agreement; "mask outsourcing agreement" from the Oriental outsourcing agreement).
+- 2 ambiguous questions: "Who owns the new inventions created during the work?" and "Which courts have jurisdiction over disputes?" now have valid answers in several contracts, and the test accepts one. Not a failure of the system.
+- 1 correct answer whose citation was written "clause 12.3" instead of `[n]`, so it did not count.
+
+**Narrowing at this size.** The first measurement showed **hard** narrowing (search only the contracts the graph picks) losing the right clause for questions that name a document type several contracts share ("the technology development agreement") or a topic ("inventions"). So Ask now uses **soft narrowing**: the named contracts first (8 results) plus the best 4 from every contract. Measured on the clauses Ask actually gives the grader (77 answerable questions): right clause present for 68 with no narrowing (88.3%), 69 with hard (89.6%), **71 with soft (92.2%)**. Soft narrowing recovered 2 of the 3 questions that hard narrowing lost, and 1 is still lost. Narrowing rescued 4 questions that plain search missed. The router is an AI model, so its choices differ between runs (hard narrowing's top-10 rate was 88.3% in one run and 90.9% in the next); at this size the soft-versus-hard difference is two questions.
+
+**Widening, now on the larger library.** On the 6 questions that need two linked clauses, the right clauses are in the top 10 for 50% with plain context, 83% with narrowing, and **100% with widening**; in the top 5, 33% → 67% → 83%. Still only six questions I wrote knowing which clauses link, but the direction held on a library three times the size.
+
+**Answers on 15 contracts with soft narrowing** (77 answerable): answered 90.9%, cites the right clause 84.4%, answered from the wrong clause 6.5% (4.5% on 5 contracts), faithful 99.1%, and 6 of 6 unanswerable questions refused.
+
 ## Limits
 
 - Widening is measured on only 6 questions I designed to need it, with one clear rescue.
