@@ -125,7 +125,7 @@ def _provider(name: str) -> str:
 async def list_llm_keys(user: User = Depends(current_user), db: AsyncSession = Depends(get_db)):
     """Which providers have a saved key, as masked hints only."""
     try:
-        return {"keys": await llm_keys.key_hints(db, user.id)}
+        return {"keys": await llm_keys.key_hints(db, user.id), "server_openai": bool(settings.OPENAI_API_KEY)}
     except Exception as e:
         raise HTTPException(503, f"Database unavailable: {e}")
 

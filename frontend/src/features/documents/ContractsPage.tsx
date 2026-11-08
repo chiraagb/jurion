@@ -152,6 +152,9 @@ export default function ContractsPage({ id, page, clause }: { id?: string; page?
       ) : docs.length === 0 ? (
         <p className="rounded-md border border-dashed border-line-strong p-10 text-center text-muted">
           Nothing saved yet. Parse a contract in the Parser Lab and press <strong>Save contract</strong>.
+          <span className="mt-4 block">
+            <Link to="/parser" className="inline-flex h-11 items-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-canvas hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">Upload your first contract</Link>
+          </span>
         </p>
       ) : (
         <ul className="space-y-3">

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { KeyRound, X } from "lucide-react";
 import {
   fetchKeyHints, loadProvider, removeKey, saveKey, saveProvider, type Provider,
@@ -20,6 +20,12 @@ export default function SettingsDialog() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
+  useEffect(() => {  // the first-run checklist opens this dialog from the Ask screen
+    const h = () => open();
+    addEventListener("jurion:open-settings", h);
+    return () => removeEventListener("jurion:open-settings", h);
+  }, []);
+
   const open = async () => {
     setProvider(loadProvider());
     setDrafts({ gemini: "", openai: "" });
@@ -38,6 +44,7 @@ export default function SettingsDialog() {
     try {
       saveProvider(provider);
       for (const p of PROVIDERS) if (drafts[p.id].trim()) await saveKey(p.id, drafts[p.id].trim());
+      dispatchEvent(new Event("jurion:keys-changed"));
       ref.current?.close();
     } catch (e) {
       setError(errorText(e));
@@ -49,6 +56,7 @@ export default function SettingsDialog() {
   const remove = async (p: Provider) => {
     try {
       await removeKey(p);
+      dispatchEvent(new Event("jurion:keys-changed"));
       setSaved(await fetchKeyHints());
     } catch (e) {
       setError(errorText(e));

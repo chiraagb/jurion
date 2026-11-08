@@ -5,6 +5,8 @@ import { ClauseViewer, type ClauseRef } from "@/features/clause/ClausePanel";
 import { Link, navigate } from "@/lib/router";
 import { AnswerCard, Trace, type Attempt } from "./AnswerCard";
 import Composer from "./Composer";
+import GettingStarted from "@/features/onboarding/GettingStarted";
+import { useSetup } from "@/features/onboarding/useSetup";
 import { ask, type AskEvent, type Brief } from "./api";
 
 type Stage = "search" | "grade" | "rewrite" | "write";
@@ -25,6 +27,8 @@ const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 /** A chat with your contracts. The newest question sits at the top of the view with its answer growing beneath it;
  *  a reference opens beside the answer (docked on wide screens, a sheet on narrow ones). Stays mounted while you visit other tabs. */
 export default function AskPage({ q: urlQuestion, active }: { q: string; active: boolean }) {
+  const setup = useSetup(active); // re-checked whenever the Ask tab is shown again
+  const notReady = !setup.loading && !setup.failed && (setup.contracts === 0 || !setup.hasKey);
   const [turns, setTurns] = useState<Turn[]>([]);
   const [open, setOpen] = useState<{ turn: number; index: number } | null>(null); // the reference shown beside the answer
   const [vh, setVh] = useState(0);
@@ -128,7 +132,11 @@ export default function AskPage({ q: urlQuestion, active }: { q: string; active:
 
         <div ref={scroller} className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain" role="region" aria-label="Conversation" tabIndex={-1}>
           <div className="mx-auto max-w-3xl px-4 pb-8">
-            {turns.length === 0 ? (
+            {turns.length === 0 && setup.loading ? (
+              <p className="grid min-h-[min(34rem,70vh)] place-items-center text-muted" aria-busy>Checking your library…</p>
+            ) : turns.length === 0 && notReady ? (
+              <GettingStarted setup={setup} />
+            ) : turns.length === 0 ? (
               <div className="grid min-h-[min(34rem,70vh)] place-items-center py-10 text-center">
                 <div className="animate-rise">
                   <p className="caption mb-3">Answers you can check</p>
@@ -183,7 +191,7 @@ export default function AskPage({ q: urlQuestion, active }: { q: string; active:
           </div>
         </div>
 
-        <Composer busy={busy} onSend={send} onStop={stop} focusKey={active} />
+        <Composer busy={busy} onSend={send} onStop={stop} focusKey={active} disabledReason={notReady ? "Finish the steps above to start asking" : undefined} />
       </div>
 
       {current && open && !wide && (

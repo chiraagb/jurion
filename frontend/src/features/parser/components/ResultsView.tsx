@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { AlertTriangle, Check, FileText, Loader2, Save, Sparkles, X } from "lucide-react";
+import { AlertTriangle, Check, FileText, Loader2, MessageSquareText, Save, Sparkles, X } from "lucide-react";
 import { clauseBoxes, fetchPdf } from "@/features/documents/api";
 import LazyPdfViewer from "@/features/pdf/LazyPdfViewer";
 import type { Box } from "@/features/pdf/PdfViewer";
+import { Link } from "@/lib/router";
 import { loadProvider } from "@/features/settings/llmConfig";
 import { formatMs } from "@/lib/format";
 import type { ParseResult } from "../types";
@@ -106,6 +107,11 @@ export default function ResultsView({ result, file, onClear, onSave, clearLabel 
               )}
               {save === "saved" ? "Saved" : save === "saving" ? "Saving…" : "Save contract"}
             </button>
+          )}
+          {save === "saved" && (
+            <Link to="/ask" className="flex items-center gap-1.5 rounded-lg border border-accent/50 bg-accent/10 px-3 py-2 text-sm font-medium text-fg transition-colors hover:bg-accent/20 focus-visible:outline-2 focus-visible:outline-accent">
+              <MessageSquareText className="h-4 w-4 text-accent" aria-hidden /> Ask about it
+            </Link>
           )}
           <button
             onClick={onClear}

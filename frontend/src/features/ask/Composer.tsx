@@ -2,11 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowUp, Square } from "lucide-react";
 
 /** The message box, pinned under the thread like a chat app: Enter sends, Shift+Enter adds a line, and it grows up to six lines. */
-export default function Composer({ busy, onSend, onStop, focusKey }: { busy: boolean; onSend: (q: string) => void; onStop: () => void; focusKey: unknown }) {
+export default function Composer({ busy, onSend, onStop, focusKey, disabledReason }: { busy: boolean; onSend: (q: string) => void; onStop: () => void; focusKey: unknown; disabledReason?: string }) {
   const [text, setText] = useState("");
   const box = useRef<HTMLTextAreaElement>(null);
   const q = text.trim();
-  const canSend = q.length >= 3 && !busy;
+  const canSend = q.length >= 3 && !busy && !disabledReason;
 
   const grow = () => {
     const el = box.current;
@@ -37,11 +37,12 @@ export default function Composer({ busy, onSend, onStop, focusKey }: { busy: boo
             value={text}
             rows={1}
             maxLength={500}
+            disabled={!!disabledReason}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); send(); }
             }}
-            placeholder="Ask about your contracts…"
+            placeholder={disabledReason ?? "Ask about your contracts…"}
             className="max-h-[10.5rem] min-h-11 min-w-0 flex-1 resize-none overflow-y-auto bg-transparent px-3 py-2.5 text-base leading-snug text-fg outline-none placeholder:text-subtle"
           />
           {busy ? (
