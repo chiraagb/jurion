@@ -51,6 +51,7 @@ export const clauseBoxes = async (id: string, position: number) =>
 
 export interface GraphData {
   built: boolean;
+  summary?: string; // one line: what kind of contract it is and what it is about
   parties: { name: string; role: string; aliases: string[]; also_in: string[] }[];
   references: { from_position: number; from_id: string; from_title: string; to_position: number; to_id: string; to_title: string }[];
 }

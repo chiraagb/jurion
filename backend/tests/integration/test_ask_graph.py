@@ -30,10 +30,13 @@ if __name__ == "__main__":
 
     async def fake_parties(_key, text):
         who = "Acme Bank" if "Bank" in text else "Zeta Foods"
-        return [graph.Party(name=who, role="Customer", aliases=[])]
+        return graph.Parties(parties=[graph.Party(name=who, role="Customer", aliases=[])], summary=f"A test agreement with {who}")
 
     async def fake_scope(_key, q, cards):  # "the bank" -> the contract whose party is a bank
-        return [i for i, c in enumerate(cards) if "bank" in q.lower() and any("Bank" in p["name"] for p in c["parties"])]
+        assert all(c["summary"].startswith("A test agreement with") for c in cards), cards  # the router is told what each contract is about
+        out = ask.Picked(i for i, c in enumerate(cards) if "bank" in q.lower() and any("Bank" in p["name"] for p in c["parties"]))
+        out.reason = "It says 'the bank', and only Acme Bank is a bank." if out else "It names no party or document."
+        return out
 
     async def zero(*_): return 0
     embeddings.embed_texts = fake_embed
@@ -74,7 +77,8 @@ if __name__ == "__main__":
             ask.grade = grade_first
             ev = events(c.post("/ask", json={"question": "When can the bank terminate?"}))
             first = next(e for e in ev if e["event"] == "retrieved")
-            assert first["scope"] == ["bank.pdf"] and first["hits"][0]["filename"] == "bank.pdf", first  # the named contract comes first (soft narrowing adds the best of the others after it)
+            assert first["scope"] == ["bank.pdf"] and first["hits"][0]["filename"] == "bank.pdf", first
+            assert first["contracts"] == 2 and "only Acme Bank" in first["scope_reason"], first  # how the contract was chosen is reported  # the named contract comes first (soft narrowing adds the best of the others after it)
             srcs = next(e for e in ev if e["event"] == "sources")["sources"]
             assert [s["clause_identifier"] for s in srcs] == ["1", "2"] and srcs[1]["via"] == "1" and srcs[0]["via"] is None, srcs
 
@@ -82,6 +86,7 @@ if __name__ == "__main__":
             ev = events(c.post("/ask", json={"question": "terminate this agreement on notice"}))
             first = next(e for e in ev if e["event"] == "retrieved")
             assert first["scope"] == [] and {h["filename"] for h in first["hits"]} == {"bank.pdf", "food.pdf"}, first
+            assert first["scope_reason"] == "It names no party or document." and first["contracts"] == 2, first
 
             # 3. narrowing finds nothing relevant: the retry searches every contract (a wrong narrowing is recoverable)
             seen = []

@@ -43,6 +43,7 @@ export default function GraphPanel({ id }: { id: string }) {
             </button>
             {g.built && (
               <>
+                {g.summary && <p className="text-sm text-fg-soft"><span className="font-semibold text-fg">About: </span>{g.summary}</p>}
                 <div>
                   <p className="mb-2 text-sm font-semibold">Parties</p>
                   {g.parties.length === 0 ? <p className="text-sm text-muted">None stored. Parties are read by AI and need an OpenAI key; rebuild after saving one.</p> : (

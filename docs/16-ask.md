@@ -51,3 +51,9 @@ Check: `uv run python -W ignore -m tests.integration.test_ask` (fake OpenAI call
 - Each new question scrolls to the **top** of the thread, so attention is on it while the answer streams in beneath.
 - Every `[1]` chip and every reference card opens the clause **beside the answer** (docked on wide screens, a sheet on narrow ones) with its PDF page and the clause shaded, plus previous/next buttons across the references. References can be **minimized** to a row of chips (remembered).
 - The Ask tab stays mounted, so a running answer and the thread survive a visit to another tab; New chat clears it. Every answer is saved to History.
+
+## "How I got this answer" explains the choices
+
+- **Which contract?** Each search says how the contract was chosen: "Narrowed to X first, with the best of all 15 contracts added after", or "None was named, so all 15 contracts were searched", with the router's one-sentence reason.
+- **Used because / Left out because.** The grader gives a one-sentence reason for every clause it keeps or drops, shown under that clause. The reasons are saved in History too.
+- **A question that names no contract is never answered for an invented one.** "Which law governs the agreement?" does not say which agreement, and the grader is told never to assume one: every clause from any contract that answers it counts, and the answer is given per contract ("For the Endorsement Agreement: Florida. For the Development Agreement: New York…"). Before this was added, the grader quietly treated the top-ranked clause's contract as "our agreement" and dropped the rest. The reasons in the panel are what exposed it.

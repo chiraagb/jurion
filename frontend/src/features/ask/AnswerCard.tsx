@@ -8,8 +8,11 @@ export interface Attempt {
   mode: "hybrid" | "keyword";
   note: string | null;
   scope?: string[]; // contracts the graph narrowed this search to
+  contracts?: number; // how many contracts there were to choose from
+  scope_reason?: string; // the router's one sentence on why (or why no contract was picked)
   hits: Brief[];
   relevant: number[] | null; // null until graded
+  reasons?: Record<string, string>; // the grader's one sentence for each clause, kept or left out
 }
 
 /** Long file names keep their start and their ending ("…Supply Agreement.pdf"). */
@@ -158,13 +161,23 @@ export function Trace({ attempts, sources = [], onPick }: { attempts: Attempt[];
               <span className="font-semibold">{n === 0 ? "Searched" : "Rewrote the question, then searched"}</span> “{a.query}”
               <span className="text-muted"> · {a.mode === "hybrid" ? "meaning + words" : "words only"}</span>
             </p>
-            {a.scope && a.scope.length > 0 && (
-              <p className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-accent/10 px-2.5 py-0.5 text-xs text-accent-fg"><Network className="h-3 w-3" aria-hidden /> only in {a.scope.map((s) => shortName(s, 28)).join(", ")}</p>
+            {a.contracts !== undefined && a.contracts > 1 && (
+              <p className="mt-1.5 flex items-start gap-1.5 text-xs leading-snug text-fg-soft">
+                <Network className="mt-0.5 h-3 w-3 shrink-0 text-accent" aria-hidden />
+                <span>
+                  <span className="font-semibold text-fg">Which contract? </span>
+                  {a.scope && a.scope.length > 0
+                    ? <>Narrowed to {a.scope.map((s) => shortName(s, 30)).join(", ")} first, with the best of all {a.contracts} contracts added after.</>
+                    : <>None was named, so all {a.contracts} contracts were searched.</>}
+                  {a.scope_reason ? <span className="text-muted"> {a.scope_reason}</span> : null}
+                </span>
+              </p>
             )}
             {a.note && <p className="mt-1 text-xs text-muted">{a.note}</p>}
             <ul className="mt-2 space-y-0.5">
               {a.hits.map((h, i) => {
                 const ok = a.relevant?.includes(i);
+                const why = a.reasons?.[String(i)];
                 return (
                   <li key={i}>
                     <button onClick={() => onPick(h)} className={`flex min-h-8 w-full cursor-pointer items-center gap-2 rounded-md px-1.5 text-left text-sm hover:bg-raised focus-visible:outline-2 focus-visible:outline-accent ${ok ? "text-fg" : "text-muted"}`}>
@@ -173,6 +186,11 @@ export function Trace({ attempts, sources = [], onPick }: { attempts: Attempt[];
                       <span className="min-w-0 truncate">{h.title}</span>
                       <span className="hidden shrink-0 text-xs text-subtle sm:inline">{shortName(h.filename, 26)}</span>
                     </button>
+                    {why && (
+                      <p className={`ml-[1.65rem] max-w-prose pb-1 pr-2 text-xs leading-snug ${ok ? "text-subtle" : "text-fg-soft"}`}>
+                        <span className={`font-semibold ${ok ? "text-accent-fg" : "text-warn"}`}>{ok ? "Used because" : "Left out because"}</span> {why.charAt(0).toLowerCase() + why.slice(1)}
+                      </p>
+                    )}
                   </li>
                 );
               })}

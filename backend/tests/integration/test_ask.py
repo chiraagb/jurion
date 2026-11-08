@@ -52,17 +52,21 @@ if __name__ == "__main__":
             ask.rewrite, ask.answer_stream = fake_rewrite, fake_answer
 
             # 1. the first retrieval has a relevant clause: no rewrite
-            async def grade_first(_k, q, hits): return [0]
+            async def grade_first(_k, q, hits):
+                g = ask.Graded([0])
+                g.reasons = {0: "States the notice period.", 1: "A different subject: payment."}
+                return g
             ask.grade = grade_first
             ev = events(c.post("/ask", json={"question": "terminate notice"}))
             kinds = [e["event"] for e in ev]
             assert kinds == ["retrieved", "graded", "sources", "token", "token", "done"], kinds
             assert ev[2]["sources"][0]["clause_identifier"] == "1" and "".join(e["text"] for e in ev if e["event"] == "token") == "Thirty days [1]."
             assert not rewrites
+            assert ev[1]["reasons"] == {"0": "States the notice period.", "1": "A different subject: payment."}, ev[1]  # the reasons reach the browser
             sid = ev[-1]["session_id"]
             saved = c.get(f"/sessions/{sid}").json()
             assert saved["kind"] == "ask" and saved["data"]["answer"] == "Thirty days [1]." and saved["data"]["sources"][0]["content"]
-            assert saved["data"]["attempts"][0]["relevant"] == [0]
+            assert saved["data"]["attempts"][0]["relevant"] == [0] and saved["data"]["attempts"][0]["reasons"]["1"].startswith("A different")  # and the saved history
             assert events(c.post("/ask", json={"question": "terminate notice"}))[-1]["session_id"] == sid  # re-run: same session, no copy
 
             # 2. nothing relevant at first, relevant after one rewrite

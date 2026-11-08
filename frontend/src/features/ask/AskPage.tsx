@@ -57,8 +57,8 @@ export default function AskPage({ q: urlQuestion, active }: { q: string; active:
     setTurns((all) => [...all, { id, question, attempts: [], sources: [], answer: "", stage: "search", error: null, saved: null }]);
     const on = (e: AskEvent) => patch(id, (t) => {
       switch (e.event) {
-        case "retrieved": return { ...t, stage: "grade", attempts: [...t.attempts, { query: e.query, mode: e.mode, note: e.note, scope: e.scope, hits: e.hits, relevant: null }] };
-        case "graded": return { ...t, attempts: t.attempts.map((a, i) => (i === t.attempts.length - 1 ? { ...a, relevant: e.relevant } : a)) };
+        case "retrieved": return { ...t, stage: "grade", attempts: [...t.attempts, { query: e.query, mode: e.mode, note: e.note, scope: e.scope, contracts: e.contracts, scope_reason: e.scope_reason, hits: e.hits, relevant: null }] };
+        case "graded": return { ...t, attempts: t.attempts.map((a, i) => (i === t.attempts.length - 1 ? { ...a, relevant: e.relevant, reasons: e.reasons } : a)) };
         case "rewritten": return { ...t, stage: "rewrite" };
         case "sources": return { ...t, sources: e.sources };
         case "token": return { ...t, stage: "write", answer: t.answer + e.text };

@@ -39,7 +39,8 @@ if __name__ == "__main__":
     test_find_refs()
 
     async def fake_parties(_key, text):
-        return [graph.Party(name="Acme Corp.", role="Customer", aliases=["Acme", "the Customer"]), graph.Party(name="Vendor Ltd", role="Supplier", aliases=["the Supplier"])]
+        return graph.Parties(parties=[graph.Party(name="Acme Corp.", role="Customer", aliases=["Acme", "the Customer"]), graph.Party(name="Vendor Ltd", role="Supplier", aliases=["the Supplier"])],
+                             summary="A test supply agreement between Acme and Vendor")
 
     async def a_key(*_): return "sk-fake"
     graph.extract_parties = fake_parties
@@ -74,6 +75,7 @@ if __name__ == "__main__":
             assert (a["graph_parties"], a["graph_refs"]) == (2, 1), a  # built on save: two parties, 1 -> 2
             g = c.get(f"/documents/{a['id']}/graph").json()
             assert g["built"] and [p["name"] for p in g["parties"]] == ["Acme Corp.", "Vendor Ltd"] and g["parties"][0]["aliases"] == ["Acme", "the Customer"]
+            assert g["summary"] == "A test supply agreement between Acme and Vendor", g["summary"]
             assert [(r["from_id"], r["to_id"]) for r in g["references"]] == [("1", "2")] and g["parties"][0]["also_in"] == []
             assert c.portal.call(counts, a["id"]) == (1, 2)
 

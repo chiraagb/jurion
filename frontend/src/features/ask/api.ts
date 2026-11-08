@@ -13,8 +13,8 @@ export interface Brief {
 }
 
 export type AskEvent =
-  | { event: "retrieved"; query: string; mode: "hybrid" | "keyword"; note: string | null; scope?: string[]; hits: Brief[] }
-  | { event: "graded"; relevant: number[] } // positions in the last "retrieved" hits
+  | { event: "retrieved"; query: string; mode: "hybrid" | "keyword"; note: string | null; scope?: string[]; contracts?: number; scope_reason?: string; hits: Brief[] }
+  | { event: "graded"; relevant: number[]; reasons?: Record<string, string> } // positions in the last "retrieved" hits
   | { event: "rewritten"; query: string }
   | { event: "sources"; sources: Brief[] }
   | { event: "token"; text: string }
