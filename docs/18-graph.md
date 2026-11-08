@@ -42,7 +42,16 @@ Check: `uv run python -W ignore -m tests.integration.test_graph` (fake party ext
 
 ## The Graph page (`/graph`)
 
-- **Library view:** contracts as boxes and companies as pills, drawn with React Flow. A company in more than one contract is the red pill between them. Click a contract or a company to highlight what it connects to and see its details.
-- **Clause view** ("Show clause links" on a contract): that contract's clauses that refer to each other, with arrows. A **filter** (a word, or quick chips such as termination or payment) keeps the clauses that mention it plus the clauses they link to or from.
-- **Click a clause** to see its text, what it refers to and what refers to it (each clickable), and a **comparison strip** under the graph that lays the selected clause beside every clause it is linked to, in full, so they can be read together. "Open PDF page" docks the clause and its page beside the page.
-- `GET /graph` returns the user's library (contracts, companies, links). `rebuild_references(db, doc)` in `app/graph.py` recomputes only a contract's clause links, with no AI, for when the reference finder improves.
+A three-pane explorer: **list** (search; Contracts and Companies tabs) → **picture** → **inspector** (what you can do with the selection). Four cards on top: contracts, companies, shared companies, clause links.
+
+- **Library picture:** contracts as boxes, companies as pills (React Flow). A company in more than one contract is the red pill between them.
+- **Contract selected:** its summary and companies, and three actions: *Explore clause links* (or *Browse its clauses* when it has none), *Ask about it* (sends a prefilled question to the chat through `/ask?q=`), *Open contract*.
+- **Company selected:** every contract it is in, and an *Ask* button.
+- **Clause picture:** the clauses that refer to each other, with arrows, a word filter, and "Most connected clauses" (the ones a change ripples furthest through).
+- **Impact analysis:** select a clause and the inspector lists *Depends on it* and *It relies on*, each split into direct (one step) and further away (through another clause). On the picture, solid outlines are one step away and dashed outlines are further. The logic is `reach()` and `hubs()` in `frontend/src/features/graph/logic.ts`, tested by `npm test`.
+- **No dead canvas:** a contract with no numbered references shows its clauses as a list instead, with the same inspector.
+- **Same clause in your other contracts:** `GET /documents/{id}/clauses/{n}/similar` returns the closest clauses (pgvector cosine distance) from the user's *other* contracts, with a similarity %, so you can see how different contracts word the same thing. Tested in `tests/integration/test_search.py`.
+- **Compare strip:** under the picture, the selected clause beside each clause it links to, in full.
+- `GET /graph` returns the library (contracts with their clause-link counts, companies, links). `rebuild_references(db, doc)` in `app/graph.py` recomputes only a contract's clause links, with no AI.
+
+Not done: a force-directed layout (rings are fine up to a few dozen nodes), and finding similar clauses by exact wording (it is meaning-based).

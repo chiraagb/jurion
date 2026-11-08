@@ -242,6 +242,28 @@ async def get_graph(doc_id: uuid.UUID, user: User = Depends(current_user), db: A
         raise HTTPException(502, f"Neo4j is unavailable ({type(e).__name__}).")
 
 
+@router.get("/{doc_id}/clauses/{position}/similar")
+async def similar_clauses(doc_id: uuid.UUID, position: int, limit: int = 5, user: User = Depends(current_user), db: AsyncSession = Depends(get_db)):
+    """The clauses in the user's OTHER contracts whose meaning is closest to this one (cosine similarity of the stored vectors),
+    for reading how different contracts handle the same thing."""
+    doc = await _owned(db, user, doc_id)
+    clause = (await db.execute(select(Clause).where(Clause.document_id == doc.id, Clause.position == position))).scalar()
+    if not clause:
+        raise HTTPException(404, "Clause not found")
+    await db.refresh(clause, ["embedding"])
+    if clause.embedding is None:
+        return {"embedded": False, "similar": []}
+    dist = Clause.embedding.cosine_distance(clause.embedding)
+    rows = (await db.execute(
+        select(Clause.document_id, Document.filename, Clause.position, Clause.clause_identifier, Clause.title, Clause.page_number, Clause.content, dist.label("d"))
+        .join(Document, Document.id == Clause.document_id)
+        .where(Document.user_id == user.id, Document.id != doc.id, Clause.embedding.is_not(None)).order_by(dist).limit(max(1, min(limit, 10)))
+    )).all()
+    return {"embedded": True, "similar": [
+        {"document_id": str(r.document_id), "filename": r.filename, "position": r.position, "clause_identifier": r.clause_identifier, "title": r.title,
+         "page_number": r.page_number, "content": r.content[:3000], "similarity": round(1 - r.d, 4)} for r in rows]}
+
+
 @router.get("/{doc_id}/pdf")
 async def get_pdf(doc_id: uuid.UUID, user: User = Depends(current_user), db: AsyncSession = Depends(get_db)):
     doc = await _owned(db, user, doc_id)

@@ -197,11 +197,14 @@ async def read_library(user_id: uuid.UUID) -> dict:
         rows = await (await s.run(
             "MATCH (d:Document {user_id: $u}) OPTIONAL MATCH (p:Party)-[r:PARTY_TO]->(d) "
             "RETURN d.id AS doc, d.filename AS filename, d.summary AS summary, p.key AS pkey, p.name AS pname, r.role AS role ORDER BY d.filename", u=str(user_id))).data()
+    async with neo4j_driver.session() as s:
+        counts = {r["doc"]: r["n"] for r in await (await s.run(
+            "MATCH (d:Document {user_id: $u})-[:CONTAINS]->(:Clause)-[r:REFERENCES]->(:Clause) RETURN d.id AS doc, count(r) AS n", u=str(user_id))).data()}
     contracts: dict[str, dict] = {}
     parties: dict[str, dict] = {}
     links = []
     for r in rows:
-        contracts.setdefault(r["doc"], {"id": r["doc"], "filename": r["filename"], "summary": r["summary"] or ""})
+        contracts.setdefault(r["doc"], {"id": r["doc"], "filename": r["filename"], "summary": r["summary"] or "", "links": counts.get(r["doc"], 0)})
         if r["pkey"]:
             parties.setdefault(r["pkey"], {"key": r["pkey"], "name": r["pname"]})
             links.append({"party": r["pkey"], "contract": r["doc"], "role": r["role"]})

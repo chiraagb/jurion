@@ -57,3 +57,7 @@ export interface GraphData {
 }
 export const buildGraph = async (id: string) => (await api.post<{ parties: number; references: number }>(`/documents/${id}/graph`)).data;
 export const getGraph = async (id: string) => (await api.get<GraphData>(`/documents/${id}/graph`)).data;
+
+export interface Similar { document_id: string; filename: string; position: number; clause_identifier: string; title: string; page_number: number | null; content: string; similarity: number }
+/** Clauses in the user's OTHER contracts that mean about the same thing as this one. */
+export const similarClauses = async (id: string, position: number) => (await api.get<{ embedded: boolean; similar: Similar[] }>(`/documents/${id}/clauses/${position}/similar`)).data;

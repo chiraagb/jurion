@@ -104,6 +104,7 @@ if __name__ == "__main__":
             shared = [p for p in lib["parties"] if p["name"] == "Acme Corp."]
             assert len(shared) == 1 and len([l for l in lib["links"] if l["party"] == shared[0]["key"]]) == 2, lib  # one company, two contracts
             assert all({"party", "contract", "role"} <= l.keys() for l in lib["links"])
+            assert [x["links"] for x in lib["contracts"]] == [1, 1], lib  # clause links per contract (each test contract has one)
 
             # without a key only the references are built (no AI)
             documents.openai_key = lambda *_: _none()

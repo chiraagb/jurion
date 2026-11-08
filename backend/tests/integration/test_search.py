@@ -81,6 +81,16 @@ if __name__ == "__main__":
             best = max(m["points"], key=lambda p: p["similarity"])
             assert best["clause_identifier"] == "2", m  # nearest in the full 1536 dimensions is the governing-law clause
 
+            # similar clauses live in the user's OTHER contracts
+            other = c.post("/documents", files={"file": ("b.pdf", make_sample_pdf() + b"\n%second", "application/pdf")}, data={"result": json.dumps({**RESULT, "clauses": [
+                {"clause_identifier": "1", "title": "TERMINATION", "content": "1. TERMINATION\nEither party may terminate this agreement with sixty days written notice.", "page_number": 1},
+                {"clause_identifier": "2", "title": "FEES", "content": "2. FEES\nThe customer shall pay invoices monthly.", "page_number": 1}]})}).json()["id"]
+            assert c.post(f"/documents/{other}/embed").json() == {"embedded_count": 2}
+            sim = c.get(f"/documents/{doc_id}/clauses/0/similar").json()  # clause 1 of the first contract: TERMINATION
+            assert sim["embedded"] and sim["similar"] and all(s["document_id"] == other for s in sim["similar"]), sim  # never its own contract
+            assert sim["similar"][0]["clause_identifier"] == "1" and sim["similar"][0]["similarity"] >= sim["similar"][-1]["similarity"], sim
+            assert c.get(f"/documents/{other}/clauses/99/similar").status_code == 404
+
             app.dependency_overrides[current_user] = lambda: bob  # another user sees nothing of alice's clauses
             assert c.post("/search", json={"query": "terminate"}).json()["results"] == []
             assert c.post(f"/documents/{doc_id}/embed").status_code == 404
