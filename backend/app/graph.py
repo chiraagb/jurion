@@ -48,6 +48,8 @@ async def extract_parties(key: str, text: str) -> Parties:
 
 # "Section 5.3", "Clauses 4.1 and 4.2", "Article 18". Followed by "of the Act" / "of the MSA" it points outside this contract.
 REF = re.compile(r"\b(?:Sections?|Clauses?|Articles?|Paragraphs?)\s+(\d+(?:\.\d+)*(?:\s*(?:,|and|or|to|through)\s*\d+(?:\.\d+)*)*)", re.I)
+# "The following Sections shall survive termination: 4.2, 5.3, 7, 8 and 14." (the numbers come after a colon, not straight after the word)
+REF_LIST = re.compile(r"\b(?:Sections?|Clauses?|Articles?)\b[^.:;]{0,120}:\s*(\d+(?:\.\d+)*(?:\s*(?:,|and|or|to|through)\s*\d+(?:\.\d+)*)*)", re.I)
 OUTSIDE = re.compile(r"\s+of\s+(?:the\s+)?(?!(?:this|Agreement)\b)", re.I)
 _norm_id = lambda s: re.sub(r"^(?:SECTION|ARTICLE|CLAUSE)\s+", "", s.strip(), flags=re.I).rstrip(". ").lower()
 _LEGAL = {"inc", "incorporated", "corp", "corporation", "co", "company", "ltd", "limited", "llc", "llp", "lp", "plc", "pty", "gmbh", "sa", "ag", "bv", "nv", "srl", "pte"}
@@ -68,9 +70,14 @@ def find_refs(clauses: list[Clause]) -> list[tuple[int, int]]:
     by_id: dict[str, list[int]] = {}
     for c in clauses:
         by_id.setdefault(_norm_id(c.clause_identifier), []).append(c.position)
+    # "Section 8" when the contract has 8.1, 8.2... but no clause numbered 8 (the parser found no heading for it): point at where the section starts
+    for c in clauses:
+        parent = _norm_id(c.clause_identifier).rsplit(".", 1)[0] if "." in _norm_id(c.clause_identifier) else None
+        if parent and parent not in by_id:
+            by_id[parent] = [c.position]
     out: set[tuple[int, int]] = set()
     for c in clauses:
-        for m in REF.finditer(c.content):
+        for m in (*REF.finditer(c.content), *REF_LIST.finditer(c.content)):
             if OUTSIDE.match(c.content, m.end()):
                 continue
             for num in re.findall(r"\d+(?:\.\d+)*", m.group(1)):
@@ -135,6 +142,25 @@ async def build_graph(db: AsyncSession, key: str | None, doc: Document) -> dict:
     await db.execute(update(Document).where(Document.id == doc.id).values(graph_parties=counts["parties"], graph_refs=counts["references"]))
     await db.commit()
     return counts
+
+
+async def rebuild_references(db: AsyncSession, doc: Document) -> int:
+    """Recomputes only the clause-to-clause links of one contract: no AI, parties and description untouched. For when the reference
+    finder improves. Returns the number of links."""
+    clauses = (await db.execute(select(Clause).where(Clause.document_id == doc.id).order_by(Clause.position))).scalars().all()
+    ids = {c.position: str(c.id) for c in clauses}
+    refs = find_refs(clauses)
+
+    async def write(tx):
+        await tx.run("MATCH (:Clause {document_id: $doc})-[r:REFERENCES]->() DELETE r", doc=str(doc.id))
+        if refs:
+            await tx.run("UNWIND $rs AS r MATCH (a:Clause {id: r.a}), (b:Clause {id: r.b}) MERGE (a)-[:REFERENCES]->(b)", rs=[{"a": ids[a], "b": ids[b]} for a, b in refs])
+
+    async with neo4j_driver.session() as s:
+        await s.execute_write(write)
+    await db.execute(update(Document).where(Document.id == doc.id).values(graph_refs=len(refs)))
+    await db.commit()
+    return len(refs)
 
 
 async def drop_document(doc_id: uuid.UUID, user_id: uuid.UUID) -> None:

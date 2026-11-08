@@ -8,7 +8,7 @@ Neo4j holds the *links*: who the parties are, and which clause points at which. 
 
 - **Party:** one node per user and normalised name, so the same company in two contracts is one node, and its page lists "Also in N other contracts".
 - **Parties come from AI:** one call per contract (not per clause) on the first ~6,000 characters, returning each party's name, role and the short names the text uses for it ("the Bank", "Metavante"). Needs an OpenAI key; this sends that text to OpenAI, as Ask already does.
-- **References come from a pattern, no AI:** "Section 5.3", "Clauses 4.1 and 4.2", "Article 18" become `REFERENCES` links when the number matches a clause of the same contract. "Section 5.3 of the Securities Act" or "of the MSA" are skipped (they point outside). A reference to a clause itself is dropped. When numbering restarts in an attachment, the nearest clause with that number is taken, which can be wrong.
+- **References come from a pattern, no AI** (including a list after a colon, "The following Sections shall survive: 4.2, 5.3, 7, 8 and 14", and "Section 8" pointing at 8.1 when the parser found no clause 8 of its own): "Section 5.3", "Clauses 4.1 and 4.2", "Article 18" become `REFERENCES` links when the number matches a clause of the same contract. "Section 5.3 of the Securities Act" or "of the MSA" are skipped (they point outside). A reference to a clause itself is dropped. When numbering restarts in an attachment, the nearest clause with that number is taken, which can be wrong.
 
 ## Where it happens
 
@@ -39,3 +39,10 @@ Parties were correct in all 5 (for example the clinical trial: the institution, 
 - Company names are normalised before they are compared (`party_key`): accents, punctuation, "the", "and" and trailing legal suffixes (Inc, Corp, Corporation, Ltd, Limited, LLC, Pty, GmbH...) are ignored, so "Acme Corp.", "ACME Corporation Inc." and "The Acme Company" are one company. On every API start `reconcile_graph` re-keys stored parties with the current rule and merges the ones that now match (roles kept). This does NOT resolve nicknames or different forms ("Acme Group", "Oriental Financial" vs "Oriental Financial Group"); that would need an AI or human check.
 
 Check: `uv run python -W ignore -m tests.integration.test_graph` (fake party extractor, real Neo4j).
+
+## The Graph page (`/graph`)
+
+- **Library view:** contracts as boxes and companies as pills, drawn with React Flow. A company in more than one contract is the red pill between them. Click a contract or a company to highlight what it connects to and see its details.
+- **Clause view** ("Show clause links" on a contract): that contract's clauses that refer to each other, with arrows. A **filter** (a word, or quick chips such as termination or payment) keeps the clauses that mention it plus the clauses they link to or from.
+- **Click a clause** to see its text, what it refers to and what refers to it (each clickable), and a **comparison strip** under the graph that lays the selected clause beside every clause it is linked to, in full, so they can be read together. "Open PDF page" docks the clause and its page beside the page.
+- `GET /graph` returns the user's library (contracts, companies, links). `rebuild_references(db, doc)` in `app/graph.py` recomputes only a contract's clause links, with no AI, for when the reference finder improves.

@@ -5,7 +5,7 @@ from types import SimpleNamespace as NS
 from fastapi.testclient import TestClient
 from app import documents, graph
 from app.auth import current_user
-from app.database import AsyncSessionLocal, User, neo4j_driver
+from app.database import AsyncSessionLocal, Document, User, neo4j_driver
 from app.graph import drop_user as drop_user_graph
 from app.main import app
 from tests.integration.test_parse import make_number_column_pdf, make_sample_pdf
@@ -24,6 +24,13 @@ def test_find_refs():
         clause(4, "9", "9. Law. Article 1 of this Agreement applies; see Section 5.3 of this Agreement."),
     ]
     assert graph.find_refs(cs) == [(0, 1), (0, 2), (0, 3), (1, 0), (4, 0), (4, 1)], graph.find_refs(cs)
+    # "Section 8" with no clause 8 but with 8.1 and 8.2: the link goes to 8.1, where the section starts
+    cs = [clause(0, "1", "1. See Section 8."), clause(1, "8.1", "8.1 First"), clause(2, "8.2", "8.2 Second")]
+    assert graph.find_refs(cs) == [(0, 1)], graph.find_refs(cs)
+    # a list of numbers after a colon ("The following Sections shall survive: 2, 3.1 and 4")
+    cs = [clause(0, "1", "1. Survival. The following Sections shall survive the termination or expiration of this Agreement for any reason: 2, 3.1 and 4."),
+          clause(1, "2", "2. A"), clause(2, "3.1", "3.1 B"), clause(3, "4", "4. C"), clause(4, "5", "5. D")]
+    assert graph.find_refs(cs) == [(0, 1), (0, 2), (0, 3)], graph.find_refs(cs)  # 5 is not in the list
     # attachments restart the numbering: a reference takes the nearest clause with that number
     cs = [clause(0, "1", "x"), clause(1, "2", "see Section 1"), clause(2, "1", "y"), clause(3, "2", "see Section 1")]
     assert graph.find_refs(cs) == [(1, 0), (3, 2)]
@@ -87,6 +94,11 @@ if __name__ == "__main__":
             assert c.post(f"/documents/{a['id']}/graph").json() == {"parties": 2, "references": 1}
             assert c.portal.call(counts, a["id"]) == (1, 2)
 
+            async def refresh(doc_id):
+                async with AsyncSessionLocal() as db:
+                    return await graph.rebuild_references(db, await db.get(Document, uuid.UUID(doc_id)))
+            assert c.portal.call(refresh, a["id"]) == 1  # references only: the same link, and the parties are still there
+            assert [p["name"] for p in c.get(f"/documents/{a['id']}/graph").json()["parties"]] == ["Acme Corp.", "Vendor Ltd"]
             lib = c.get("/graph").json()  # the whole library, for drawing
             assert sorted(x["filename"] for x in lib["contracts"]) == ["a.pdf", "b.pdf"], lib
             shared = [p for p in lib["parties"] if p["name"] == "Acme Corp."]
