@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { FileText, Loader2, Sparkles, Trash2 } from "lucide-react";
+import { FileText, Loader2, Network, Sparkles, Trash2 } from "lucide-react";
+import GraphPanel from "./GraphPanel";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { formatBytes } from "@/lib/format";
 import { Link, navigate } from "@/lib/router";
 import ResultsView from "@/features/parser/components/ResultsView";
 import type { ParseResult } from "@/features/parser/types";
-import { deleteDocument, embedDocument, listDocuments, openDocument, type DocSummary } from "./api";
+import { buildGraph, deleteDocument, embedDocument, listDocuments, openDocument, type DocSummary } from "./api";
 
 const errorText = (e: any) => e.response?.data?.detail ?? e.message ?? "Something went wrong.";
 const METHOD = { local: "Local", gemini: "Gemini", openai: "OpenAI" };
@@ -18,6 +19,7 @@ export default function ContractsPage({ id, page, clause }: { id?: string; page?
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [embedding, setEmbedding] = useState<Set<string>>(new Set()); // ids being embedded right now
+  const [graphing, setGraphing] = useState<Set<string>>(new Set()); // ids whose graph is being built
 
   const load = () => listDocuments().then(setDocs).catch((e) => setError(errorText(e)));
   useEffect(() => {
@@ -57,6 +59,26 @@ export default function ContractsPage({ id, page, clause }: { id?: string; page?
     }
   };
 
+  const graphs = async (targets: DocSummary[]) => {
+    setError(null);
+    for (const d of targets) {
+      setGraphing((s) => new Set(s).add(d.id));
+      try {
+        const r = await buildGraph(d.id);
+        setDocs((all) => all?.map((x) => (x.id === d.id ? { ...x, graph_parties: r.parties, graph_refs: r.references } : x)) ?? null);
+      } catch (e) {
+        setError(`${d.filename}: ${errorText(e)}`);
+        break;
+      } finally {
+        setGraphing((s) => {
+          const n = new Set(s);
+          n.delete(d.id);
+          return n;
+        });
+      }
+    }
+  };
+
   const askDelete = (d: DocSummary) => {
     setDeleteError(null);
     setPending(d);
@@ -79,7 +101,7 @@ export default function ContractsPage({ id, page, clause }: { id?: string; page?
 
   if (id) {
     if (open?.id === id)
-      return <ResultsView key={id} result={open.result} file={open.file} initialPage={page} focusClause={clause} documentId={id} onClear={() => navigate("/contracts")} clearLabel="Back to list" />;
+      return <ResultsView key={id} result={open.result} file={open.file} initialPage={page} focusClause={clause} documentId={id} extra={<GraphPanel id={id} />} onClear={() => navigate("/contracts")} clearLabel="Back to list" />;
     return error ? (
       <p role="alert" className="rounded-md border border-danger/40 bg-danger/10 p-3 text-sm text-danger">
         {error} <Link to="/contracts" className="underline">Back to My contracts</Link>
@@ -104,6 +126,15 @@ export default function ContractsPage({ id, page, clause }: { id?: string; page?
         </p>
       )}
 
+      {docs && docs.some((d) => d.graph_parties === null) && (
+        <button
+          onClick={() => graphs(docs.filter((d) => d.graph_parties === null))}
+          disabled={graphing.size > 0}
+          className="mr-3 inline-flex cursor-pointer items-center gap-2 rounded-md border border-line-strong px-4 py-2 text-sm font-medium transition-colors duration-200 hover:bg-raised focus-visible:outline-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <Network className="h-4 w-4" aria-hidden /> Build graphs for all contracts that need it
+        </button>
+      )}
       {docs && docs.some((d) => d.embedded_count < d.clause_count) && (
         <button
           onClick={() => embed(docs.filter((d) => d.embedded_count < d.clause_count))}
@@ -136,6 +167,7 @@ export default function ContractsPage({ id, page, clause }: { id?: string; page?
                 </span>
               </Link>
               <EmbedBadge d={d} busy={embedding.has(d.id)} onEmbed={() => embed([d])} />
+              <GraphBadge d={d} busy={graphing.has(d.id)} onBuild={() => graphs([d])} />
               <button
                 onClick={() => askDelete(d)}
                 aria-label={`Delete ${d.filename}`}
@@ -188,6 +220,26 @@ function EmbedBadge({ d, busy, onEmbed }: { d: DocSummary; busy: boolean; onEmbe
         className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg text-muted transition-colors duration-200 hover:bg-raised hover:text-fg focus-visible:outline-2 focus-visible:outline-accent disabled:cursor-wait"
       >
         {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <Sparkles className="h-4 w-4" aria-hidden />}
+      </button>
+    </div>
+  );
+}
+
+function GraphBadge({ d, busy, onBuild }: { d: DocSummary; busy: boolean; onBuild: () => void }) {
+  const built = d.graph_parties !== null;
+  return (
+    <div className="flex shrink-0 items-center gap-2">
+      <span className={`hidden rounded-md px-2 py-1 font-mono text-xs lg:inline ${built ? "bg-accent/10 text-accent-fg" : "bg-raised text-muted"}`}>
+        {built ? `Graph ${d.graph_parties}p · ${d.graph_refs}r` : "No graph"}
+      </span>
+      <button
+        onClick={onBuild}
+        disabled={busy}
+        aria-label={`${built ? "Rebuild" : "Build"} graph for ${d.filename}`}
+        title={built ? "Rebuild the graph" : "Build the graph: parties (OpenAI key) and cross-references"}
+        className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg text-muted transition-colors duration-200 hover:bg-raised hover:text-fg focus-visible:outline-2 focus-visible:outline-accent disabled:cursor-wait"
+      >
+        {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <Network className="h-4 w-4" aria-hidden />}
       </button>
     </div>
   );

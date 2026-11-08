@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth import current_user
 from app.database import Clause, Document, User, get_db
 from app.embeddings import embed_document, openai_key
+from app.graph import build_graph, drop_document, read_graph
 from app.ratelimit import limit
 from app.hybrid_parser import MAX_PDF_BYTES, _read_lines, clause_boxes, count_pages, run_pdf, stored_lines
 
@@ -45,6 +46,8 @@ def _summary(doc: Document, clause_count: int, embedded: int = 0) -> dict:
         "confidence": doc.confidence,
         "clause_count": clause_count,
         "embedded_count": embedded,
+        "graph_parties": doc.graph_parties,
+        "graph_refs": doc.graph_refs,
         "created_at": doc.created_at.isoformat(),
     }
 
@@ -117,6 +120,13 @@ async def save_document(
             embedded = await embed_document(db, key, doc.id)
         except Exception as e:
             log.warning("embedding on save failed: %s", type(e).__name__)
+    try:  # same for the graph (works without a key too, but then holds references only)
+        await build_graph(db, key, doc)
+        await db.refresh(doc)
+    except Exception as e:
+        log.warning("graph on save failed: %s", type(e).__name__)
+    for old in same:  # replaced copies leave the graph too
+        await drop_document(old.id, user.id)
     return _summary(doc, len(data.clauses), embedded)
 
 
@@ -191,6 +201,33 @@ async def get_clause_boxes(doc_id: uuid.UUID, position: int, user: User = Depend
         raise HTTPException(422, f"Could not read the PDF: {e}")
 
 
+@router.post("/{doc_id}/graph")
+async def make_graph(
+    doc_id: uuid.UUID,
+    user: User = Depends(current_user),
+    db: AsyncSession = Depends(get_db),
+    _: None = Depends(limit("graph", 20, 60, by_user=True)),
+):
+    """(Re)builds this contract's graph: parties (needs an OpenAI key) and cross-references."""
+    doc = await _owned(db, user, doc_id)
+    try:
+        return await build_graph(db, await openai_key(db, user.id), doc)
+    except Exception as e:
+        log.warning("graph build failed: %s", type(e).__name__)
+        raise HTTPException(502, f"Could not build the graph ({type(e).__name__}). Is Neo4j running, and is the OpenAI key valid?")
+
+
+@router.get("/{doc_id}/graph")
+async def get_graph(doc_id: uuid.UUID, user: User = Depends(current_user), db: AsyncSession = Depends(get_db)):
+    doc = await _owned(db, user, doc_id)
+    if doc.graph_parties is None:
+        return {"built": False, "parties": [], "references": []}
+    try:
+        return {"built": True, **await read_graph(doc.id)}
+    except Exception as e:
+        raise HTTPException(502, f"Neo4j is unavailable ({type(e).__name__}).")
+
+
 @router.get("/{doc_id}/pdf")
 async def get_pdf(doc_id: uuid.UUID, user: User = Depends(current_user), db: AsyncSession = Depends(get_db)):
     doc = await _owned(db, user, doc_id)
@@ -202,3 +239,4 @@ async def get_pdf(doc_id: uuid.UUID, user: User = Depends(current_user), db: Asy
 async def delete_document(doc_id: uuid.UUID, user: User = Depends(current_user), db: AsyncSession = Depends(get_db)):
     await db.delete(await _owned(db, user, doc_id))  # clauses go with it (ON DELETE CASCADE)
     await db.commit()
+    await drop_document(doc_id, user.id)

@@ -10,6 +10,8 @@ export interface DocSummary {
   confidence: Confidence | null;
   clause_count: number;
   embedded_count: number;
+  graph_parties: number | null; // null = graph not built
+  graph_refs: number | null;
   created_at: string;
 }
 
@@ -46,3 +48,11 @@ export const fetchPdf = async (id: string) => (await api.get<ArrayBuffer>(`/docu
 /** Where one clause sits on its pages (for the PDF highlight). Empty for scans and for contracts saved without line ranges. */
 export const clauseBoxes = async (id: string, position: number) =>
   (await api.get<{ boxes: import("@/features/pdf/PdfViewer").Box[] }>(`/documents/${id}/clauses/${position}/boxes`)).data.boxes;
+
+export interface GraphData {
+  built: boolean;
+  parties: { name: string; role: string; aliases: string[]; also_in: string[] }[];
+  references: { from_position: number; from_id: string; from_title: string; to_position: number; to_id: string; to_title: string }[];
+}
+export const buildGraph = async (id: string) => (await api.post<{ parties: number; references: number }>(`/documents/${id}/graph`)).data;
+export const getGraph = async (id: string) => (await api.get<GraphData>(`/documents/${id}/graph`)).data;

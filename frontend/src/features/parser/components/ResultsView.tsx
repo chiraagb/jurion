@@ -21,11 +21,12 @@ interface Props {
   aiError?: string | null;
   initialPage?: number; // e.g. when opened from a citation
   focusClause?: number; // index of a clause to jump to
+  extra?: ReactNode; // shown above the PDF and clauses (the Graph panel on a saved contract)
   documentId?: string; // a saved contract: the PDF is drawn by pdf.js and the open clause is highlighted
 }
 
 /** PDF on the left, parsed clauses on the right. Mounts fresh for each result. */
-export default function ResultsView({ result, file, onClear, onSave, clearLabel = "Clear", onRerunAi, hasAi, aiBusy, aiError, initialPage = 1, focusClause, documentId }: Props) {
+export default function ResultsView({ result, file, onClear, onSave, clearLabel = "Clear", onRerunAi, hasAi, aiBusy, aiError, initialPage = 1, focusClause, documentId, extra }: Props) {
   const aiName = loadProvider() === "openai" ? "OpenAI" : "Gemini";
   const [page, setPage] = useState(initialPage);
   const [active, setActive] = useState<number | null>(focusClause ?? null); // the clause shaded on the PDF
@@ -143,6 +144,8 @@ export default function ResultsView({ result, file, onClear, onSave, clearLabel 
         )}
         {aiError && <p role="alert" className="w-full text-sm text-danger">{aiError}</p>}
       </div>
+
+      {extra}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="h-[70dvh] overflow-hidden rounded-md border border-line bg-surface lg:sticky lg:top-20 lg:h-[calc(100dvh-7rem)]">

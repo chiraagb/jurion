@@ -15,6 +15,7 @@ from app.config import settings
 from app.documents import router as documents_router
 from app.embeddings import router as search_router
 from app.ask import router as ask_router
+from app.graph import ensure_schema
 from app.sessions import router as sessions_router
 from app.evaluation import router as evaluation_router
 from app.hybrid_parser import MAX_PDF_BYTES, PROVIDERS, NoApiKey, count_pages, parse_contract_fast, run_pdf
@@ -34,12 +35,15 @@ async def lifespan(_: FastAPI):
                 "ALTER TABLE clauses ADD COLUMN IF NOT EXISTS start_line INTEGER",
                 "ALTER TABLE clauses ADD COLUMN IF NOT EXISTS end_line INTEGER",
                 "ALTER TABLE documents ADD COLUMN IF NOT EXISTS sha256 VARCHAR(64)",
+                "ALTER TABLE documents ADD COLUMN IF NOT EXISTS graph_parties INTEGER",
+                "ALTER TABLE documents ADD COLUMN IF NOT EXISTS graph_refs INTEGER",
                 "UPDATE documents SET sha256 = encode(sha256(pdf), 'hex') WHERE sha256 IS NULL",  # backfill saved contracts
                 "CREATE INDEX IF NOT EXISTS ix_documents_sha256 ON documents (sha256)",
             ):
                 await conn.execute(text(ddl))
     except Exception:
         log.exception("Could not create or update the database tables")
+    await ensure_schema()
     yield
 
 

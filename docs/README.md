@@ -21,3 +21,5 @@ Read them in order:
 15. [Embeddings and search](15-embeddings-search.md) – pgvector column, embed buttons, hybrid search
 16. [Ask](16-ask.md) – answers with citations, relevance check, one rewrite
 17. [Evaluation](17-evaluation.md) – question set, retrieval scores, findings
+18. [The contract graph](18-graph.md) – parties and cross-references in Neo4j
+19. [Neo4j interview prep](19-neo4j-interview-prep.md) – concepts, Cypher, how Jurion uses it, Q&A, drill

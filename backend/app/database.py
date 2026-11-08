@@ -83,6 +83,9 @@ class Document(Base):
     # SHA-256 of the PDF bytes: the same file saved twice by one user is caught. Not a unique index on purpose: contracts
     # saved before this existed may already hold duplicates, and those must not be deleted. Race: two simultaneous saves of
     # the same file can both pass; add UNIQUE (user_id, sha256) once old duplicates are cleaned up.
+    # Set by app.graph when the contract's graph was built; null = not built. Counts live here so the list page needs no Neo4j query.
+    graph_parties: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    graph_refs: Mapped[int | None] = mapped_column(Integer, nullable=True)
     sha256: Mapped[str | None] = mapped_column(String(64), index=True, nullable=True)
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 

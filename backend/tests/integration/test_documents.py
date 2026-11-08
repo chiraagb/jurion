@@ -4,6 +4,7 @@ import uuid
 from fastapi.testclient import TestClient
 from app.auth import current_user
 from app.database import AsyncSessionLocal, User
+from app.graph import drop_user as drop_user_graph
 from app.main import app
 from tests.integration.test_parse import make_number_column_pdf, make_sample_pdf
 
@@ -23,6 +24,7 @@ if __name__ == "__main__":
 
         async def drop(u):
             async with AsyncSessionLocal() as db:
+                await drop_user_graph(u.id)
                 await db.delete(await db.get(User, u.id))
                 await db.commit()
 
