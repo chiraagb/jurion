@@ -36,6 +36,6 @@ Parties were correct in all 5 (for example the clinical trial: the institution, 
 - Schedules and exhibits ("Schedule A") are not linked.
 - Ask uses the graph in two ways (see `docs/16-ask.md`), and the measured gain is small and mostly on questions that name a contract; the cross-reference widening is built and tested but not isolated by any evaluation question.
 - Narrowing can be wrong: the first version guessed a contract from the topic and broke 4 questions, so it now decides only from a company name, a role or a kind of document in the question, includes every contract that fits, and Ask retries across all contracts when the narrowed search finds nothing relevant.
-- Party names are matched by lowercase name only, so "Acme Corp." and "Acme Corporation" are two nodes.
+- Company names are normalised before they are compared (`party_key`): accents, punctuation, "the", "and" and trailing legal suffixes (Inc, Corp, Corporation, Ltd, Limited, LLC, Pty, GmbH...) are ignored, so "Acme Corp.", "ACME Corporation Inc." and "The Acme Company" are one company. On every API start `reconcile_graph` re-keys stored parties with the current rule and merges the ones that now match (roles kept). This does NOT resolve nicknames or different forms ("Acme Group", "Oriental Financial" vs "Oriental Financial Group"); that would need an AI or human check.
 
 Check: `uv run python -W ignore -m tests.integration.test_graph` (fake party extractor, real Neo4j).

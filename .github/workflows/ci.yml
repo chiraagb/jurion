@@ -28,6 +28,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
+      - name: Tesseract (for the OCR test; the test skips itself if it is missing)
+        run: sudo apt-get update && sudo apt-get install -y tesseract-ocr
       - run: uv sync --frozen
       - name: Tests (no OpenAI calls: they use fakes)
         run: uv run python -W ignore -m tests.run_all

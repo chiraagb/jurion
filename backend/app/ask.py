@@ -110,8 +110,10 @@ async def widen(s: AsyncSession, relevant: list[dict], limit: int = 3) -> list[d
         select(Clause.id, Clause.document_id, Document.filename, Clause.position, Clause.clause_identifier, Clause.title, Clause.content, Clause.page_number)
         .join(Document, Document.id == Clause.document_id).where(Clause.id.in_([uuid.UUID(b) for b in list(wanted)[:limit]]))
     )).all()
-    return [{"id": str(r.id), "document_id": str(r.document_id), "filename": r.filename, "position": r.position, "clause_identifier": r.clause_identifier,
-             "title": r.title, "content": r.content, "page_number": r.page_number, "vector_rank": None, "keyword_rank": None, "via": wanted[str(r.id)]} for r in rows]
+    extras = [{"id": str(r.id), "document_id": str(r.document_id), "filename": r.filename, "position": r.position, "clause_identifier": r.clause_identifier,
+               "title": r.title, "content": r.content, "page_number": r.page_number, "vector_rank": None, "keyword_rank": None, "via": wanted[str(r.id)]} for r in rows]
+    await expand_thin(s, extras)  # a reference to "Article 12" points at a heading: its section is what is meant
+    return extras
 
 
 async def answer_stream(key: str, q: str, sources: list[dict]) -> AsyncIterator[str]:

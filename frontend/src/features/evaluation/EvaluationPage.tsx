@@ -1,11 +1,11 @@
 import { Fragment, useEffect, useState } from "react";
 import { api } from "@/lib/api";
 
-type Mode = "vector" | "keyword" | "hybrid" | "context" | "graph";
-type Kind = "direct" | "paraphrase" | "broad" | "graph" | "none";
+type Mode = "vector" | "keyword" | "hybrid" | "context" | "scope" | "graph";
+type Kind = "direct" | "paraphrase" | "broad" | "graph" | "multi" | "none";
 interface Score { "hit@1": number; "hit@3": number; "hit@5": number; "hit@10": number; mrr: number; n: number }
-type Summary = Record<"all" | "direct" | "paraphrase" | "broad" | "graph", Partial<Record<Mode, Score>>>;
-interface Row { id: number; question: string; kind: Kind; ranks: Partial<Record<Mode, number | null>>; top?: string[]; scope?: string[] }
+type Summary = Record<"all" | "direct" | "paraphrase" | "broad" | "graph" | "multi", Partial<Record<Mode, Score>>>;
+interface Row { id: number; question: string; kind: Kind; ranks: Partial<Record<Mode, number | null>>; top?: string[]; scope?: string[]; widened?: string[] }
 interface Run { summary: Summary; rows: Row[]; ran_at?: string }
 interface AnswerRow {
   id: number; question: string; kind: Kind; answer: string; sources: number; refused: boolean;
@@ -20,9 +20,10 @@ const MODES: { id: Mode; label: string; note: string }[] = [
   { id: "keyword", label: "Keyword only", note: "Postgres full-text" },
   { id: "hybrid", label: "Hybrid", note: "vector + keyword" },
   { id: "context", label: "Hybrid + context", note: "headings widened" },
-  { id: "graph", label: "+ Graph", note: "what Ask uses now" },
+  { id: "scope", label: "+ Narrowed", note: "graph picks the contract" },
+  { id: "graph", label: "+ Widened", note: "narrowed, plus linked clauses (Ask)" },
 ];
-const GROUPS = [["all", "All"], ["direct", "Same words"], ["paraphrase", "Other words"], ["broad", "Whole section"], ["graph", "Names a party"]] as const;
+const GROUPS = [["all", "All"], ["direct", "Same words"], ["paraphrase", "Other words"], ["broad", "Whole section"], ["graph", "Names a party"], ["multi", "Needs two clauses"]] as const;
 const pct = (n: number) => `${Math.round(n * 100)}%`;
 
 export default function EvaluationPage() {
@@ -222,6 +223,12 @@ function GraphEffect({ rows }: { rows: Row[] }) {
   const broken = ans.filter((r) => r.ranks.context != null && r.ranks.graph == null);
   const better = ans.filter((r) => r.ranks.context != null && r.ranks.graph != null && r.ranks.graph < r.ranks.context).length;
   const worse = ans.filter((r) => r.ranks.context != null && r.ranks.graph != null && r.ranks.graph > r.ranks.context).length;
+  // Widening alone: narrowed vs narrowed + widened, on the same questions.
+  const wGain = ans.filter((r) => r.ranks.scope == null && r.ranks.graph != null);
+  const wLoss = ans.filter((r) => r.ranks.scope != null && r.ranks.graph == null);
+  const wUp = ans.filter((r) => r.ranks.scope != null && r.ranks.graph != null && r.ranks.graph < r.ranks.scope).length;
+  const wDown = ans.filter((r) => r.ranks.scope != null && r.ranks.graph != null && r.ranks.graph > r.ranks.scope).length;
+  const widenedAny = ans.filter((r) => (r.widened?.length ?? 0) > 0).length;
   const List = ({ rs }: { rs: Row[] }) => <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-fg-soft">{rs.map((r) => <li key={r.id}>{r.question}{r.scope && r.scope.length > 0 ? <span className="text-muted"> (narrowed to {r.scope.join(", ")})</span> : null}</li>)}</ul>;
   return (
     <div className="rounded-md border border-line bg-surface p-5">
@@ -230,6 +237,14 @@ function GraphEffect({ rows }: { rows: Row[] }) {
       <div className="mt-3 grid gap-4 md:grid-cols-2">
         <div><p className="text-sm"><b className="text-accent-fg">{rescued.length} rescued</b> <span className="text-muted">(missed in the top 10 before, found now)</span></p>{rescued.length ? <List rs={rescued} /> : <p className="mt-1 text-sm text-muted">none</p>}</div>
         <div><p className="text-sm"><b className="text-warn">{broken.length} broken</b> <span className="text-muted">(found before, missed now)</span></p>{broken.length ? <List rs={broken} /> : <p className="mt-1 text-sm text-muted">none</p>}</div>
+      </div>
+      <div className="mt-4 border-t border-line pt-3">
+        <p className="text-sm font-semibold">Widening on its own (narrowed vs narrowed + pulled-in clauses)</p>
+        <p className="mt-1 text-sm text-fg-soft">
+          Widening added clauses for <b>{widenedAny}</b> of {ans.length} questions. It rescued <b className="text-accent-fg">{wGain.length}</b>, broke <b className="text-warn">{wLoss.length}</b>, and of those found both ways ranked {wUp} higher and {wDown} lower.
+          {wGain.length === 0 && wLoss.length === 0 && wUp === 0 ? " So on these questions it changes nothing measurable." : ""}
+        </p>
+        {wGain.length > 0 && <List rs={wGain} />}
       </div>
       <p className="mt-3 text-sm text-muted">Of the questions found both ways, {better} ranked higher with the graph and {worse} lower. If these two lists are about the same size, the graph is not paying for itself yet, and we say so.</p>
     </div>

@@ -4,7 +4,7 @@ Run: `cd backend && uv run python -W ignore -m tests.eval_qa` (about 40 embeddin
 
 ## The question set (`tests/qa/questions.json`)
 
-48 questions over the 5 saved contracts (44 answerable: 17 direct, 17 paraphrase, 4 broad, 6 that name a party or document; plus 4 with no answer). Each has a *gold* definition: "a clause of the contract whose file name starts with `doc` and whose text contains `phrase`". A phrase, not a clause number, so re-parsing the contracts does not break it.
+54 questions over the 5 saved contracts (50 answerable: 17 direct, 17 paraphrase, 4 broad, 6 that name a party or document, 6 that need two linked clauses; plus 4 with no answer). Each has a *gold* definition: "a clause of the contract whose file name starts with `doc` and whose text contains `phrase`". A phrase, not a clause number, so re-parsing the contracts does not break it.
 
 | Kind | Count | What it tests |
 |---|---|---|
@@ -12,6 +12,7 @@ Run: `cd backend && uv run python -W ignore -m tests.eval_qa` (about 40 embeddin
 | paraphrase | 17 | Same meaning, different words ("walk away" for "terminate") |
 | broad | 4 | Names a whole section whose heading holds no text ("What are the terms and conditions?") |
 | graph | 6 | Names a company, role or kind of document ("the Marketing Affiliate", "Metavante", "the clinical trial agreement"): where narrowing by the graph should matter |
+| multi | 6 | The answer needs two clauses at once, linked by a cross-reference ("how long does it run, and when can it be ended early?"). Counted as found when the top results together contain both answer phrases. |
 | none | 4 | The contracts do not answer it (for refusal checks; not scored here) |
 
 Metrics: hit@k (the right clause is in the top k) and MRR (mean of 1 / rank of the right clause), over the 38 answerable questions. Four columns: vector only, keyword only, hybrid (what Search uses), and hybrid + context (what Ask uses).
@@ -82,10 +83,22 @@ What changed question by question: Q10 ("When does the clinical trial agreement 
 
 How to read it: **the graph fixed the failure it was built for, questions that name a contract, and did not change overall search quality.** Roughly half the questions (22 of 44) trigger narrowing because many of them name a role. One run on 44 questions cannot separate a small gain from noise, and AI answers differ slightly between runs (the wrong-clause rate has been 0% to 5% across runs).
 
-**The cross-reference widening is built and tested (`test_ask_graph.py`) but none of the evaluation questions isolates it**, because every question has a single right clause. It is not claimed to help.
+### Widening on its own (second run, 50 answerable questions)
+
+A separate column, **+ Narrowed**, shows narrowing without widening, so widening's own effect is the difference between it and **+ Widened** (a pulled-in clause is placed right after the clause that referred to it). Two changes went in first: a clause pulled in by reference that is itself only a heading ("Article 12") now brings its section too, and six questions were added that need two linked clauses (`multi`).
+
+| Right clause(s) in the top 5 | Plain context | + Narrowed | + Widened |
+|---|---|---|---|
+| All 50 answerable questions | 84% | 86% | 88% |
+| The 6 questions that need two linked clauses | 50% | 67% | 83% |
+
+Widening added clauses for 12 of the 50 questions. It **rescued one question outright** (the outsourcing agreement's "what other warranties" question: found in neither of the other columns, found at rank 4 once Article 12 was pulled in) and moved another up (7 → 4). Four questions ranked lower with widening, only because the pulled-in clause sits inside the list and pushes later results down; in Ask every pulled-in clause is in the answer's context, so that is a measuring artefact, not a loss, but it means the rank columns understate widening.
+
+How to read it: this is the first evidence that cross-reference widening helps, and it is thin. It rests on six questions that I wrote knowing which clauses link, one clear rescue, and one run. It supports "widening helps on questions that need linked clauses", not a general claim. Narrowing alone also helped here (+2 points in the top 5 over all questions, 50% → 67% on the linked-clause questions).
 
 ## Limits
 
+- Widening is measured on only 6 questions I designed to need it, with one clear rescue.
 - 38 answerable questions over 5 contracts: one question is 2.6 points, so a point or two is noise. Query embeddings from OpenAI also vary slightly between runs, which can move a tie by one rank.
 - "Hybrid + context" counts the expanded text, which is exactly what the Ask model receives, but it is a looser test than a single clause.
 - The questions and gold phrases were written by one person (and an AI assistant) after reading the contracts; a second reviewer would catch ambiguous questions (for example "When does the clinical trial agreement start?" competes with every contract's start date).

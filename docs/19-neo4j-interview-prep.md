@@ -285,7 +285,7 @@ It already lives in Postgres. Copying it into Neo4j means two copies that can di
 **2. "Why one Party node per user and name?"**
 Real-life example: *one person with two jobs is one person, not two.* If "Metavante Corporation" is in your contract A and your contract B, it should be **one dot with two lines**, because that shared dot is what connects the contracts. `user_id` is part of the key so that your "Acme" and another user's "Acme" never merge, as in **separate address books for separate people.**
 
-The weak spot: names are matched by lowercase text. "Acme Corp." and "Acme Corporation" become two dots. The proper fix is called **entity resolution** (deciding that two names mean the same company). It is a known gap; say so.
+The weak spot, and what was done: names used to be matched by lowercase text, so "Acme Corp." and "Acme Corporation" became two dots. Now names are **normalised** first (accents, punctuation, "the", "and" and trailing legal words like Inc, Corp, Ltd are ignored), so those become one dot, and stored duplicates are merged on every start. What remains is real **entity resolution** (deciding that "Acme Group" and "Acme Corporation", or "Oriental Financial" and "Oriental Financial Group", are the same company), which needs an AI or human check. Say both.
 
 **3. "Why does every Document and Party carry `user_id`?"**
 **Multi-tenancy**: many users share one database, and nobody should see someone else's data. Real-life example: *an apartment building: shared walls, separate front doors.* In Jurion, ownership is checked in Postgres *before* any graph read. A production-grade version would also put the owner into every Cypher query as a second lock.
@@ -354,7 +354,7 @@ For each: the **short answer**, an **example you can say**, and a **follow-up** 
 ### 4. MERGE vs CREATE?
 - **Answer:** CREATE always adds a new node; MERGE finds or creates. MERGE on a unique key, backed by a uniqueness constraint; otherwise concurrent writers can create duplicates.
 - **Example:** "'Add contact' twice gives two Moms; a smart phone checks for an existing Mom first."
-- **Follow-up:** *How do you avoid duplicate companies?* A merge key of user plus lowercase name; variants like "Acme Corp." vs "Acme Corporation" still split, so the real fix is entity resolution.
+- **Follow-up:** *How do you avoid duplicate companies?* A merge key of user plus a normalised name (accents, punctuation, "the", "and" and trailing legal suffixes dropped), so "Acme Corp." and "Acme Corporation Inc." merge. Nicknames and genuinely different forms still split; that is entity resolution proper, which needs an AI or human check.
 
 ### 5. How does data get into your graph?
 - **Answer:** After a contract is saved, one AI call reads the top of the contract for the parties; a pattern finds "Section X" references; then one transaction deletes the contract's subgraph and recreates it with `UNWIND`. It can be rebuilt any time.
@@ -396,7 +396,7 @@ For each: the **short answer**, an **example you can say**, and a **follow-up** 
 - **Answer:** A relationship `(:Clause)-[:OVERRIDES]->(:Clause)` with properties like the source text and a confidence score; found with an AI call, since a pattern cannot detect it.
 
 ### 15. What is the weakest part of your graph?
-- **Answer:** Party names are matched by lowercase text; references miss schedules and can mis-link when numbering restarts in an attachment; party extraction was checked by eye on five contracts, not measured; and the measured benefit of using it in Ask is small (it fixed the two questions that name a contract, with little change elsewhere).
+- **Answer:** Party names are normalised but not truly resolved (nicknames still split); references miss schedules and can mis-link when numbering restarts in an attachment; party extraction was checked by eye on five contracts, not measured; and the measured benefit of using it in Ask is small (it fixed the two questions that name a contract, with little change elsewhere).
 - (Saying your own weaknesses calmly is a strength in interviews.)
 
 ### 16. Community vs Enterprise edition?
@@ -425,9 +425,9 @@ For each: the **short answer**, an **example you can say**, and a **follow-up** 
 - **The honest result:** on the same 38 questions, the right clause was cited 89.5% → 94.7% of the time, fully faithful answers, and the two failures that named a contract (the "bank" and the "clinical trial agreement" questions) now work. Overall search quality is about the same. **Do not say "GraphRAG greatly improved my answers."** Say: *"It fixed a specific failure, questions that name a contract, with a small overall gain; my first version actually hurt four questions by guessing a contract from the topic, and I fixed it by deciding only from names, roles and document kinds."* The cross-reference widening is built but I cannot yet show it helps.
 
 **NOT built yet**
-- Also missing: links to schedules, entity resolution for company names, a drawn graph inside the app, and an outbox/reconcile job.
+- Also missing: links to schedules, real entity resolution for company nicknames (name variants with legal suffixes are handled), a drawn graph inside the app, and an outbox for reliable graph updates (a reconcile check runs on every start).
 
-**What you would do next, in order:** write questions that need a cross-reference (so widening can be measured on its own) → entity resolution for company names → an outbox for reliable graph updates.
+**What you would do next, in order:** more linked-clause questions (widening has one clear rescue on 6 questions so far) → AI-assisted entity resolution for nicknames → an outbox for reliable graph updates.
 
 ---
 

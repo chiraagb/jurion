@@ -52,7 +52,7 @@ Speed (4 parses at once): median 1.7s, slowest 10 to 50s. Slow ones are long doc
 **Still open from the survey:**
 - 47% of contracts have a clause number used twice. Some are real (numbering restarts in an exhibit); others are probably false headings. Only labels can tell which.
 - 39 contracts got fewer than 10 clauses, and 37 got fewer than 3.
-- No file was a scan (all had a text layer), so OCR is untested.
+- No file was a scan (all had a text layer), so OCR could not be tested on the public set. It is now implemented and tested on a synthetic scan (see round 2 below).
 
 ## Number columns and underlined tables (two fixes from screenshots)
 
@@ -87,8 +87,27 @@ What the disagreements showed: some PDFs put clause numbers in a separate column
 ## Known gaps
 
 - No measured boundary accuracy yet (labels not reviewed).
-- No OCR for scans; scanned PDFs go whole to the AI.
+- OCR runs for mostly-scanned documents of up to 20 scanned pages (needs Tesseract); larger scans go whole to the AI.
 - Tables on pages with no ruled lines at all are still read as plain text, and two-column layouts are untested.
 - The two page-footer lines inside the underlined table from the Agape contract still end up as junk rows at the end of that table.
 - The AI step has been run live on only a few contracts.
 - Reading long contracts with tables is slow (up to about 50s under load).
+
+## Round 2: the contracts that returned nothing (30-contract sample)
+
+Re-running the 30 selected contracts (not all 510) found four that the local parser could not read or read badly. Each had a real, different cause:
+
+| Contract | Cause | Fix | Clauses / score, before → after |
+|---|---|---|---|
+| Oriental/Metavante outsourcing agreement (47 pages) | The signature page is on page 1 and the terms follow it. "IN WITNESS WHEREOF" started a signature block, and a signature block ran to the end of the document, so everything after it was swallowed. | A signature block also ends at a bold numbered heading ("1. CONSTRUCTION"). | 0 → 172, none → 0.70 |
+| A distributor agreement (27 pages) | The same signature-first layout. | The same fix. | 33 → 155, 0.33 → 0.90 |
+| An insurance endorsement | Bold, unnumbered run-in headings ("MEMBERSHIP. The person named…"). | A second pass, only when the normal rules find nothing. | 0 → 6, none → 1.0 |
+| A strategic alliance agreement | Sections numbered `1) Title`. | The same second pass. | 0 → 14, none → 1.0 |
+
+The other 26 of the 30 were identical before and after (one collaboration agreement gained 2 clauses), and the 4 real-contract regression checks in `test_corpus` are unchanged. One contract (a joint filing agreement) still returns no clauses, correctly: it is four pages of company names.
+
+Also new: **OCR** for scanned PDFs (see `docs/04-phase2-ingestion.md`), tested on a synthetic scan (a rendered contract page, no text layer): it parses into the five expected clauses in about half a second and carries the OCR warning. It has not been tested on real scans, which are noisier.
+
+Regression tests added to `test_parse`: a signature page first, `1)` numbering, bold run-in headings, and a scan.
+
+**Still open:** the other contracts among the 37 poor parses in the full 510 were not examined, and two-column layouts remain untested. The label review is still waiting for a person.

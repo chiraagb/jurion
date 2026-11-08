@@ -47,11 +47,11 @@ flowchart LR
 
 ## Measured results
 
-From the latest run on 48 questions over 5 contracts (see the Evaluation tab for the live numbers and the question-by-question detail):
+From the latest runs on 5 contracts (retrieval: 50 answerable questions; answers: 44) (see the Evaluation tab for the live numbers and the question-by-question detail):
 
 | | Result |
 |---|---|
-| Right clause in the top 5 results: meaning only / words only / hybrid / hybrid + graph | 79.5% / 27.3% / 84.1% / 88.6% |
+| Right clause in the top 5 results: meaning only / words only / hybrid / + heading context / + narrowed by the graph / + widened | 76% / 24% / 80% / 84% / 86% / 88% |
 | Answers that cite the right clause | 95.5% |
 | Claims supported by the clauses given | about 98–100% |
 | Unanswerable questions correctly refused | 4 of 4 |
@@ -82,11 +82,11 @@ GitHub Actions runs the backend suites against service containers and the fronte
 
 ## Known limits
 
-- Scanned PDFs without a text layer are not supported (no OCR), and 37 of 510 public test contracts still parse into fewer than 3 clauses.
-- Company names are matched by exact text, so "Acme Corp." and "Acme Corporation" are two companies in the graph.
+- Scanned PDFs are read by OCR when Tesseract is installed (mostly-scanned documents of up to 20 scanned pages; otherwise they go whole to the AI). OCR text can contain recognition errors, and the result says so. On the public test contracts, most of the 37 that parsed badly came from a few layouts that are now handled; the rest have not been looked at one by one.
+- Company names are normalised ("Acme Corp." = "Acme Corporation Inc.") but nicknames are not resolved ("Acme Group" stays a separate company).
 - The evaluation set is small and was written by one person after reading the contracts.
 - Contract text is sent to OpenAI for embeddings, relevance checks, party extraction and answers. Keep sensitive contracts out, or run with a model you host.
-- Cross-reference widening is built and tested but no evaluation question isolates it, so no benefit is claimed for it.
+- Cross-reference widening has one clear rescue on 6 questions I designed to need it. That is encouraging, not proof.
 
 ## Docs
 

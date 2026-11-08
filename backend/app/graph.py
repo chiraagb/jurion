@@ -6,6 +6,7 @@ Text and vectors stay in Postgres; the graph holds only ids, names and links, re
 A Party is one node per user and normalised name, so the same company in two contracts is one node."""
 import logging
 import re
+import unicodedata
 import uuid
 from openai import AsyncOpenAI
 from pydantic import BaseModel
@@ -43,7 +44,17 @@ async def extract_parties(key: str, text: str) -> list[Party]:
 REF = re.compile(r"\b(?:Sections?|Clauses?|Articles?|Paragraphs?)\s+(\d+(?:\.\d+)*(?:\s*(?:,|and|or|to|through)\s*\d+(?:\.\d+)*)*)", re.I)
 OUTSIDE = re.compile(r"\s+of\s+(?:the\s+)?(?!(?:this|Agreement)\b)", re.I)
 _norm_id = lambda s: re.sub(r"^(?:SECTION|ARTICLE|CLAUSE)\s+", "", s.strip(), flags=re.I).rstrip(". ").lower()
-party_key = lambda name: re.sub(r"[^a-z0-9 ]", "", name.lower()).strip()
+_LEGAL = {"inc", "incorporated", "corp", "corporation", "co", "company", "ltd", "limited", "llc", "llp", "lp", "plc", "pty", "gmbh", "sa", "ag", "bv", "nv", "srl", "pte"}
+
+
+def party_key(name: str) -> str:
+    """The identity of a company across contracts: "Acme Corp.", "ACME Corporation Inc." and "The Acme Company" are one.
+    Accents, punctuation, "the", "and" and trailing legal suffixes are ignored. Nicknames ("Acme Group") are NOT resolved."""
+    t = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode().lower()
+    words = [w for w in re.sub(r"[^a-z0-9]+", " ", t).split() if w not in ("the", "and")]
+    while len(words) > 1 and words[-1] in _LEGAL:
+        words.pop()
+    return " ".join(words)
 
 
 def find_refs(clauses: list[Clause]) -> list[tuple[int, int]]:

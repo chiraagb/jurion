@@ -19,7 +19,7 @@ from app.graph import contract_cards
 
 QA = Path(__file__).parent / "qa"
 MODES = {"vector": dict(use_keyword=False), "keyword": dict(use_vector=False), "hybrid": {}}
-COLUMNS = (*MODES, "context", "graph")  # context = hybrid + heading expansion; graph = context after narrowing to the contracts the question names and widening by cross-reference (what Ask does now)
+COLUMNS = (*MODES, "context", "scope", "graph")  # context = hybrid + heading expansion; graph = context after narrowing to the contracts the question names and widening by cross-reference (what Ask does now)
 KS = (1, 3, 5, 10)
 norm = lambda t: " ".join(t.split()).lower()
 
@@ -31,8 +31,17 @@ def is_gold(filename: str, content: str, q: dict) -> bool:
 
 
 def gold_rank(hits: list[dict], q: dict) -> int | None:
-    """1-based rank of the first clause that is the right one, else None."""
+    """1-based rank of the first clause that is the right one, else None. A question with `phrase_all` needs several clauses together:
+    its rank is the fewest results whose combined text holds every phrase."""
     if not q["doc"]:  # kind "none": there is no right clause
+        return None
+    if q.get("phrase_all"):
+        seen = ""
+        for i, h in enumerate(hits, 1):
+            if h["filename"].startswith(q["doc"]):
+                seen += " " + norm(h["content"])
+            if all(norm(p) in seen for p in q["phrase_all"]):
+                return i
         return None
     return next((i for i, h in enumerate(hits, 1) if is_gold(h["filename"], h["content"], q)), None)
 
@@ -73,8 +82,14 @@ async def retrieval(questions: list[dict]) -> dict:
             if not hits and only:
                 hits, _, _ = await hybrid(db, owner, q["question"], key, 10)
             await expand_thin(db, hits)
-            hits += await ask.widen(db, hits[:3])
-            row["ranks"]["graph"] = gold_rank(hits, q)
+            row["ranks"]["scope"] = gold_rank(hits, q)  # narrowing alone, so widening's own effect can be read off the difference
+            ordered = []  # a pulled-in clause sits right after the clause that referred to it
+            extras = await ask.widen(db, hits[:3])
+            for h in hits:
+                ordered.append(h)
+                ordered += [x for x in extras if x["document_id"] == h["document_id"] and x["via"] == h["clause_identifier"]]
+            row["ranks"]["graph"] = gold_rank(ordered, q)
+            row["widened"] = [x["clause_identifier"] for x in extras]
             row["scope"] = [c["filename"][:24] for c in only]
             rows.append(row)
         embeddings.embed_texts = real
@@ -91,14 +106,14 @@ async def _memo(real, cache, key, texts):
 def report(rows: list[dict]) -> dict:
     answerable = [r for r in rows if r["kind"] != "none"]
     out = {"all": {m: summarize([r["ranks"][m] for r in answerable]) for m in COLUMNS}}
-    for kind in ("direct", "paraphrase", "broad", "graph"):
+    for kind in ("direct", "paraphrase", "broad", "graph", "multi"):
         out[kind] = {m: summarize([r["ranks"][m] for r in answerable if r["kind"] == kind]) for m in COLUMNS}
     return out
 
 
 def show(rep: dict):
     print(f"{'':<31}" + "".join(f"{m:>10}" for m in COLUMNS))
-    for group, label in (("all", "all answerable"), ("direct", "direct (same words)"), ("paraphrase", "paraphrase (other words)"), ("broad", "broad (a whole section)"), ("graph", "names a party or document")):
+    for group, label in (("all", "all answerable"), ("direct", "direct (same words)"), ("paraphrase", "paraphrase (other words)"), ("broad", "broad (a whole section)"), ("graph", "names a party or document"), ("multi", "needs two linked clauses")):
         for metric in ("hit@1", "hit@3", "hit@5", "hit@10", "mrr"):
             print(f"{label if metric == 'hit@1' else '':<25}{metric:>6}" + "".join(f"{rep[group][m][metric]:>10.3f}" for m in COLUMNS))
         print(f"{'':<25}  n={rep[group]['hybrid']['n']}")

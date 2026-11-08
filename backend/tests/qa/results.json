@@ -1,7 +1,7 @@
 {
- "ran_at": "2026-11-08T03:41:48.044859+00:00",
+ "ran_at": "2026-11-08T04:06:00.177281+00:00",
  "embedding_model": "text-embedding-3-small",
- "questions": 48,
+ "questions": 54,
  "baseline": {
   "summary": {
    "all": {
@@ -747,44 +747,52 @@
   "summary": {
    "all": {
     "vector": {
-     "hit@1": 0.5,
-     "hit@3": 0.727,
-     "hit@5": 0.795,
-     "hit@10": 0.932,
-     "mrr": 0.646,
-     "n": 44
+     "hit@1": 0.44,
+     "hit@3": 0.68,
+     "hit@5": 0.76,
+     "hit@10": 0.92,
+     "mrr": 0.597,
+     "n": 50
     },
     "keyword": {
-     "hit@1": 0.205,
-     "hit@3": 0.25,
-     "hit@5": 0.273,
-     "hit@10": 0.273,
-     "mrr": 0.233,
-     "n": 44
+     "hit@1": 0.18,
+     "hit@3": 0.22,
+     "hit@5": 0.24,
+     "hit@10": 0.24,
+     "mrr": 0.205,
+     "n": 50
     },
     "hybrid": {
-     "hit@1": 0.477,
-     "hit@3": 0.75,
-     "hit@5": 0.841,
-     "hit@10": 0.909,
-     "mrr": 0.636,
-     "n": 44
+     "hit@1": 0.42,
+     "hit@3": 0.7,
+     "hit@5": 0.8,
+     "hit@10": 0.9,
+     "mrr": 0.589,
+     "n": 50
     },
     "context": {
-     "hit@1": 0.568,
-     "hit@3": 0.841,
-     "hit@5": 0.886,
-     "hit@10": 0.932,
-     "mrr": 0.709,
-     "n": 44
+     "hit@1": 0.5,
+     "hit@3": 0.78,
+     "hit@5": 0.84,
+     "hit@10": 0.92,
+     "mrr": 0.654,
+     "n": 50
+    },
+    "scope": {
+     "hit@1": 0.52,
+     "hit@3": 0.78,
+     "hit@5": 0.86,
+     "hit@10": 0.96,
+     "mrr": 0.674,
+     "n": 50
     },
     "graph": {
-     "hit@1": 0.545,
-     "hit@3": 0.841,
-     "hit@5": 0.886,
-     "hit@10": 0.932,
-     "mrr": 0.699,
-     "n": 44
+     "hit@1": 0.52,
+     "hit@3": 0.76,
+     "hit@5": 0.88,
+     "hit@10": 0.98,
+     "mrr": 0.673,
+     "n": 50
     }
    },
    "direct": {
@@ -820,12 +828,20 @@
      "mrr": 0.755,
      "n": 17
     },
+    "scope": {
+     "hit@1": 0.588,
+     "hit@3": 0.941,
+     "hit@5": 0.941,
+     "hit@10": 1.0,
+     "mrr": 0.762,
+     "n": 17
+    },
     "graph": {
-     "hit@1": 0.529,
-     "hit@3": 0.882,
-     "hit@5": 0.882,
-     "hit@10": 0.941,
-     "mrr": 0.703,
+     "hit@1": 0.588,
+     "hit@3": 0.941,
+     "hit@5": 0.941,
+     "hit@10": 1.0,
+     "mrr": 0.762,
      "n": 17
     }
    },
@@ -862,12 +878,20 @@
      "mrr": 0.632,
      "n": 17
     },
+    "scope": {
+     "hit@1": 0.588,
+     "hit@3": 0.706,
+     "hit@5": 0.824,
+     "hit@10": 0.941,
+     "mrr": 0.679,
+     "n": 17
+    },
     "graph": {
-     "hit@1": 0.529,
-     "hit@3": 0.765,
-     "hit@5": 0.882,
-     "hit@10": 0.882,
-     "mrr": 0.654,
+     "hit@1": 0.588,
+     "hit@3": 0.706,
+     "hit@5": 0.824,
+     "hit@10": 0.941,
+     "mrr": 0.677,
      "n": 17
     }
    },
@@ -897,6 +921,14 @@
      "n": 4
     },
     "context": {
+     "hit@1": 0.75,
+     "hit@3": 1.0,
+     "hit@5": 1.0,
+     "hit@10": 1.0,
+     "mrr": 0.875,
+     "n": 4
+    },
+    "scope": {
      "hit@1": 0.75,
      "hit@3": 1.0,
      "hit@5": 1.0,
@@ -946,12 +978,70 @@
      "mrr": 0.69,
      "n": 6
     },
-    "graph": {
+    "scope": {
      "hit@1": 0.5,
      "hit@3": 0.833,
      "hit@5": 0.833,
      "hit@10": 1.0,
      "mrr": 0.694,
+     "n": 6
+    },
+    "graph": {
+     "hit@1": 0.5,
+     "hit@3": 0.833,
+     "hit@5": 0.833,
+     "hit@10": 1.0,
+     "mrr": 0.685,
+     "n": 6
+    }
+   },
+   "multi": {
+    "vector": {
+     "hit@1": 0.0,
+     "hit@3": 0.333,
+     "hit@5": 0.5,
+     "hit@10": 0.833,
+     "mrr": 0.245,
+     "n": 6
+    },
+    "keyword": {
+     "hit@1": 0.0,
+     "hit@3": 0.0,
+     "hit@5": 0.0,
+     "hit@10": 0.0,
+     "mrr": 0.0,
+     "n": 6
+    },
+    "hybrid": {
+     "hit@1": 0.0,
+     "hit@3": 0.333,
+     "hit@5": 0.5,
+     "hit@10": 0.833,
+     "mrr": 0.245,
+     "n": 6
+    },
+    "context": {
+     "hit@1": 0.0,
+     "hit@3": 0.333,
+     "hit@5": 0.5,
+     "hit@10": 0.833,
+     "mrr": 0.245,
+     "n": 6
+    },
+    "scope": {
+     "hit@1": 0.0,
+     "hit@3": 0.333,
+     "hit@5": 0.667,
+     "hit@10": 0.833,
+     "mrr": 0.257,
+     "n": 6
+    },
+    "graph": {
+     "hit@1": 0.0,
+     "hit@3": 0.167,
+     "hit@5": 0.833,
+     "hit@10": 1.0,
+     "mrr": 0.261,
      "n": 6
     }
    }
@@ -966,6 +1056,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "scope": 1,
      "graph": 1
     },
     "top": [
@@ -973,6 +1064,7 @@
      "1.2 Term (AgapeAtpCorp_2)",
      "5.1 This MSA shall commence on the Effective (master-service)"
     ],
+    "widened": [],
     "scope": [
      "AgapeAtpCorp_20191202_10"
     ]
@@ -986,6 +1078,7 @@
      "keyword": 1,
      "hybrid": 1,
      "context": 1,
+     "scope": 1,
      "graph": 1
     },
     "top": [
@@ -993,6 +1086,7 @@
      "5 SHIPPING AND PAYMENT TERMS (AgapeAtpCorp_2)",
      "4 TERMS. (CybergyHolding)"
     ],
+    "widened": [],
     "scope": []
    },
    {
@@ -1004,6 +1098,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "scope": 1,
      "graph": 1
     },
     "top": [
@@ -1011,7 +1106,10 @@
      "3.5 Intellectual Property (AgapeAtpCorp_2)",
      "3.5 (a) (AgapeAtpCorp_2)"
     ],
-    "scope": []
+    "widened": [],
+    "scope": [
+     "AgapeAtpCorp_20191202_10"
+    ]
    },
    {
     "id": 4,
@@ -1022,6 +1120,7 @@
      "keyword": null,
      "hybrid": 4,
      "context": 4,
+     "scope": 4,
      "graph": 4
     },
     "top": [
@@ -1029,6 +1128,7 @@
      "10.6 The Parties shall attempt in good faith  (master-service)",
      "8.1 Any and all disputes, claims or differen (AgapeAtpCorp_2)"
     ],
+    "widened": [],
     "scope": []
    },
    {
@@ -1040,6 +1140,7 @@
      "keyword": null,
      "hybrid": 2,
      "context": 2,
+     "scope": 2,
      "graph": 2
     },
     "top": [
@@ -1047,6 +1148,7 @@
      "14.4 Severability (AgapeAtpCorp_2)",
      "10.19 Failure to enforce any provision shall n (master-service)"
     ],
+    "widened": [],
     "scope": []
    },
    {
@@ -1058,6 +1160,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "scope": 1,
      "graph": 1
     },
     "top": [
@@ -1065,9 +1168,9 @@
      "3.5 Intellectual Property (AgapeAtpCorp_2)",
      "11 INTELLECTUAL PROPERTY (AgapeAtpCorp_2)"
     ],
+    "widened": [],
     "scope": [
-     "AgapeAtpCorp_20191202_10",
-     "OFGBANCORP_03_28_2007-EX"
+     "AgapeAtpCorp_20191202_10"
     ]
    },
    {
@@ -1079,6 +1182,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "scope": 1,
      "graph": 1
     },
     "top": [
@@ -1086,6 +1190,7 @@
      "6.1 The Manufacturing Companies utilised by  (AgapeAtpCorp_2)",
      "3.5 (b) (AgapeAtpCorp_2)"
     ],
+    "widened": [],
     "scope": [
      "AgapeAtpCorp_20191202_10"
     ]
@@ -1099,6 +1204,7 @@
      "keyword": 1,
      "hybrid": 1,
      "context": 1,
+     "scope": 1,
      "graph": 1
     },
     "top": [
@@ -1106,9 +1212,8 @@
      "2 Additional Procedural Fees (EFC18326_Rosa_)",
      "SEC_(WITH_INSTITUTI (with Institution and Investigator) (EFC18326_Rosa_)"
     ],
-    "scope": [
-     "EFC18326_Rosa_CTA_-_Fina"
-    ]
+    "widened": [],
+    "scope": []
    },
    {
     "id": 9,
@@ -1119,6 +1224,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "scope": 1,
      "graph": 1
     },
     "top": [
@@ -1126,9 +1232,8 @@
      "9.4 Unavailability of the Investigator (EFC18326_Rosa_)",
      "9.2 Termination by the Sponsor (EFC18326_Rosa_)"
     ],
-    "scope": [
-     "EFC18326_Rosa_CTA_-_Fina"
-    ]
+    "widened": [],
+    "scope": []
    },
    {
     "id": 10,
@@ -1139,6 +1244,7 @@
      "keyword": null,
      "hybrid": null,
      "context": null,
+     "scope": 8,
      "graph": 8
     },
     "top": [
@@ -1146,6 +1252,7 @@
      "SIGNATURES Signature Block (EFC18326_Rosa_)",
      "1.1 Conduct of the Study (EFC18326_Rosa_)"
     ],
+    "widened": [],
     "scope": [
      "EFC18326_Rosa_CTA_-_Fina"
     ]
@@ -1159,6 +1266,7 @@
      "keyword": null,
      "hybrid": null,
      "context": null,
+     "scope": null,
      "graph": null
     },
     "top": [
@@ -1166,6 +1274,7 @@
      "9.4 Unavailability of the Investigator (EFC18326_Rosa_)",
      "5.2 Each Party (the “Indemnifying Party”) ag (EFC18326_Rosa_)"
     ],
+    "widened": [],
     "scope": []
    },
    {
@@ -1177,6 +1286,7 @@
      "keyword": null,
      "hybrid": 2,
      "context": 2,
+     "scope": 2,
      "graph": 2
     },
     "top": [
@@ -1184,9 +1294,8 @@
      "4 Security measures (EFC18326_Rosa_)",
      "10.13 Each Party shall implement reasonable ad (master-service)"
     ],
-    "scope": [
-     "EFC18326_Rosa_CTA_-_Fina"
-    ]
+    "widened": [],
+    "scope": []
    },
    {
     "id": 13,
@@ -1197,6 +1306,7 @@
      "keyword": 1,
      "hybrid": 1,
      "context": 1,
+     "scope": 1,
      "graph": 1
     },
     "top": [
@@ -1204,6 +1314,7 @@
      "5.2 Each Party (the “Indemnifying Party”) ag (EFC18326_Rosa_)",
      "3.7 In the event of a Personal Data Breach t (EFC18326_Rosa_)"
     ],
+    "widened": [],
     "scope": [
      "EFC18326_Rosa_CTA_-_Fina"
     ]
@@ -1217,6 +1328,7 @@
      "keyword": null,
      "hybrid": 5,
      "context": 5,
+     "scope": 5,
      "graph": 5
     },
     "top": [
@@ -1224,13 +1336,8 @@
      "18 DEFINITIONS. (OFGBANCORP_03_)",
      "5.9 Any provisions which by their nature are (master-service)"
     ],
-    "scope": [
-     "AgapeAtpCorp_20191202_10",
-     "CybergyHoldingsInc_20140",
-     "EFC18326_Rosa_CTA_-_Fina",
-     "OFGBANCORP_03_28_2007-EX",
-     "master-services-agreemen"
-    ]
+    "widened": [],
+    "scope": []
    },
    {
     "id": 15,
@@ -1241,6 +1348,7 @@
      "keyword": 4,
      "hybrid": 3,
      "context": 3,
+     "scope": 3,
      "graph": 3
     },
     "top": [
@@ -1248,6 +1356,7 @@
      "3.1 INSTITUTION and/or INVESTIGATOR expressl (EFC18326_Rosa_)",
      "4 DATA PROTECTION (EFC18326_Rosa_)"
     ],
+    "widened": [],
     "scope": []
    },
    {
@@ -1259,6 +1368,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "scope": 1,
      "graph": 1
     },
     "top": [
@@ -1266,6 +1376,7 @@
      "5.4 Upon expiration or termination of this M (master-service)",
      "18.2 Either party may cancel this Agreement u (CybergyHolding)"
     ],
+    "widened": [],
     "scope": []
    },
    {
@@ -1277,6 +1388,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "scope": 1,
      "graph": 1
     },
     "top": [
@@ -1284,12 +1396,8 @@
      "4.1 Implementation of Services. (OFGBANCORP_03_)",
      "7.4 Payment for Services, Training and Suppo (CybergyHolding)"
     ],
-    "scope": [
-     "AgapeAtpCorp_20191202_10",
-     "CybergyHoldingsInc_20140",
-     "OFGBANCORP_03_28_2007-EX",
-     "master-services-agreemen"
-    ]
+    "widened": [],
+    "scope": []
    },
    {
     "id": 18,
@@ -1300,6 +1408,7 @@
      "keyword": null,
      "hybrid": 7,
      "context": 3,
+     "scope": 3,
      "graph": 3
     },
     "top": [
@@ -1307,6 +1416,7 @@
      "11 INTELLECTUAL PROPERTY (AgapeAtpCorp_2)",
      "7 INTELLECTUAL PROPERTY (master-service)"
     ],
+    "widened": [],
     "scope": []
    },
    {
@@ -1318,6 +1428,7 @@
      "keyword": 1,
      "hybrid": 1,
      "context": 1,
+     "scope": 1,
      "graph": 1
     },
     "top": [
@@ -1325,6 +1436,7 @@
      "12 APPLICABLE LAW AND PLACE OF JURISDICTION (EFC18326_Rosa_)",
      "8.1 Any and all disputes, claims or differen (AgapeAtpCorp_2)"
     ],
+    "widened": [],
     "scope": []
    },
    {
@@ -1336,6 +1448,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "scope": 1,
      "graph": 1
     },
     "top": [
@@ -1343,6 +1456,7 @@
      "6.5 The obligations of confidentiality under (master-service)",
      "6.6 Where the Parties have entered into a se (master-service)"
     ],
+    "widened": [],
     "scope": []
    },
    {
@@ -1354,16 +1468,16 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
-     "graph": null
+     "scope": 1,
+     "graph": 1
     },
     "top": [
      "4.4 Risk of loss or damage to materials shal (master-service)",
      "4.6 Where third-party carriers or logistics  (master-service)",
      "5.1 Shipping (AgapeAtpCorp_2)"
     ],
-    "scope": [
-     "AgapeAtpCorp_20191202_10"
-    ]
+    "widened": [],
+    "scope": []
    },
    {
     "id": 22,
@@ -1374,6 +1488,7 @@
      "keyword": 1,
      "hybrid": 1,
      "context": 1,
+     "scope": 1,
      "graph": 1
     },
     "top": [
@@ -1381,13 +1496,8 @@
      "14.7 Force Majeure (AgapeAtpCorp_2)",
      "18.2 Either party may cancel this Agreement u (CybergyHolding)"
     ],
-    "scope": [
-     "AgapeAtpCorp_20191202_10",
-     "CybergyHoldingsInc_20140",
-     "EFC18326_Rosa_CTA_-_Fina",
-     "OFGBANCORP_03_28_2007-EX",
-     "master-services-agreemen"
-    ]
+    "widened": [],
+    "scope": []
    },
    {
     "id": 23,
@@ -1398,6 +1508,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "scope": 1,
      "graph": 1
     },
     "top": [
@@ -1405,7 +1516,14 @@
      "4.5 Each Party shall ensure that appropriate (master-service)",
      "6.2 The Customer shall at all times during t (AgapeAtpCorp_2)"
     ],
-    "scope": []
+    "widened": [],
+    "scope": [
+     "AgapeAtpCorp_20191202_10",
+     "CybergyHoldingsInc_20140",
+     "EFC18326_Rosa_CTA_-_Fina",
+     "OFGBANCORP_03_28_2007-EX",
+     "master-services-agreemen"
+    ]
    },
    {
     "id": 24,
@@ -1416,6 +1534,7 @@
      "keyword": 2,
      "hybrid": 1,
      "context": 1,
+     "scope": 1,
      "graph": 1
     },
     "top": [
@@ -1423,6 +1542,7 @@
      "18.2 Either party may cancel this Agreement u (CybergyHolding)",
      "7.3 Rights to termination (AgapeAtpCorp_2)"
     ],
+    "widened": [],
     "scope": []
    },
    {
@@ -1434,6 +1554,7 @@
      "keyword": null,
      "hybrid": 3,
      "context": 3,
+     "scope": 2,
      "graph": 2
     },
     "top": [
@@ -1441,6 +1562,7 @@
      "16 MISCELLANEOUS PROVISIONS (OFGBANCORP_03_)",
      "14 Relationship of the Parties. (CybergyHolding)"
     ],
+    "widened": [],
     "scope": [
      "CybergyHoldingsInc_20140"
     ]
@@ -1454,6 +1576,7 @@
      "keyword": null,
      "hybrid": 2,
      "context": 1,
+     "scope": 1,
      "graph": 1
     },
     "top": [
@@ -1461,6 +1584,7 @@
      "SEC_MOUNT_KNOWLEDGE Mount Knowledge Holdings Inc. (CybergyHolding)",
      "24 Governing Law; Attorney’s Fee. (CybergyHolding)"
     ],
+    "widened": [],
     "scope": [
      "CybergyHoldingsInc_20140"
     ]
@@ -1474,14 +1598,18 @@
      "keyword": null,
      "hybrid": 2,
      "context": 2,
-     "graph": 2
+     "scope": 1,
+     "graph": 1
     },
     "top": [
      "9.3 Neither Party shall be liable to the oth (master-service)",
      "16.3 IN NO EVENT SHALL COMPANY BE LIABLE TO “ (CybergyHolding)",
      "25 Equitable Relief. (CybergyHolding)"
     ],
-    "scope": []
+    "widened": [],
+    "scope": [
+     "CybergyHoldingsInc_20140"
+    ]
    },
    {
     "id": 28,
@@ -1492,12 +1620,16 @@
      "keyword": null,
      "hybrid": 2,
      "context": 2,
+     "scope": 2,
      "graph": 2
     },
     "top": [
      "18.2 Either party may cancel this Agreement u (CybergyHolding)",
      "18.1 This Agreement may be terminated by eith (CybergyHolding)",
      "5.2 Either Party may terminate this MSA or a (master-service)"
+    ],
+    "widened": [
+     "3"
     ],
     "scope": []
    },
@@ -1510,6 +1642,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "scope": 1,
      "graph": 1
     },
     "top": [
@@ -1517,6 +1650,7 @@
      "18 DEFINITIONS. (OFGBANCORP_03_)",
      "EXHIBIT 10.27 MARKETING AFFILIATE AGREEMENT (CybergyHolding)"
     ],
+    "widened": [],
     "scope": []
    },
    {
@@ -1528,6 +1662,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "scope": 1,
      "graph": 1
     },
     "top": [
@@ -1535,6 +1670,7 @@
      "2.3 Operations Center Availability Service L (OFGBANCORP_03_)",
      "2.9 CMS Electronic Funds Delivery Service Le (OFGBANCORP_03_)"
     ],
+    "widened": [],
     "scope": []
    },
    {
@@ -1546,16 +1682,16 @@
      "keyword": null,
      "hybrid": 8,
      "context": 8,
-     "graph": 3
+     "scope": 8,
+     "graph": 8
     },
     "top": [
      "1.3 Reporting On Service Levels. (OFGBANCORP_03_)",
      "3.7 The Client shall remain responsible for  (master-service)",
      "3.5 Where the Client designates, mandates, s (master-service)"
     ],
-    "scope": [
-     "OFGBANCORP_03_28_2007-EX"
-    ]
+    "widened": [],
+    "scope": []
    },
    {
     "id": 32,
@@ -1566,14 +1702,22 @@
      "keyword": null,
      "hybrid": null,
      "context": null,
-     "graph": null
+     "scope": 7,
+     "graph": 10
     },
     "top": [
      "18.2 Either party may cancel this Agreement u (CybergyHolding)",
      "8 TERMINATION/DEFAULT (OFGBANCORP_03_)",
      "5.4 Upon expiration or termination of this M (master-service)"
     ],
-    "scope": []
+    "widened": [
+     "6",
+     "4.1",
+     "5"
+    ],
+    "scope": [
+     "OFGBANCORP_03_28_2007-EX"
+    ]
    },
    {
     "id": 33,
@@ -1584,12 +1728,16 @@
      "keyword": 1,
      "hybrid": 2,
      "context": 2,
+     "scope": 2,
      "graph": 2
     },
     "top": [
      "6.2 Performance Warranty Exclusions. (OFGBANCORP_03_)",
      "6 PERFORMANCE WARRANTY/DISCLAIMER OF ALL O (OFGBANCORP_03_)",
      "6.3 DISCLAIMER OF ALL OTHER WARRANTIES. (OFGBANCORP_03_)"
+    ],
+    "widened": [
+     "12"
     ],
     "scope": []
    },
@@ -1602,6 +1750,7 @@
      "keyword": 1,
      "hybrid": 2,
      "context": 2,
+     "scope": 2,
      "graph": 2
     },
     "top": [
@@ -1609,7 +1758,14 @@
      "11 DISPUTE RESOLUTION (OFGBANCORP_03_)",
      "3.2 Each invoice shall be payable within thi (master-service)"
     ],
-    "scope": []
+    "widened": [],
+    "scope": [
+     "AgapeAtpCorp_20191202_10",
+     "CybergyHoldingsInc_20140",
+     "EFC18326_Rosa_CTA_-_Fina",
+     "OFGBANCORP_03_28_2007-EX",
+     "master-services-agreemen"
+    ]
    },
    {
     "id": 35,
@@ -1620,12 +1776,16 @@
      "keyword": null,
      "hybrid": null,
      "context": null,
+     "scope": null,
      "graph": null
     },
     "top": [
      "3 SERVICE FEE. (CybergyHolding)",
      "13.2 The Manufacturer grants exclusive rights (AgapeAtpCorp_2)",
      "5 FEES (OFGBANCORP_03_)"
+    ],
+    "widened": [
+     "1"
     ],
     "scope": []
    },
@@ -1638,6 +1798,7 @@
      "keyword": null,
      "hybrid": null,
      "context": null,
+     "scope": null,
      "graph": null
     },
     "top": [
@@ -1645,6 +1806,7 @@
      "3.5 Where the Client designates, mandates, s (master-service)",
      "10 INSURANCE AND INDEMNITY. (OFGBANCORP_03_)"
     ],
+    "widened": [],
     "scope": []
    },
    {
@@ -1656,6 +1818,7 @@
      "keyword": null,
      "hybrid": null,
      "context": null,
+     "scope": null,
      "graph": null
     },
     "top": [
@@ -1663,6 +1826,7 @@
      "8.2 The language to be used in the Arbitrati (AgapeAtpCorp_2)",
      "8.3 The award/decision of the Arbitration Co (AgapeAtpCorp_2)"
     ],
+    "widened": [],
     "scope": []
    },
    {
@@ -1674,12 +1838,18 @@
      "keyword": null,
      "hybrid": null,
      "context": null,
+     "scope": null,
      "graph": null
     },
     "top": [
      "1 GENERAL PROVISIONS (OFGBANCORP_03_)",
      "ADDITIONAL CUSTOMER CONVERSION RESPONSIBILITIES ADDITIONAL CUSTOMER CONVERSION RESPONSIB (OFGBANCORP_03_)",
      "2.11 Teller Transactions Response Time Servic (OFGBANCORP_03_)"
+    ],
+    "widened": [
+     "18",
+     "3",
+     "1.4"
     ],
     "scope": [
      "OFGBANCORP_03_28_2007-EX"
@@ -1694,12 +1864,16 @@
      "keyword": 2,
      "hybrid": 2,
      "context": 1,
+     "scope": 1,
      "graph": 1
     },
     "top": [
      "TERMS AND CONDITIONS TERMS AND CONDITIONS (OFGBANCORP_03_)",
      "1.1 Definitions. (OFGBANCORP_03_)",
      "14.3 Conflicting Terms (AgapeAtpCorp_2)"
+    ],
+    "widened": [
+     "18"
     ],
     "scope": []
    },
@@ -1712,12 +1886,16 @@
      "keyword": null,
      "hybrid": null,
      "context": 1,
+     "scope": 1,
      "graph": 1
     },
     "top": [
      "1 TERMS OF AGREEMENT (AgapeAtpCorp_2)",
      "1.2 Term (AgapeAtpCorp_2)",
      "1.1 Definitions. (OFGBANCORP_03_)"
+    ],
+    "widened": [
+     "18"
     ],
     "scope": []
    },
@@ -1730,6 +1908,7 @@
      "keyword": null,
      "hybrid": 4,
      "context": 2,
+     "scope": 2,
      "graph": 2
     },
     "top": [
@@ -1737,6 +1916,7 @@
      "3 COVENANTS BY THE MANUFACTURER (AgapeAtpCorp_2)",
      "3.5 (a) (AgapeAtpCorp_2)"
     ],
+    "widened": [],
     "scope": [
      "AgapeAtpCorp_20191202_10"
     ]
@@ -1750,6 +1930,7 @@
      "keyword": null,
      "hybrid": 5,
      "context": 1,
+     "scope": 1,
      "graph": 1
     },
     "top": [
@@ -1757,6 +1938,7 @@
      "3.2 In this respect INSTITUTION and/or INVES (EFC18326_Rosa_)",
      "2.2 Provision by the Customer (AgapeAtpCorp_2)"
     ],
+    "widened": [],
     "scope": []
    },
    {
@@ -1768,12 +1950,17 @@
      "keyword": null,
      "hybrid": 2,
      "context": 2,
+     "scope": 2,
      "graph": 2
     },
     "top": [
      "EXHIBIT 10.27 MARKETING AFFILIATE AGREEMENT (CybergyHolding)",
      "18.1 This Agreement may be terminated by eith (CybergyHolding)",
      "18.3 Upon termination or cancellation of this (CybergyHolding)"
+    ],
+    "widened": [
+     "18",
+     "3"
     ],
     "scope": [
      "CybergyHoldingsInc_20140"
@@ -1788,6 +1975,7 @@
      "keyword": 1,
      "hybrid": 1,
      "context": 1,
+     "scope": 1,
      "graph": 1
     },
     "top": [
@@ -1795,6 +1983,7 @@
      "1.4 Study Drug and Study Supplies (EFC18326_Rosa_)",
      "1.1 Conduct of the Study (EFC18326_Rosa_)"
     ],
+    "widened": [],
     "scope": [
      "EFC18326_Rosa_CTA_-_Fina"
     ]
@@ -1808,6 +1997,7 @@
      "keyword": 1,
      "hybrid": 2,
      "context": 2,
+     "scope": 2,
      "graph": 2
     },
     "top": [
@@ -1815,6 +2005,7 @@
      "6 PERFORMANCE WARRANTY/DISCLAIMER OF ALL O (OFGBANCORP_03_)",
      "10 INSURANCE AND INDEMNITY. (OFGBANCORP_03_)"
     ],
+    "widened": [],
     "scope": [
      "OFGBANCORP_03_28_2007-EX"
     ]
@@ -1828,6 +2019,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "scope": 1,
      "graph": 1
     },
     "top": [
@@ -1835,6 +2027,7 @@
      "5.5 the Service Provider shall deliver to th (master-service)",
      "3.1 The Service Provider shall invoice the C (master-service)"
     ],
+    "widened": [],
     "scope": [
      "OFGBANCORP_03_28_2007-EX",
      "master-services-agreemen"
@@ -1849,12 +2042,18 @@
      "keyword": null,
      "hybrid": 7,
      "context": 7,
-     "graph": 6
+     "scope": 6,
+     "graph": 9
     },
     "top": [
      "4.2 All shipments shall be packaged, labelle (master-service)",
      "1.2 Regulatory Compliance of the Study (EFC18326_Rosa_)",
      "SEC_(WITH_INSTITUTI (with Institution and Investigator) (EFC18326_Rosa_)"
+    ],
+    "widened": [
+     "10",
+     "8",
+     "1.4"
     ],
     "scope": [
      "EFC18326_Rosa_CTA_-_Fina"
@@ -1869,6 +2068,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "scope": 1,
      "graph": 1
     },
     "top": [
@@ -1876,12 +2076,157 @@
      "5.2 Guarantee of packaging quality (AgapeAtpCorp_2)",
      "2.1 Provision by the Manufacturer (AgapeAtpCorp_2)"
     ],
+    "widened": [],
     "scope": [
      "AgapeAtpCorp_20191202_10"
     ]
+   },
+   {
+    "id": 49,
+    "question": "How long does the clinical trial agreement run, and when can it be ended early?",
+    "kind": "multi",
+    "ranks": {
+     "vector": 5,
+     "keyword": null,
+     "hybrid": 5,
+     "context": 5,
+     "scope": 5,
+     "graph": 6
+    },
+    "top": [
+     "9.2 Termination by the Sponsor (EFC18326_Rosa_)",
+     "9.3 Termination by the Institution or the In (EFC18326_Rosa_)",
+     "8.3 Record Keeping (EFC18326_Rosa_)"
+    ],
+    "widened": [
+     "8"
+    ],
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
+    ]
+   },
+   {
+    "id": 50,
+    "question": "Besides the performance warranty, what other warranties does the outsourcing agreement make?",
+    "kind": "multi",
+    "ranks": {
+     "vector": null,
+     "keyword": null,
+     "hybrid": null,
+     "context": null,
+     "scope": null,
+     "graph": 4
+    },
+    "top": [
+     "6.2 Performance Warranty Exclusions. (OFGBANCORP_03_)",
+     "6 PERFORMANCE WARRANTY/DISCLAIMER OF ALL O (OFGBANCORP_03_)",
+     "6.3 DISCLAIMER OF ALL OTHER WARRANTIES. (OFGBANCORP_03_)"
+    ],
+    "widened": [
+     "12"
+    ],
+    "scope": [
+     "OFGBANCORP_03_28_2007-EX"
+    ]
+   },
+   {
+    "id": 51,
+    "question": "Can the company change the prices of the deliverables it supplies at the affiliate's request?",
+    "kind": "multi",
+    "ranks": {
+     "vector": 2,
+     "keyword": null,
+     "hybrid": 2,
+     "context": 2,
+     "scope": 2,
+     "graph": 2
+    },
+    "top": [
+     "4.2 Deliverables. Upon the request of MA, Co (CybergyHolding)",
+     "13 Price Changes and Notification. (CybergyHolding)",
+     "3.5 No changes to the scope of Services shal (master-service)"
+    ],
+    "widened": [],
+    "scope": [
+     "CybergyHoldingsInc_20140"
+    ]
+   },
+   {
+    "id": 52,
+    "question": "How does the marketing affiliate agreement start, and how can it end?",
+    "kind": "multi",
+    "ranks": {
+     "vector": 7,
+     "keyword": null,
+     "hybrid": 7,
+     "context": 7,
+     "scope": 7,
+     "graph": 4
+    },
+    "top": [
+     "EXHIBIT 10.27 MARKETING AFFILIATE AGREEMENT (CybergyHolding)",
+     "SEC_MOUNT_KNOWLEDGE Mount Knowledge Holdings Inc. (CybergyHolding)",
+     "1 Effective Date and Term. (CybergyHolding)"
+    ],
+    "widened": [
+     "18"
+    ],
+    "scope": []
+   },
+   {
+    "id": 53,
+    "question": "Which obligations survive after the clinical trial agreement ends, and does that cover the sponsor's insurance and indemnification?",
+    "kind": "multi",
+    "ranks": {
+     "vector": 2,
+     "keyword": null,
+     "hybrid": 2,
+     "context": 2,
+     "scope": 2,
+     "graph": 5
+    },
+    "top": [
+     "9.5 Surviving Clauses (EFC18326_Rosa_)",
+     "7 INSURANCE, LIABILITY, INDEMNIFICATION (EFC18326_Rosa_)",
+     "8.3 Record Keeping (EFC18326_Rosa_)"
+    ],
+    "widened": [
+     "10",
+     "8",
+     "1.4"
+    ],
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
+    ]
+   },
+   {
+    "id": 54,
+    "question": "What do the capitalised terms in the outsourcing agreement mean, and what does ACH stand for?",
+    "kind": "multi",
+    "ranks": {
+     "vector": 8,
+     "keyword": null,
+     "hybrid": 8,
+     "context": 8,
+     "scope": 5,
+     "graph": 5
+    },
+    "top": [
+     "1 GENERAL PROVISIONS (OFGBANCORP_03_)",
+     "1.1 Definitions. (OFGBANCORP_03_)",
+     "16 MISCELLANEOUS PROVISIONS (OFGBANCORP_03_)"
+    ],
+    "widened": [
+     "18",
+     "3",
+     "1.4"
+    ],
+    "scope": [
+     "OFGBANCORP_03_28_2007-EX"
+    ]
    }
   ],
-  "ran_at": "2026-11-08T03:41:48.044877+00:00"
+  "ran_at": "2026-11-08T04:06:00.177295+00:00"
  },
  "answers": {
   "summary": {
@@ -4244,5 +4589,1145 @@
    }
   ],
   "ran_at": "2026-11-08T03:37:19.805551+00:00"
+ },
+ "retrieval_before_widening_ablation": {
+  "summary": {
+   "all": {
+    "vector": {
+     "hit@1": 0.5,
+     "hit@3": 0.727,
+     "hit@5": 0.795,
+     "hit@10": 0.932,
+     "mrr": 0.646,
+     "n": 44
+    },
+    "keyword": {
+     "hit@1": 0.205,
+     "hit@3": 0.25,
+     "hit@5": 0.273,
+     "hit@10": 0.273,
+     "mrr": 0.233,
+     "n": 44
+    },
+    "hybrid": {
+     "hit@1": 0.477,
+     "hit@3": 0.75,
+     "hit@5": 0.841,
+     "hit@10": 0.909,
+     "mrr": 0.636,
+     "n": 44
+    },
+    "context": {
+     "hit@1": 0.568,
+     "hit@3": 0.841,
+     "hit@5": 0.886,
+     "hit@10": 0.932,
+     "mrr": 0.709,
+     "n": 44
+    },
+    "graph": {
+     "hit@1": 0.545,
+     "hit@3": 0.841,
+     "hit@5": 0.886,
+     "hit@10": 0.932,
+     "mrr": 0.699,
+     "n": 44
+    }
+   },
+   "direct": {
+    "vector": {
+     "hit@1": 0.588,
+     "hit@3": 0.882,
+     "hit@5": 0.882,
+     "hit@10": 0.941,
+     "mrr": 0.744,
+     "n": 17
+    },
+    "keyword": {
+     "hit@1": 0.294,
+     "hit@3": 0.353,
+     "hit@5": 0.412,
+     "hit@10": 0.412,
+     "mrr": 0.338,
+     "n": 17
+    },
+    "hybrid": {
+     "hit@1": 0.529,
+     "hit@3": 0.941,
+     "hit@5": 0.941,
+     "hit@10": 0.941,
+     "mrr": 0.725,
+     "n": 17
+    },
+    "context": {
+     "hit@1": 0.588,
+     "hit@3": 0.941,
+     "hit@5": 0.941,
+     "hit@10": 0.941,
+     "mrr": 0.755,
+     "n": 17
+    },
+    "graph": {
+     "hit@1": 0.529,
+     "hit@3": 0.882,
+     "hit@5": 0.882,
+     "hit@10": 0.941,
+     "mrr": 0.703,
+     "n": 17
+    }
+   },
+   "paraphrase": {
+    "vector": {
+     "hit@1": 0.529,
+     "hit@3": 0.647,
+     "hit@5": 0.765,
+     "hit@10": 0.882,
+     "mrr": 0.633,
+     "n": 17
+    },
+    "keyword": {
+     "hit@1": 0.118,
+     "hit@3": 0.118,
+     "hit@5": 0.118,
+     "hit@10": 0.118,
+     "mrr": 0.118,
+     "n": 17
+    },
+    "hybrid": {
+     "hit@1": 0.529,
+     "hit@3": 0.647,
+     "hit@5": 0.765,
+     "hit@10": 0.882,
+     "mrr": 0.621,
+     "n": 17
+    },
+    "context": {
+     "hit@1": 0.529,
+     "hit@3": 0.706,
+     "hit@5": 0.824,
+     "hit@10": 0.882,
+     "mrr": 0.632,
+     "n": 17
+    },
+    "graph": {
+     "hit@1": 0.529,
+     "hit@3": 0.765,
+     "hit@5": 0.882,
+     "hit@10": 0.882,
+     "mrr": 0.654,
+     "n": 17
+    }
+   },
+   "broad": {
+    "vector": {
+     "hit@1": 0.0,
+     "hit@3": 0.25,
+     "hit@5": 0.5,
+     "hit@10": 1.0,
+     "mrr": 0.212,
+     "n": 4
+    },
+    "keyword": {
+     "hit@1": 0.0,
+     "hit@3": 0.25,
+     "hit@5": 0.25,
+     "hit@10": 0.25,
+     "mrr": 0.125,
+     "n": 4
+    },
+    "hybrid": {
+     "hit@1": 0.0,
+     "hit@3": 0.25,
+     "hit@5": 0.75,
+     "hit@10": 0.75,
+     "mrr": 0.237,
+     "n": 4
+    },
+    "context": {
+     "hit@1": 0.75,
+     "hit@3": 1.0,
+     "hit@5": 1.0,
+     "hit@10": 1.0,
+     "mrr": 0.875,
+     "n": 4
+    },
+    "graph": {
+     "hit@1": 0.75,
+     "hit@3": 1.0,
+     "hit@5": 1.0,
+     "hit@10": 1.0,
+     "mrr": 0.875,
+     "n": 4
+    }
+   },
+   "graph": {
+    "vector": {
+     "hit@1": 0.5,
+     "hit@3": 0.833,
+     "hit@5": 0.833,
+     "hit@10": 1.0,
+     "mrr": 0.69,
+     "n": 6
+    },
+    "keyword": {
+     "hit@1": 0.333,
+     "hit@3": 0.333,
+     "hit@5": 0.333,
+     "hit@10": 0.333,
+     "mrr": 0.333,
+     "n": 6
+    },
+    "hybrid": {
+     "hit@1": 0.5,
+     "hit@3": 0.833,
+     "hit@5": 0.833,
+     "hit@10": 1.0,
+     "mrr": 0.69,
+     "n": 6
+    },
+    "context": {
+     "hit@1": 0.5,
+     "hit@3": 0.833,
+     "hit@5": 0.833,
+     "hit@10": 1.0,
+     "mrr": 0.69,
+     "n": 6
+    },
+    "graph": {
+     "hit@1": 0.5,
+     "hit@3": 0.833,
+     "hit@5": 0.833,
+     "hit@10": 1.0,
+     "mrr": 0.694,
+     "n": 6
+    }
+   }
+  },
+  "rows": [
+   {
+    "id": 1,
+    "question": "How long does the supply agreement last, and does it roll over?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "1.3 Renewal (AgapeAtpCorp_2)",
+     "1.2 Term (AgapeAtpCorp_2)",
+     "5.1 This MSA shall commence on the Effective (master-service)"
+    ],
+    "scope": [
+     "AgapeAtpCorp_20191202_10"
+    ]
+   },
+   {
+    "id": 2,
+    "question": "What are the payment terms?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 1,
+     "keyword": 1,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "5.4 Payment terms (AgapeAtpCorp_2)",
+     "5 SHIPPING AND PAYMENT TERMS (AgapeAtpCorp_2)",
+     "4 TERMS. (CybergyHolding)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 3,
+    "question": "Can the manufacturer hand its rights to someone else?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "14.6 Assignment (AgapeAtpCorp_2)",
+     "3.5 Intellectual Property (AgapeAtpCorp_2)",
+     "3.5 (a) (AgapeAtpCorp_2)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 4,
+    "question": "Who pays for the lawyers if there is a dispute?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 4,
+     "keyword": null,
+     "hybrid": 4,
+     "context": 4,
+     "graph": 4
+    },
+    "top": [
+     "11 DISPUTE RESOLUTION (OFGBANCORP_03_)",
+     "10.6 The Parties shall attempt in good faith  (master-service)",
+     "8.1 Any and all disputes, claims or differen (AgapeAtpCorp_2)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 5,
+    "question": "What happens if a provision is held invalid by a court?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 2,
+     "keyword": null,
+     "hybrid": 2,
+     "context": 2,
+     "graph": 2
+    },
+    "top": [
+     "10.16 If any provision of this Agreement is he (master-service)",
+     "14.4 Severability (AgapeAtpCorp_2)",
+     "10.19 Failure to enforce any provision shall n (master-service)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 6,
+    "question": "Does the customer get priority if the manufacturer sells its intellectual property?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "12 TRANSFER OF INTELLECTUAL PROPERTY (AgapeAtpCorp_2)",
+     "3.5 Intellectual Property (AgapeAtpCorp_2)",
+     "11 INTELLECTUAL PROPERTY (AgapeAtpCorp_2)"
+    ],
+    "scope": [
+     "AgapeAtpCorp_20191202_10",
+     "OFGBANCORP_03_28_2007-EX"
+    ]
+   },
+   {
+    "id": 7,
+    "question": "Must the customer name the manufacturer as additional insured?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "6.2 The Customer shall at all times during t (AgapeAtpCorp_2)",
+     "6.1 The Manufacturing Companies utilised by  (AgapeAtpCorp_2)",
+     "3.5 (b) (AgapeAtpCorp_2)"
+    ],
+    "scope": [
+     "AgapeAtpCorp_20191202_10"
+    ]
+   },
+   {
+    "id": 8,
+    "question": "Who provides the study drug and at what cost?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 1,
+     "keyword": 1,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "1.4 Study Drug and Study Supplies (EFC18326_Rosa_)",
+     "2 Additional Procedural Fees (EFC18326_Rosa_)",
+     "SEC_(WITH_INSTITUTI (with Institution and Investigator) (EFC18326_Rosa_)"
+    ],
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
+    ]
+   },
+   {
+    "id": 9,
+    "question": "When can the investigator walk away from the study immediately?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "9.3 Termination by the Institution or the In (EFC18326_Rosa_)",
+     "9.4 Unavailability of the Investigator (EFC18326_Rosa_)",
+     "9.2 Termination by the Sponsor (EFC18326_Rosa_)"
+    ],
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
+    ]
+   },
+   {
+    "id": 10,
+    "question": "When does the clinical trial agreement start?",
+    "kind": "direct",
+    "ranks": {
+     "vector": null,
+     "keyword": null,
+     "hybrid": null,
+     "context": null,
+     "graph": 8
+    },
+    "top": [
+     "SEC_(WITH_INSTITUTI (with Institution and Investigator) (EFC18326_Rosa_)",
+     "SIGNATURES Signature Block (EFC18326_Rosa_)",
+     "1.1 Conduct of the Study (EFC18326_Rosa_)"
+    ],
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
+    ]
+   },
+   {
+    "id": 11,
+    "question": "What is a participant who fails the entry checks called?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": null,
+     "keyword": null,
+     "hybrid": null,
+     "context": null,
+     "graph": null
+    },
+    "top": [
+     "1.3 Study Participants (EFC18326_Rosa_)",
+     "9.4 Unavailability of the Investigator (EFC18326_Rosa_)",
+     "5.2 Each Party (the “Indemnifying Party”) ag (EFC18326_Rosa_)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 12,
+    "question": "What security measures must the institution maintain for personal data?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 2,
+     "context": 2,
+     "graph": 2
+    },
+    "top": [
+     "3.2 In this respect INSTITUTION and/or INVES (EFC18326_Rosa_)",
+     "4 Security measures (EFC18326_Rosa_)",
+     "10.13 Each Party shall implement reasonable ad (master-service)"
+    ],
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
+    ]
+   },
+   {
+    "id": 13,
+    "question": "Who covers injury to participants during the study?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 1,
+     "keyword": 1,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "7 INSURANCE, LIABILITY, INDEMNIFICATION (EFC18326_Rosa_)",
+     "5.2 Each Party (the “Indemnifying Party”) ag (EFC18326_Rosa_)",
+     "3.7 In the event of a Personal Data Breach t (EFC18326_Rosa_)"
+    ],
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
+    ]
+   },
+   {
+    "id": 14,
+    "question": "Which duties continue after the agreement ends?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 4,
+     "keyword": null,
+     "hybrid": 5,
+     "context": 5,
+     "graph": 5
+    },
+    "top": [
+     "10.9 Any provisions which by their nature are (master-service)",
+     "18 DEFINITIONS. (OFGBANCORP_03_)",
+     "5.9 Any provisions which by their nature are (master-service)"
+    ],
+    "scope": [
+     "AgapeAtpCorp_20191202_10",
+     "CybergyHoldingsInc_20140",
+     "EFC18326_Rosa_CTA_-_Fina",
+     "OFGBANCORP_03_28_2007-EX",
+     "master-services-agreemen"
+    ]
+   },
+   {
+    "id": 15,
+    "question": "How is personal data defined?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 1,
+     "keyword": 4,
+     "hybrid": 3,
+     "context": 3,
+     "graph": 3
+    },
+    "top": [
+     "1.1 “Applicable Data Protection Law” means,  (EFC18326_Rosa_)",
+     "3.1 INSTITUTION and/or INVESTIGATOR expressl (EFC18326_Rosa_)",
+     "4 DATA PROTECTION (EFC18326_Rosa_)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 16,
+    "question": "Can the client cancel a project early, and with how much notice?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "5.3 The Client may terminate any Project Agr (master-service)",
+     "5.4 Upon expiration or termination of this M (master-service)",
+     "18.2 Either party may cancel this Agreement u (CybergyHolding)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 17,
+    "question": "When must invoices be paid?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "3.2 Each invoice shall be payable within thi (master-service)",
+     "4.1 Implementation of Services. (OFGBANCORP_03_)",
+     "7.4 Payment for Services, Training and Suppo (CybergyHolding)"
+    ],
+    "scope": [
+     "AgapeAtpCorp_20191202_10",
+     "CybergyHoldingsInc_20140",
+     "OFGBANCORP_03_28_2007-EX",
+     "master-services-agreemen"
+    ]
+   },
+   {
+    "id": 18,
+    "question": "Who owns the new inventions created during the work?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 7,
+     "keyword": null,
+     "hybrid": 7,
+     "context": 3,
+     "graph": 3
+    },
+    "top": [
+     "3.5 Intellectual Property (AgapeAtpCorp_2)",
+     "11 INTELLECTUAL PROPERTY (AgapeAtpCorp_2)",
+     "7 INTELLECTUAL PROPERTY (master-service)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 19,
+    "question": "Which courts have jurisdiction over disputes?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 7,
+     "keyword": 1,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "10.5 This Agreement shall be governed by the  (master-service)",
+     "12 APPLICABLE LAW AND PLACE OF JURISDICTION (EFC18326_Rosa_)",
+     "8.1 Any and all disputes, claims or differen (AgapeAtpCorp_2)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 20,
+    "question": "What happens to secret information when the contract ends?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "6.4 Upon termination or expiry of this Agree (master-service)",
+     "6.5 The obligations of confidentiality under (master-service)",
+     "6.6 Where the Parties have entered into a se (master-service)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 21,
+    "question": "Who bears the risk of loss during shipments?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": null
+    },
+    "top": [
+     "4.4 Risk of loss or damage to materials shal (master-service)",
+     "4.6 Where third-party carriers or logistics  (master-service)",
+     "5.1 Shipping (AgapeAtpCorp_2)"
+    ],
+    "scope": [
+     "AgapeAtpCorp_20191202_10"
+    ]
+   },
+   {
+    "id": 22,
+    "question": "Is a party excused if a pandemic or war stops it performing?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 1,
+     "keyword": 1,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "10.7 Neither Party shall be liable for failur (master-service)",
+     "14.7 Force Majeure (AgapeAtpCorp_2)",
+     "18.2 Either party may cancel this Agreement u (CybergyHolding)"
+    ],
+    "scope": [
+     "AgapeAtpCorp_20191202_10",
+     "CybergyHoldingsInc_20140",
+     "EFC18326_Rosa_CTA_-_Fina",
+     "OFGBANCORP_03_28_2007-EX",
+     "master-services-agreemen"
+    ]
+   },
+   {
+    "id": 23,
+    "question": "What insurance must each party maintain?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "10.11 Each Party shall maintain throughout the (master-service)",
+     "4.5 Each Party shall ensure that appropriate (master-service)",
+     "6.2 The Customer shall at all times during t (AgapeAtpCorp_2)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 24,
+    "question": "Can either party assign the agreement?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 1,
+     "keyword": 2,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "10.1 Neither Party may assign or transfer thi (master-service)",
+     "18.2 Either party may cancel this Agreement u (CybergyHolding)",
+     "7.3 Rights to termination (AgapeAtpCorp_2)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 25,
+    "question": "Is the affiliate an employee of the company?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 2,
+     "keyword": null,
+     "hybrid": 3,
+     "context": 3,
+     "graph": 2
+    },
+    "top": [
+     "EXHIBIT 10.27 MARKETING AFFILIATE AGREEMENT (CybergyHolding)",
+     "16 MISCELLANEOUS PROVISIONS (OFGBANCORP_03_)",
+     "14 Relationship of the Parties. (CybergyHolding)"
+    ],
+    "scope": [
+     "CybergyHoldingsInc_20140"
+    ]
+   },
+   {
+    "id": 26,
+    "question": "Which state's law governs the marketing affiliate agreement?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 2,
+     "keyword": null,
+     "hybrid": 2,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "EXHIBIT 10.27 MARKETING AFFILIATE AGREEMENT (CybergyHolding)",
+     "SEC_MOUNT_KNOWLEDGE Mount Knowledge Holdings Inc. (CybergyHolding)",
+     "24 Governing Law; Attorney’s Fee. (CybergyHolding)"
+    ],
+    "scope": [
+     "CybergyHoldingsInc_20140"
+    ]
+   },
+   {
+    "id": 27,
+    "question": "Can the company be made to pay for lost profits?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 2,
+     "keyword": null,
+     "hybrid": 2,
+     "context": 2,
+     "graph": 2
+    },
+    "top": [
+     "9.3 Neither Party shall be liable to the oth (master-service)",
+     "16.3 IN NO EVENT SHALL COMPANY BE LIABLE TO “ (CybergyHolding)",
+     "25 Equitable Relief. (CybergyHolding)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 28,
+    "question": "Can either party end the agreement when the term expires?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 2,
+     "keyword": null,
+     "hybrid": 2,
+     "context": 2,
+     "graph": 2
+    },
+    "top": [
+     "18.2 Either party may cancel this Agreement u (CybergyHolding)",
+     "18.1 This Agreement may be terminated by eith (CybergyHolding)",
+     "5.2 Either Party may terminate this MSA or a (master-service)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 29,
+    "question": "Is the affiliate allowed to change the software?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "12.3 MA shall not have the right to modify th (CybergyHolding)",
+     "18 DEFINITIONS. (OFGBANCORP_03_)",
+     "EXHIBIT 10.27 MARKETING AFFILIATE AGREEMENT (CybergyHolding)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 30,
+    "question": "What availability must the core systems reach?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "2.1 Core System Service Level. (OFGBANCORP_03_)",
+     "2.3 Operations Center Availability Service L (OFGBANCORP_03_)",
+     "2.9 CMS Electronic Funds Delivery Service Le (OFGBANCORP_03_)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 31,
+    "question": "What do I get back if the vendor misses its service targets?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": 8,
+     "keyword": null,
+     "hybrid": 8,
+     "context": 8,
+     "graph": 3
+    },
+    "top": [
+     "1.3 Reporting On Service Levels. (OFGBANCORP_03_)",
+     "3.7 The Client shall remain responsible for  (master-service)",
+     "3.5 Where the Client designates, mandates, s (master-service)"
+    ],
+    "scope": [
+     "OFGBANCORP_03_28_2007-EX"
+    ]
+   },
+   {
+    "id": 32,
+    "question": "What does the bank owe if it ends the contract early?",
+    "kind": "paraphrase",
+    "ranks": {
+     "vector": null,
+     "keyword": null,
+     "hybrid": null,
+     "context": null,
+     "graph": null
+    },
+    "top": [
+     "18.2 Either party may cancel this Agreement u (CybergyHolding)",
+     "8 TERMINATION/DEFAULT (OFGBANCORP_03_)",
+     "5.4 Upon expiration or termination of this M (master-service)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 33,
+    "question": "What is the performance warranty?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 2,
+     "keyword": 1,
+     "hybrid": 2,
+     "context": 2,
+     "graph": 2
+    },
+    "top": [
+     "6.2 Performance Warranty Exclusions. (OFGBANCORP_03_)",
+     "6 PERFORMANCE WARRANTY/DISCLAIMER OF ALL O (OFGBANCORP_03_)",
+     "6.3 DISCLAIMER OF ALL OTHER WARRANTIES. (OFGBANCORP_03_)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 34,
+    "question": "How are disputes between the parties resolved?",
+    "kind": "direct",
+    "ranks": {
+     "vector": 2,
+     "keyword": 1,
+     "hybrid": 2,
+     "context": 2,
+     "graph": 2
+    },
+    "top": [
+     "10.6 The Parties shall attempt in good faith  (master-service)",
+     "11 DISPUTE RESOLUTION (OFGBANCORP_03_)",
+     "3.2 Each invoice shall be payable within thi (master-service)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 35,
+    "question": "What is the vendor's annual revenue?",
+    "kind": "none",
+    "ranks": {
+     "vector": null,
+     "keyword": null,
+     "hybrid": null,
+     "context": null,
+     "graph": null
+    },
+    "top": [
+     "3 SERVICE FEE. (CybergyHolding)",
+     "13.2 The Manufacturer grants exclusive rights (AgapeAtpCorp_2)",
+     "5 FEES (OFGBANCORP_03_)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 36,
+    "question": "What is the vacation policy for the vendor's employees?",
+    "kind": "none",
+    "ranks": {
+     "vector": null,
+     "keyword": null,
+     "hybrid": null,
+     "context": null,
+     "graph": null
+    },
+    "top": [
+     "3.4 Where the Client designates specific ven (master-service)",
+     "3.5 Where the Client designates, mandates, s (master-service)",
+     "10 INSURANCE AND INDEMNITY. (OFGBANCORP_03_)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 37,
+    "question": "Which contract requires the parties to use ICC arbitration in Paris?",
+    "kind": "none",
+    "ranks": {
+     "vector": null,
+     "keyword": null,
+     "hybrid": null,
+     "context": null,
+     "graph": null
+    },
+    "top": [
+     "8.1 Any and all disputes, claims or differen (AgapeAtpCorp_2)",
+     "8.2 The language to be used in the Arbitrati (AgapeAtpCorp_2)",
+     "8.3 The award/decision of the Arbitration Co (AgapeAtpCorp_2)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 38,
+    "question": "What is the maximum number of staff the vendor may assign to the bank?",
+    "kind": "none",
+    "ranks": {
+     "vector": null,
+     "keyword": null,
+     "hybrid": null,
+     "context": null,
+     "graph": null
+    },
+    "top": [
+     "1 GENERAL PROVISIONS (OFGBANCORP_03_)",
+     "ADDITIONAL CUSTOMER CONVERSION RESPONSIBILITIES ADDITIONAL CUSTOMER CONVERSION RESPONSIB (OFGBANCORP_03_)",
+     "2.11 Teller Transactions Response Time Servic (OFGBANCORP_03_)"
+    ],
+    "scope": [
+     "OFGBANCORP_03_28_2007-EX"
+    ]
+   },
+   {
+    "id": 39,
+    "question": "What are the terms and conditions?",
+    "kind": "broad",
+    "ranks": {
+     "vector": 6,
+     "keyword": 2,
+     "hybrid": 2,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "TERMS AND CONDITIONS TERMS AND CONDITIONS (OFGBANCORP_03_)",
+     "1.1 Definitions. (OFGBANCORP_03_)",
+     "14.3 Conflicting Terms (AgapeAtpCorp_2)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 40,
+    "question": "What are the terms of the agreement?",
+    "kind": "broad",
+    "ranks": {
+     "vector": 10,
+     "keyword": null,
+     "hybrid": null,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "1 TERMS OF AGREEMENT (AgapeAtpCorp_2)",
+     "1.2 Term (AgapeAtpCorp_2)",
+     "1.1 Definitions. (OFGBANCORP_03_)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 41,
+    "question": "What does the manufacturer promise to do?",
+    "kind": "broad",
+    "ranks": {
+     "vector": 4,
+     "keyword": null,
+     "hybrid": 4,
+     "context": 2,
+     "graph": 2
+    },
+    "top": [
+     "3.4 Ability to Perform (AgapeAtpCorp_2)",
+     "3 COVENANTS BY THE MANUFACTURER (AgapeAtpCorp_2)",
+     "3.5 (a) (AgapeAtpCorp_2)"
+    ],
+    "scope": [
+     "AgapeAtpCorp_20191202_10"
+    ]
+   },
+   {
+    "id": 42,
+    "question": "What documentation must each party provide?",
+    "kind": "broad",
+    "ranks": {
+     "vector": 3,
+     "keyword": null,
+     "hybrid": 5,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "2 PROVISION OF DOCUMENTATION (AgapeAtpCorp_2)",
+     "3.2 In this respect INSTITUTION and/or INVES (EFC18326_Rosa_)",
+     "2.2 Provision by the Customer (AgapeAtpCorp_2)"
+    ],
+    "scope": []
+   },
+   {
+    "id": 43,
+    "question": "What notice must the Marketing Affiliate give to end the agreement?",
+    "kind": "graph",
+    "ranks": {
+     "vector": 2,
+     "keyword": null,
+     "hybrid": 2,
+     "context": 2,
+     "graph": 2
+    },
+    "top": [
+     "EXHIBIT 10.27 MARKETING AFFILIATE AGREEMENT (CybergyHolding)",
+     "18.1 This Agreement may be terminated by eith (CybergyHolding)",
+     "18.3 Upon termination or cancellation of this (CybergyHolding)"
+    ],
+    "scope": [
+     "CybergyHoldingsInc_20140"
+    ]
+   },
+   {
+    "id": 44,
+    "question": "What insurance does the Sponsor maintain for the study?",
+    "kind": "graph",
+    "ranks": {
+     "vector": 1,
+     "keyword": 1,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "7 INSURANCE, LIABILITY, INDEMNIFICATION (EFC18326_Rosa_)",
+     "1.4 Study Drug and Study Supplies (EFC18326_Rosa_)",
+     "1.1 Conduct of the Study (EFC18326_Rosa_)"
+    ],
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
+    ]
+   },
+   {
+    "id": 45,
+    "question": "What does Metavante warrant about its services?",
+    "kind": "graph",
+    "ranks": {
+     "vector": 2,
+     "keyword": 1,
+     "hybrid": 2,
+     "context": 2,
+     "graph": 2
+    },
+    "top": [
+     "12.1 Metavante. (OFGBANCORP_03_)",
+     "6 PERFORMANCE WARRANTY/DISCLAIMER OF ALL O (OFGBANCORP_03_)",
+     "10 INSURANCE AND INDEMNITY. (OFGBANCORP_03_)"
+    ],
+    "scope": [
+     "OFGBANCORP_03_28_2007-EX"
+    ]
+   },
+   {
+    "id": 46,
+    "question": "What must the Client pay the Service Provider if it ends a project early?",
+    "kind": "graph",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "5.4 Upon expiration or termination of this M (master-service)",
+     "5.5 the Service Provider shall deliver to th (master-service)",
+     "3.1 The Service Provider shall invoice the C (master-service)"
+    ],
+    "scope": [
+     "OFGBANCORP_03_28_2007-EX",
+     "master-services-agreemen"
+    ]
+   },
+   {
+    "id": 47,
+    "question": "Which law and courts apply under the clinical trial agreement?",
+    "kind": "graph",
+    "ranks": {
+     "vector": 7,
+     "keyword": null,
+     "hybrid": 7,
+     "context": 7,
+     "graph": 6
+    },
+    "top": [
+     "4.2 All shipments shall be packaged, labelle (master-service)",
+     "1.2 Regulatory Compliance of the Study (EFC18326_Rosa_)",
+     "SEC_(WITH_INSTITUTI (with Institution and Investigator) (EFC18326_Rosa_)"
+    ],
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
+    ]
+   },
+   {
+    "id": 48,
+    "question": "What are the Manufacturer's packaging obligations?",
+    "kind": "graph",
+    "ranks": {
+     "vector": 1,
+     "keyword": null,
+     "hybrid": 1,
+     "context": 1,
+     "graph": 1
+    },
+    "top": [
+     "3.3 Packaging (AgapeAtpCorp_2)",
+     "5.2 Guarantee of packaging quality (AgapeAtpCorp_2)",
+     "2.1 Provision by the Manufacturer (AgapeAtpCorp_2)"
+    ],
+    "scope": [
+     "AgapeAtpCorp_20191202_10"
+    ]
+   }
+  ],
+  "ran_at": "2026-11-08T03:41:48.044877+00:00"
  }
 }

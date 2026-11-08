@@ -1,5 +1,6 @@
 import asyncio
 import re
+import shutil
 import time
 import logging
 import multiprocessing
@@ -76,6 +77,10 @@ FAST_HEADER_PATTERN = re.compile(
     r"^(?P<id>(?:ARTICLE|SECTION|CLAUSE|SCHEDULE|EXHIBIT|(?-i:ATTACHMENT|APPENDIX|ANNEX))\s+[IVXLCDM\d]+\b(?:\.\d+)*|\d{1,3}(?:\.\d{1,3})+|\d{1,3}\.)\s*[:\-\.]?\s*(?P<title>.*)$",
     re.IGNORECASE,
 )
+# Looser heading styles, tried ONLY when the normal rules find no structure at all (so no contract that parses today can change):
+# "1) Duties of the Provider" (a closing parenthesis), and bold run-in headings with no number ("MEMBERSHIP. The person named...").
+PAREN_HEADING = re.compile(r"^(?P<id>\d{1,3})\)\s+(?P<title>[A-Z][^.]{2,70})$")
+RUN_IN_HEADING = re.compile(r"^(?P<title>[A-Z][A-Z0-9 ,&/'’-]{3,60})[.:]\s")
 # Starts an attachment: the end of the signature block, and a fresh numbering scope ("1." restarts inside it).
 ATTACHMENT_PATTERN = re.compile(r"(?:ATTACHMENT|APPENDIX|ANNEX|SCHEDULE|EXHIBIT)\s+[IVXLCDM\d]+\b")  # capitals only: "see Attachment 1." is body text
 PAGE_NUMBER_PATTERN = re.compile(r"^(?:page\s+)?\d{1,3}(?:(?:\s+of\s+|\s*/\s*)\d{1,3})?$", re.IGNORECASE)
@@ -121,6 +126,14 @@ def _numbering_score(ids: List[str]) -> float:
     groups = {k: kept for k, g in groups.items() if (kept := {v for v in g if v <= 5 * len(g) + 20})}
     expected = sum(max(g) - min(g) + 1 for g in groups.values())  # gaps only; an excerpt may not start at 1
     return sum(len(g) for g in groups.values()) / expected if expected >= 3 else 1.0
+
+
+def _ocr_note(conf: Dict[str, Any], lines: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """OCR text can be wrong in small ways: say so beside the result."""
+    n = len({l["page_number"] for l in lines if l.get("ocr")})
+    if n:
+        conf["issues"] = [*conf.get("issues", []), f"{n} page{'s' if n > 1 else ''} had no text layer and {'were' if n > 1 else 'was'} read by OCR, so the text may contain recognition errors. Check it against the PDF."]
+    return conf
 
 
 def _confidence(clauses: List[Dict[str, Any]], line_chars: int, pages: int = 1) -> Dict[str, Any]:
@@ -342,13 +355,31 @@ def _table_rows(page, t) -> Optional[List[List[str]]]:
 Read = Tuple[List[Dict[str, Any]], float, float, int]  # lines, median font size, line pitch, page count
 
 
+def _ocr_ready() -> bool:
+    try:
+        return bool(shutil.which("tesseract")) and bool(pymupdf.get_tessdata())
+    except Exception:
+        return False
+
+
+def _scanned_pages(doc) -> set:
+    """Pages that are only a picture (no text layer), when the document is mostly scans, few enough to OCR here, and Tesseract exists.
+    A normal contract with one scanned signature page is left alone: OCR on a signature would only add noise."""
+    blank = {i for i, p in enumerate(doc) if not p.get_text().strip() and p.get_images()}
+    return blank if blank and len(blank) * 2 >= len(doc) and len(blank) <= settings.OCR_MAX_PAGES and _ocr_ready() else set()
+
+
 def _read_lines(pdf_bytes: bytes) -> Optional[Read]:
     """Visual lines of the PDF (tables folded into single lines, page noise removed), or None if there is no text."""
     doc = _open(pdf_bytes)
     lines_meta = []
+    scanned = _scanned_pages(doc)  # read by OCR, so a scan gets real line positions (and the clause highlight) like any other PDF
 
     for page_idx, page in enumerate(doc):
-        page_dict = page.get_text("dict")
+        if page_idx in scanned:
+            page_dict = page.get_text("dict", textpage=page.get_textpage_ocr(language="eng", dpi=settings.OCR_DPI, full=True))
+        else:
+            page_dict = page.get_text("dict")
         # ponytail: ruled tables only (the default "lines" strategy); borderless tables stay as flowing text
         # ponytail: ruled or underlined tables only (the default "lines" strategy); a page with no lines at all is skipped
         found = [t for t in page.find_tables().tables if t.col_count >= 2 and t.row_count >= 2] if len(page.get_drawings()) >= 4 else []
@@ -401,6 +432,7 @@ def _read_lines(pdf_bytes: bytes) -> Optional[Read]:
                         # ponytail: fixed 12% margin bands; tune if headers/footers sit further in on some templates
                         "in_margin": line["bbox"][1] < page.rect.height * 0.12
                         or line["bbox"][3] > page.rect.height * 0.88,
+                        **({"ocr": True} if page_idx in scanned else {}),
                     }
                 )
 
@@ -439,13 +471,18 @@ def stored_lines(read: Read) -> List[Dict[str, Any]]:
     return [{**{short: l[k] for k, short in keys.items()}, **({"tb": True} if l.get("table") else {})} for l in read[0]]
 
 
+def _local_with_fallbacks(read: Read) -> Optional[Tuple[List[Dict[str, Any]], Dict[str, float]]]:
+    """The normal rules; if they find no structure, the looser heading styles."""
+    return _local_from_lines(read) or _local_from_lines(read, relaxed=True)
+
+
 def local_fast_parse(pdf_bytes: bytes) -> Optional[Tuple[List[Dict[str, Any]], Dict[str, float]]]:
     """Local heuristics only (regex + font size). Returns (clauses, confidence), or None if no structure was found."""
     read = _read_lines(pdf_bytes)
-    return _local_from_lines(read) if read else None
+    return _local_with_fallbacks(read) if read else None
 
 
-def _local_from_lines(read: Read) -> Optional[Tuple[List[Dict[str, Any]], Dict[str, float]]]:
+def _local_from_lines(read: Read, relaxed: bool = False) -> Optional[Tuple[List[Dict[str, Any]], Dict[str, float]]]:
     lines_meta, median_size, line_pitch, pages = read
     clauses: List[Dict[str, Any]] = []
     seen_ids: set = set()
@@ -471,12 +508,21 @@ def _local_from_lines(read: Read) -> Optional[Tuple[List[Dict[str, Any]], Dict[s
         if (
             current_clause and current_clause["clause_identifier"] == "SIGNATURES"
             and not (ATTACHMENT_PATTERN.match(text) and len(text.split()) < 10)
+            and not (line["is_bold"] and not line.get("table") and len(text.split()) <= 10 and re.match(r"\d{1,3}\.\s+\S", text))
         ):
-            body_accumulator.append(line)  # the signature block runs until an attachment starts
+            # The signature block runs until an attachment starts, or until a bold numbered heading ("1. CONSTRUCTION") starts the terms:
+            # some master agreements put the signature page first and the Terms and Conditions after it.
+            body_accumulator.append(line)
             continue
         match = FAST_HEADER_PATTERN.match(text)
         if match and "[" in match.group("title") and not text[0].isdigit():
             match = None  # "Section 1.7 [Financial Disclosure], 1.8 …" is a cross-reference, not a heading
+        loose = None  # (id, title) from a looser heading style, second pass only
+        if relaxed and not match and not line.get("table"):
+            if (pm := PAREN_HEADING.match(text)) and len(text.split()) <= 10:
+                loose = (pm.group("id"), pm.group("title").strip().rstrip(":"))
+            elif line["is_bold"] and (rm := RUN_IN_HEADING.match(text)):
+                loose = (f"SEC_{rm.group('title')[:15].upper().replace(' ', '_')}", rm.group("title").strip().title())
         awaiting_title = bool(current_clause) and not current_clause["title"] and len(body_accumulator) == 1
         is_visual_header = not line.get("table") and not awaiting_title and (
             line["font_size"] > (median_size * 1.18) and len(text.split()) < 10
@@ -492,14 +538,14 @@ def _local_from_lines(read: Read) -> Optional[Tuple[List[Dict[str, Any]], Dict[s
             )  # short lines only: "signed by Investigator. The Institution shall…" is body text
         )
 
-        if match or is_visual_header or is_signature:
+        if match or is_visual_header or is_signature or loose:
             flush()
 
-            title = match.group("title").strip().rstrip(":") if match else text
+            title = match.group("title").strip().rstrip(":") if match else (loose[1] if loose else text)
             clause_id = (
                 match.group("id").rstrip(".").upper()
                 if match
-                else f"SEC_{text[:15].upper().replace(' ', '_')}"
+                else (loose[0] if loose else f"SEC_{text[:15].upper().replace(' ', '_')}")
             )
             if is_signature:
                 # The execution block is not part of the last numbered clause.
@@ -512,7 +558,7 @@ def _local_from_lines(read: Read) -> Optional[Tuple[List[Dict[str, Any]], Dict[s
                 "page_number": line["page_number"],
                 "parent_identifier": parent_id if parent_id in seen_ids else None,
                 "start_line": idx,  # a clause is a range [start_line, end_line) over the document's stored lines
-                "numbered": bool(match),
+                "numbered": bool(match) or bool(loose and loose[0].isdigit()),
             }
             body_accumulator = [line]
         else:
@@ -536,7 +582,7 @@ def _local_from_lines(read: Read) -> Optional[Tuple[List[Dict[str, Any]], Dict[s
     # A healthy legal document has at least 3 distinct sections
     if len(clauses) < 3:
         return None
-    return clauses, _confidence(clauses, sum(len(l["text"]) for l in lines_meta), pages)
+    return clauses, _ocr_note(_confidence(clauses, sum(len(l["text"]) for l in lines_meta), pages), lines_meta)
 
 
 # ---------------------------------------------------------
@@ -639,7 +685,7 @@ def _from_headings(read: Read, picks: Dict[int, Heading]) -> Optional[Tuple[List
         seen.add(cid)
     if len(clauses) < 3:
         return None
-    return clauses, _confidence(clauses, sum(len(l["text"]) for l in lines), pages)
+    return clauses, _ocr_note(_confidence(clauses, sum(len(l["text"]) for l in lines), pages), lines)
 
 
 async def _llm_headings(read: Read, provider: str, api_key: str) -> Optional[Tuple[List[Dict[str, Any]], Dict[str, float]]]:
@@ -689,7 +735,7 @@ async def parse_contract_fast(
     # Step 1: read the PDF once, then the local heuristic parse
     t = time.perf_counter()
     read = await run_pdf(_read_lines, pdf_bytes)
-    local = _local_from_lines(read) if read else None
+    local = _local_with_fallbacks(read) if read else None
     local_ms = round((time.perf_counter() - t) * 1000, 1)
 
     confidence = local[1] if local else None

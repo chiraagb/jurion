@@ -28,9 +28,9 @@ export const findings = [
 
 export const gaps = [
   "No measured boundary accuracy yet: the draft labels (1,768 disputed lines across 30 contracts) have not been reviewed.",
-  "No OCR. All 510 test PDFs had a text layer, so scans are untested (they go whole to the AI).",
+  "OCR exists (Tesseract, for mostly-scanned documents of up to 20 scanned pages) but is tested only on a synthetic scan: none of the 510 test PDFs is a scan. Larger scans go whole to the AI.",
   "Tables on pages with no ruled lines at all are still plain text; two-column layouts are untested.",
-  "37 contracts gave fewer than 3 clauses and 39 fewer than 10; not yet looked at one by one.",
+  "37 of 510 contracts gave fewer than 3 clauses. In a 30-contract sample, 4 poor parses were traced to three causes and fixed (signature page first, “1)” numbering, bold run-in headings); the other poor parses in the full set are not yet looked at one by one.",
   "Slow on long contracts with tables: median 1.7s, slowest 10 to 50s with four parses at once.",
   "Contract text goes to Google or OpenAI when the AI is used; the policy for real client contracts is undecided.",
 ];
@@ -38,7 +38,7 @@ export const gaps = [
 export const next = [
   "Review the 24 smaller label files (646 decisions), then run the accuracy script for precision and recall.",
   "Look at the contracts with too few clauses, and at the duplicate-number cases, to find the next real failure type.",
-  "Add OCR for scanned PDFs, and test pages with no table lines and two-column layouts.",
+  "Test OCR on real scans, and test pages with no table lines and two-column layouts.",
   "Speed up table detection on long documents; move parsing to a background job.",
   "Re-parse on the server when saving instead of trusting the browser's clauses; add CI and migrations.",
   "Then the search side: embeddings in pgvector, the Neo4j graph, answers with clause citations.",

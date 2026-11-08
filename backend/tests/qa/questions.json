@@ -337,5 +337,89 @@
   "kind": "graph",
   "doc": "AgapeAtpCorp",
   "phrase": "packaging laws and regulations"
+ },
+ {
+  "id": 49,
+  "question": "How long does the clinical trial agreement run, and when can it be ended early?",
+  "kind": "multi",
+  "doc": "EFC18326_Rosa",
+  "phrase": [
+   "shall commence on the last date of signature",
+   "may terminate this Agreement with immediate effect"
+  ],
+  "phrase_all": [
+   "shall commence on the last date of signature",
+   "may terminate this Agreement with immediate effect"
+  ]
+ },
+ {
+  "id": 50,
+  "question": "Besides the performance warranty, what other warranties does the outsourcing agreement make?",
+  "kind": "multi",
+  "doc": "OFGBANCORP",
+  "phrase": [
+   "IN LIEU OF",
+   "Customer has all required licenses and approvals"
+  ],
+  "phrase_all": [
+   "IN LIEU OF",
+   "Customer has all required licenses and approvals"
+  ]
+ },
+ {
+  "id": 51,
+  "question": "Can the company change the prices of the deliverables it supplies at the affiliate's request?",
+  "kind": "multi",
+  "doc": "CybergyHoldings",
+  "phrase": [
+   "Company shall at prices or fees then in effect",
+   "reserves the right to change"
+  ],
+  "phrase_all": [
+   "Company shall at prices or fees then in effect",
+   "reserves the right to change"
+  ]
+ },
+ {
+  "id": 52,
+  "question": "How does the marketing affiliate agreement start, and how can it end?",
+  "kind": "multi",
+  "doc": "CybergyHoldings",
+  "phrase": [
+   "shall begin upon the date of its execution",
+   "may be terminated by either party at the expiration of its term"
+  ],
+  "phrase_all": [
+   "shall begin upon the date of its execution",
+   "may be terminated by either party at the expiration of its term"
+  ]
+ },
+ {
+  "id": 53,
+  "question": "Which obligations survive after the clinical trial agreement ends, and does that cover the sponsor's insurance and indemnification?",
+  "kind": "multi",
+  "doc": "EFC18326_Rosa",
+  "phrase": [
+   "shall not relieve any Party of its obligation",
+   "has subscribed to and shall maintain in effect, for the duration of the Study"
+  ],
+  "phrase_all": [
+   "shall not relieve any Party of its obligation",
+   "has subscribed to and shall maintain in effect, for the duration of the Study"
+  ]
+ },
+ {
+  "id": 54,
+  "question": "What do the capitalised terms in the outsourcing agreement mean, and what does ACH stand for?",
+  "kind": "multi",
+  "doc": "OFGBANCORP",
+  "phrase": [
+   "Capitalized terms shall have the meaning ascribed to them in Article 18",
+   "ACH” shall mean"
+  ],
+  "phrase_all": [
+   "Capitalized terms shall have the meaning ascribed to them in Article 18",
+   "ACH” shall mean"
+  ]
  }
 ]

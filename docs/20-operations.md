@@ -32,4 +32,6 @@ Not done, and what a larger system would add: an **outbox**, a row written in Po
 
 `uv run python -W ignore -m tests.run_all` runs the ten integration suites, each as its own process, against real Postgres, Redis and Neo4j (start them with `docker compose up -d postgres neo4j redis`). No OpenAI call is made: the tests use fakes. `.github/workflows/ci.yml` runs the same command in GitHub Actions against service containers with the same credentials the app defaults to, plus the frontend `tsc`, `oxlint` and `vite build`.
 
+CI also installs Tesseract (`apt-get install tesseract-ocr`) so the OCR test runs there; without it the test skips itself. Locally: `brew install tesseract`.
+
 The two evaluations (`tests.eval_qa`, `tests.eval_answers`) call OpenAI and read your saved contracts, so they are run by hand, not in CI.

@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     MAX_PAGES: int = 300  # longer PDFs are refused
     PARSE_TIMEOUT_S: int = 45  # a PDF read that takes longer is killed
     PARSE_WORKERS: int = 2  # PDF-reading worker processes
+    OCR_MAX_PAGES: int = 20  # a scanned PDF with more scanned pages than this is not OCR-ed here (slow): it goes whole to the AI instead
+    OCR_DPI: int = 150  # resolution the pages are rendered at for OCR
 
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", extra="ignore"

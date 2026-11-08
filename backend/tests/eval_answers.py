@@ -75,7 +75,7 @@ async def score(key: str, owner, q: dict, sem: asyncio.Semaphore) -> dict:
 def summarize(rows: list[dict]) -> dict:
     rate = lambda xs: round(sum(xs) / len(xs), 3) if xs else None
     out = {}
-    for name, group in (("all", [r for r in rows if r["kind"] != "none"]), *((k, [r for r in rows if r["kind"] == k]) for k in ("direct", "paraphrase", "broad", "graph"))):
+    for name, group in (("all", [r for r in rows if r["kind"] != "none"]), *((k, [r for r in rows if r["kind"] == k]) for k in ("direct", "paraphrase", "broad", "graph", "multi"))):
         done = [r for r in group if not r["refused"]]
         faith = [r["faithfulness"] for r in done if r.get("faithfulness") is not None]
         out[name] = {

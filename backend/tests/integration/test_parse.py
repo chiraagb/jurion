@@ -30,6 +30,69 @@ def make_sample_pdf() -> bytes:
     return doc.tobytes()
 
 
+def make_scanned_pdf() -> bytes:
+    """The sample contract photographed: every page is only a picture, with no text layer."""
+    src = pymupdf.open(stream=make_sample_pdf(), filetype="pdf")
+    doc = pymupdf.open()
+    for page in src:
+        out = doc.new_page(width=page.rect.width, height=page.rect.height)
+        out.insert_image(out.rect, pixmap=page.get_pixmap(dpi=200))
+    return doc.tobytes()
+
+
+def make_early_signature_pdf() -> bytes:
+    """A master agreement whose signature page comes FIRST and whose numbered terms follow it (the Oriental/Metavante layout)."""
+    doc = pymupdf.open()
+    page = doc.new_page()
+    y = 72
+    def put(s, bold=False):
+        nonlocal y
+        page.insert_text((72, y), s, fontsize=10, fontname="hebo" if bold else "helv"); y += 16
+    put("TECHNOLOGY OUTSOURCING AGREEMENT", True)
+    put("This Master Agreement is made between the Provider and the Customer as of the Effective Date.")
+    put("The parties agree to the terms and conditions of this Agreement, which follow this page.")
+    put("IN WITNESS WHEREOF, the parties have caused this Agreement to be executed on their behalf.")
+    put("PROVIDER CORPORATION    CUSTOMER GROUP INC.")
+    page = doc.new_page()
+    y = 72
+    put("TERMS AND CONDITIONS", True)
+    for n, t in [(1, "CONSTRUCTION"), (2, "TERM"), (3, "LICENSES"), (4, "SERVICES")]:
+        put(f"{n}. {t}", True)
+        put(f"{n}.1. The first provision of the {t.lower()} article applies to the Provider and the Customer.")
+    return doc.tobytes()
+
+
+def make_paren_pdf() -> bytes:
+    """Sections numbered "1) Title" with a closing parenthesis, and nothing bold: the normal rules find no structure here."""
+    doc = pymupdf.open()
+    page = doc.new_page()
+    y = 72
+    def put(s):
+        nonlocal y
+        page.insert_text((72, y), s, fontsize=10); y += 16
+    put("This agreement is made between the Provider and the Company on the date shown below.")
+    for n, t in [(1, "Duties of the Provider"), (2, "Duties of the Company"), (3, "Term and Termination")]:
+        put(f"{n}) {t}")
+        put(f"   The first obligation under {t.lower()} is described in this paragraph for the parties.")
+    return doc.tobytes()
+
+
+def make_run_in_pdf() -> bytes:
+    """An endorsement with bold, unnumbered run-in headings: "MEMBERSHIP. The person named ..."."""
+    doc = pymupdf.open()
+    page = doc.new_page()
+    y = 72
+    def put(s, bold=False):
+        nonlocal y
+        page.insert_text((72, y), s, fontsize=10, fontname="hebo" if bold else "helv"); y += 16
+    put("ENDORSEMENT", True)
+    put("This endorsement amends the contract to which it is attached.")
+    for t in ["MEMBERSHIP", "DIVIDENDS", "ASSIGNMENT"]:
+        put(f"{t}. The {t.lower()} provision is amended as follows for every insured person.", True)
+        put("The remaining wording of the provision stays as written in the contract.")
+    return doc.tobytes()
+
+
 def make_split_heading_pdf() -> bytes:
     """Real-world layout: '1.' and 'SCOPE:' as separate lines, and '2.1' alone above its text."""
     doc = pymupdf.open()
@@ -124,6 +187,23 @@ def make_table_pdf() -> bytes:
 
 
 if __name__ == "__main__":
+    from app.hybrid_parser import _ocr_ready, local_fast_parse
+    if _ocr_ready():
+        scan = make_scanned_pdf()
+        assert not pymupdf.open(stream=scan, filetype="pdf")[0].get_text().strip(), "the fixture must have no text layer"
+        got = local_fast_parse(scan)
+        assert got and len(got[0]) >= 3, got  # a scan is read by OCR and cut into clauses like any other PDF
+        assert any("OCR" in i for i in got[1]["issues"]), got[1]["issues"]  # and the result says so
+        assert got[0][0]["start_line"] is not None  # real line positions: the clause highlight works on a scan too
+    else:
+        print("skip: Tesseract is not installed, so the OCR check did not run")
+    paren = [c["clause_identifier"] for c in local_fast_parse(make_paren_pdf())[0]]
+    assert {"1", "2", "3"} <= set(paren), paren  # "1) Title" sections are found when the normal rules find nothing
+    run_in = [c["title"] for c in local_fast_parse(make_run_in_pdf())[0]]
+    assert {"Membership", "Dividends", "Assignment"} <= set(run_in), run_in  # bold run-in headings, same condition
+    ids = [c["clause_identifier"] for c in local_fast_parse(make_early_signature_pdf())[0]]
+    assert {"1", "2", "3", "4"} <= set(ids) and "SIGNATURES" in ids, ids  # the terms after an early signature page are not swallowed
+
     from app.hybrid_parser import _confidence, local_fast_parse
 
     import redis
