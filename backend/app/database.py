@@ -1,6 +1,6 @@
 import uuid
 from typing import AsyncGenerator
-from sqlalchemy import Float, ForeignKey, Integer, LargeBinary, String, Text, DateTime, func, Index
+from sqlalchemy import Float, ForeignKey, Integer, LargeBinary, String, Text, DateTime, func, Index, text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, deferred, mapped_column
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -66,6 +66,8 @@ class LlmApiKey(Base):
 # 2c. A saved contract and its parsed clauses
 class Document(Base):
     __tablename__ = "documents"
+    # Mirrors migration 0002: one saved copy of a file per user (contracts saved before hashing, sha256 NULL, are exempt).
+    __table_args__ = (Index("ux_documents_user_sha256", "user_id", "sha256", unique=True, postgresql_where=text("sha256 IS NOT NULL")),)
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)

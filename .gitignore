@@ -1,5 +1,6 @@
 .DS_Store
 .env*
+!.env.example
 
 # real contracts used by the local regression test
 backend/tests/corpus/*.pdf

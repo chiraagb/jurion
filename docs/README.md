@@ -23,3 +23,5 @@ Read them in order:
 17. [Evaluation](17-evaluation.md) – question set, retrieval scores, findings
 18. [The contract graph](18-graph.md) – parties and cross-references in Neo4j
 19. [Neo4j interview prep](19-neo4j-interview-prep.md) – concepts, Cypher, how Jurion uses it, Q&A, drill
+20. [Operations](20-operations.md) – migrations, tests and CI, duplicate protection, keeping the databases in step
+21. [A 5-minute demo](21-demo-script.md) – what to show and say

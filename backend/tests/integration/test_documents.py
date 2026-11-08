@@ -78,6 +78,25 @@ if __name__ == "__main__":
             doc_id = rep.json()["id"]
             assert [d["filename"] for d in c.get("/documents").json() if d["id"] == doc_id] == ["renamed.pdf"]
 
+            # two saves of the same new file at the same moment: both pass the check, the unique index lets only one in
+            import asyncio, threading
+            from app import documents
+            real_run_pdf = documents.run_pdf
+            async def slow_run_pdf(fn, *args):  # both requests pass the "already saved?" check before either one inserts
+                await asyncio.sleep(0.7)
+                return await real_run_pdf(fn, *args)
+            documents.run_pdf = slow_run_pdf
+            race_pdf = make_sample_pdf() + b"\n%race"
+            outcomes = []
+            def save():
+                r = c.post("/documents", files={"file": ("race.pdf", race_pdf, "application/pdf")}, data={"result": json.dumps(RESULT)})
+                outcomes.append(r.status_code)
+            threads = [threading.Thread(target=save) for _ in range(2)]
+            [t.start() for t in threads]; [t.join() for t in threads]
+            documents.run_pdf = real_run_pdf
+            assert sorted(outcomes) == [201, 409], outcomes
+            assert [d["filename"] for d in c.get("/documents").json()].count("race.pdf") == 1
+
             bad = c.post("/documents", files={"file": ("x.pdf", b"nope", "application/pdf")}, data={"result": json.dumps(RESULT)})
             assert bad.status_code == 415
             assert c.post("/documents", files={"file": ("a.pdf", pdf + b"\n%v2", "application/pdf")}, data={"result": "{}"}).status_code == 422

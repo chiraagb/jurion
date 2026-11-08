@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, ValidationError
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import delete, func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth import current_user
 from app.database import Clause, Document, User, get_db
@@ -106,12 +107,25 @@ async def save_document(
         user_id=user.id, filename=(file.filename or "contract.pdf")[:255], size_bytes=len(pdf), pages=pages,
         method=data.method, total_ms=data.total_ms, confidence=data.confidence, pdf=pdf, lines=lines, sha256=digest,
     )
-    if same:  # replace: the old copies go, in the same transaction as the new one (clauses follow by ON DELETE CASCADE)
-        await db.execute(delete(Document).where(Document.id.in_([r.id for r in same])))
-    db.add(doc)
-    await db.flush()  # assigns doc.id for the clause rows
-    db.add_all(Clause(document_id=doc.id, position=i, **c.model_dump()) for i, c in enumerate(data.clauses))
-    await db.commit()
+    try:
+        if same:  # replace: the old copies go, in the same transaction as the new one (clauses follow by ON DELETE CASCADE)
+            await db.execute(delete(Document).where(Document.id.in_([r.id for r in same])))
+        db.add(doc)
+        await db.flush()  # assigns doc.id for the clause rows
+        db.add_all(Clause(document_id=doc.id, position=i, **c.model_dump()) for i, c in enumerate(data.clauses))
+        await db.commit()
+    except IntegrityError:
+        # The check above passed, but another save of the same file got in first: the unique index (migration 0002) refused this one.
+        await db.rollback()
+        first = (await db.execute(
+            select(Document.id, Document.filename, Document.created_at).where(Document.user_id == user.id, Document.sha256 == digest)
+        )).first()
+        if not first:
+            raise
+        return JSONResponse(status_code=409, content={
+            "detail": f"You already saved this contract as \u201c{first.filename}\u201d.",
+            "existing": {"id": str(first.id), "filename": first.filename, "created_at": first.created_at.isoformat()},
+        })
     await db.refresh(doc)
     embedded = 0
     key = await openai_key(db, user.id)

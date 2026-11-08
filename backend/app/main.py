@@ -1,7 +1,10 @@
 import asyncio
 import logging
 import time
+from pathlib import Path
 from contextlib import asynccontextmanager
+from alembic import command
+from alembic.config import Config
 from fastapi import FastAPI, Depends, File, Header, HTTPException, UploadFile
 from pydantic import BaseModel, Field
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,43 +13,42 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import llm_keys
 from app.auth import current_user, router as auth_router
-from app.database import Clause, Document, LlmApiKey, QuerySession, User, async_engine, neo4j_driver, redis_client, get_db
+from app.database import User, neo4j_driver, redis_client, get_db
 from app.config import settings
 from app.documents import router as documents_router
 from app.embeddings import router as search_router
 from app.ask import router as ask_router
 from app.graph import ensure_schema
+from app.reconcile import reconcile_graph
 from app.sessions import router as sessions_router
 from app.evaluation import router as evaluation_router
 from app.hybrid_parser import MAX_PDF_BYTES, PROVIDERS, NoApiKey, count_pages, parse_contract_fast, run_pdf
 from app.ratelimit import limit
 
 
+def run_migrations() -> None:
+    """Brings the database to the latest schema (migrations/versions). Safe to run on every start: already-applied revisions are skipped."""
+    cfg = Config(str(BACKEND / "alembic.ini"))
+    cfg.set_main_option("script_location", str(BACKEND / "migrations"))
+    command.upgrade(cfg, "head")
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    # No migration tool yet: create just our own tables, parents first. A down database must not stop the API from starting.
+    # Schema changes are Alembic migrations. A down database must not stop the API from starting. Run in a thread: Alembic starts its own event loop.
     try:
-        async with async_engine.begin() as conn:
-            await conn.run_sync(lambda c: [t.create(c, checkfirst=True) for t in (User.__table__, LlmApiKey.__table__, Document.__table__, Clause.__table__, QuerySession.__table__)])
-            for ddl in (  # ponytail: hand-rolled column adds until Alembic exists
-                "CREATE EXTENSION IF NOT EXISTS vector",
-                "ALTER TABLE documents ADD COLUMN IF NOT EXISTS lines JSONB",
-                "ALTER TABLE clauses ADD COLUMN IF NOT EXISTS embedding vector(1536)",
-                "ALTER TABLE clauses ADD COLUMN IF NOT EXISTS start_line INTEGER",
-                "ALTER TABLE clauses ADD COLUMN IF NOT EXISTS end_line INTEGER",
-                "ALTER TABLE documents ADD COLUMN IF NOT EXISTS sha256 VARCHAR(64)",
-                "ALTER TABLE documents ADD COLUMN IF NOT EXISTS graph_parties INTEGER",
-                "ALTER TABLE documents ADD COLUMN IF NOT EXISTS graph_refs INTEGER",
-                "UPDATE documents SET sha256 = encode(sha256(pdf), 'hex') WHERE sha256 IS NULL",  # backfill saved contracts
-                "CREATE INDEX IF NOT EXISTS ix_documents_sha256 ON documents (sha256)",
-            ):
-                await conn.execute(text(ddl))
+        await asyncio.to_thread(run_migrations)
     except Exception:
-        log.exception("Could not create or update the database tables")
+        log.exception("Could not run the database migrations")
     await ensure_schema()
+    try:
+        await reconcile_graph()  # clears graph leftovers for contracts that no longer exist
+    except Exception as e:
+        log.warning("graph reconcile skipped: %s", type(e).__name__)
     yield
 
 
+BACKEND = Path(__file__).resolve().parent.parent
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("jurion")
 log.setLevel(logging.INFO)  # our own lines at INFO; libraries only when something is wrong

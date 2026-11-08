@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:  # the same databases docker-compose.yml starts locally, with the same credentials the app defaults to
+      postgres:
+        image: pgvector/pgvector:pg16
+        env: { POSTGRES_USER: lexi_user, POSTGRES_PASSWORD: secure_password, POSTGRES_DB: jurion_db }
+        ports: ["5432:5432"]
+        options: --health-cmd "pg_isready -U lexi_user -d jurion_db" --health-interval 5s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 5s --health-retries 10
+      neo4j:
+        image: neo4j:5.18.0-community
+        env: { NEO4J_AUTH: neo4j/secure_graph_password }
+        ports: ["7687:7687"]
+        options: --health-cmd "cypher-shell -u neo4j -p secure_graph_password 'RETURN 1'" --health-interval 10s --health-timeout 10s --health-retries 12
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --frozen
+      - name: Tests (no OpenAI calls: they use fakes)
+        run: uv run python -W ignore -m tests.run_all
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: frontend/package-lock.json }
+      - run: npm ci
+      - run: npx tsc --noEmit -p tsconfig.app.json
+      - run: npx oxlint  # warnings are reported, errors fail the build
+      - run: npx vite build
