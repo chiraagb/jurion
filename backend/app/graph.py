@@ -8,14 +8,17 @@ import logging
 import re
 import unicodedata
 import uuid
+from fastapi import APIRouter, Depends
 from openai import AsyncOpenAI
 from pydantic import BaseModel
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
-from app.database import Clause, Document, neo4j_driver
+from app.auth import current_user
+from app.database import Clause, Document, User, neo4j_driver
 
 log = logging.getLogger("jurion")
+router = APIRouter()
 PREAMBLE_CHARS = 6000  # parties are named at the top of a contract; one call per contract, not per clause
 
 
@@ -160,6 +163,32 @@ async def references_from(clause_ids: list[str]) -> dict[str, list[str]]:
     async with neo4j_driver.session() as s:
         rows = await (await s.run("MATCH (a:Clause)-[:REFERENCES]->(b:Clause) WHERE a.id IN $ids RETURN a.id AS a, collect(b.id) AS bs", ids=clause_ids)).data()
     return {r["a"]: r["bs"] for r in rows}
+
+
+async def read_library(user_id: uuid.UUID) -> dict:
+    """The user's whole graph for drawing: contracts, companies, and which company is in which contract (with its role)."""
+    async with neo4j_driver.session() as s:
+        rows = await (await s.run(
+            "MATCH (d:Document {user_id: $u}) OPTIONAL MATCH (p:Party)-[r:PARTY_TO]->(d) "
+            "RETURN d.id AS doc, d.filename AS filename, d.summary AS summary, p.key AS pkey, p.name AS pname, r.role AS role ORDER BY d.filename", u=str(user_id))).data()
+    contracts: dict[str, dict] = {}
+    parties: dict[str, dict] = {}
+    links = []
+    for r in rows:
+        contracts.setdefault(r["doc"], {"id": r["doc"], "filename": r["filename"], "summary": r["summary"] or ""})
+        if r["pkey"]:
+            parties.setdefault(r["pkey"], {"key": r["pkey"], "name": r["pname"]})
+            links.append({"party": r["pkey"], "contract": r["doc"], "role": r["role"]})
+    return {"contracts": list(contracts.values()), "parties": list(parties.values()), "links": links}
+
+
+@router.get("/graph")
+async def library_graph(user: User = Depends(current_user)):
+    try:
+        return await read_library(user.id)
+    except Exception as e:
+        from fastapi import HTTPException
+        raise HTTPException(502, f"Neo4j is unavailable ({type(e).__name__}).")
 
 
 async def drop_user(user_id: uuid.UUID) -> None:

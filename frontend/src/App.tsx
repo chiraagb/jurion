@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { MobileNav, NAV_LABEL, Sidebar } from "@/components/layout/AppNav";
 import Header from "@/components/layout/Header";
 import LoginPage from "@/features/auth/LoginPage";
@@ -10,6 +10,7 @@ import ContractsPage from "@/features/documents/ContractsPage";
 import ParserLab from "@/features/parser/ParserLab";
 import ReportPage from "@/features/report/ReportPage";
 import AskPage from "@/features/ask/AskPage";
+const GraphPage = lazy(() => import("@/features/graph/GraphPage")); // draws with React Flow, which is large: loaded only when opened
 import ProblemsPage from "@/features/problems/ProblemsPage";
 import EvaluationPage from "@/features/evaluation/EvaluationPage";
 import SessionsPage from "@/features/sessions/SessionsPage";
@@ -73,6 +74,7 @@ function Shell() {
             <ParserLab apiDown={apiDown} />
           </div>
           {tab === "contracts" && <ContractsPage id={segments[1]} page={Number(params.get("page")) || undefined} clause={params.has("clause") ? Number(params.get("clause")) : undefined} />}
+          {tab === "graph" && <Suspense fallback={<p className="text-muted" aria-busy>Loading…</p>}><GraphPage /></Suspense>}
           {tab === "search" && <SearchPage q={params.get("q") ?? ""} />}
           {tab === "sessions" && <SessionsPage id={segments[1]} a={params.get("a") ?? undefined} b={params.get("b") ?? undefined} />}
           {tab === "problems" && <ProblemsPage />}

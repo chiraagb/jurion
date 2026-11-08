@@ -18,7 +18,7 @@ from app.config import settings
 from app.documents import router as documents_router
 from app.embeddings import router as search_router
 from app.ask import router as ask_router
-from app.graph import ensure_schema
+from app.graph import ensure_schema, router as graph_router
 from app.reconcile import reconcile_graph
 from app.sessions import router as sessions_router
 from app.evaluation import router as evaluation_router
@@ -59,6 +59,7 @@ app.include_router(documents_router)
 app.include_router(search_router)
 app.include_router(ask_router)
 app.include_router(sessions_router)
+app.include_router(graph_router)
 app.include_router(evaluation_router)
 
 app.add_middleware(

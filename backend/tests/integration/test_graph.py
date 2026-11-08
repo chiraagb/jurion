@@ -87,6 +87,12 @@ if __name__ == "__main__":
             assert c.post(f"/documents/{a['id']}/graph").json() == {"parties": 2, "references": 1}
             assert c.portal.call(counts, a["id"]) == (1, 2)
 
+            lib = c.get("/graph").json()  # the whole library, for drawing
+            assert sorted(x["filename"] for x in lib["contracts"]) == ["a.pdf", "b.pdf"], lib
+            shared = [p for p in lib["parties"] if p["name"] == "Acme Corp."]
+            assert len(shared) == 1 and len([l for l in lib["links"] if l["party"] == shared[0]["key"]]) == 2, lib  # one company, two contracts
+            assert all({"party", "contract", "role"} <= l.keys() for l in lib["links"])
+
             # without a key only the references are built (no AI)
             documents.openai_key = lambda *_: _none()
             async def _none(): return None

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { ComponentType } from "react";
-import { ClipboardList, FileText, FlaskConical, Gauge, History, Lightbulb, MessageSquareText, PanelLeftClose, PanelLeftOpen, Search } from "lucide-react";
+import { ClipboardList, FileText, FlaskConical, Gauge, History, Lightbulb, MessageSquareText, Network, PanelLeftClose, PanelLeftOpen, Search } from "lucide-react";
 import { Link } from "@/lib/router";
 
 interface Item { id: string; label: string; Icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }> }
@@ -9,6 +9,7 @@ export const NAV: { group: string; items: Item[] }[] = [
     { id: "ask", label: "Ask", Icon: MessageSquareText },
     { id: "search", label: "Search", Icon: Search },
     { id: "contracts", label: "My contracts", Icon: FileText },
+    { id: "graph", label: "Graph", Icon: Network },
     { id: "parser", label: "Parser Lab", Icon: FlaskConical },
   ] },
   { group: "Review", items: [
