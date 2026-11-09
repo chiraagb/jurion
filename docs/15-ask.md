@@ -1,4 +1,4 @@
-# 16. Ask: answers with citations (CRAG)
+# 15. Ask: answers with citations (CRAG)
 
 The **Ask** tab (`/ask?q=...`) answers a question from your saved contracts and cites the clauses it used.
 
@@ -57,3 +57,18 @@ Check: `uv run python -W ignore -m tests.integration.test_ask` (fake OpenAI call
 - **Which contract?** Each search says how the contract was chosen: "Narrowed to X first, with the best of all 15 contracts added after", or "None was named, so all 15 contracts were searched", with the router's one-sentence reason.
 - **Used because / Left out because.** The grader gives a one-sentence reason for every clause it keeps or drops, shown under that clause. The reasons are saved in History too.
 - **A question that names no contract is never answered for an invented one.** "Which law governs the agreement?" does not say which agreement, and the grader is told never to assume one: every clause from any contract that answers it counts, and the answer is given per contract ("For the Endorsement Agreement: Florida. For the Development Agreement: New York…"). Before this was added, the grader quietly treated the top-ranked clause's contract as "our agreement" and dropped the rest. The reasons in the panel are what exposed it.
+
+## Questions about the library itself
+
+"How many contracts do we have?", "list my contracts", "how many companies?" and "which companies are in more than one contract?" are not written in any clause, so searching clauses can only fail (it used to answer "I couldn't find this"). `library_kind()` in `app/ask.py` recognises these by shape, short and anchored at both ends so "how many contracts mention indemnity?" still goes to search, and `library_answer()` answers from Postgres and Neo4j with no OpenAI call. Anything else about the library (for example "which contracts have no termination clause?") is still a search question and may be answered badly: that needs an aggregate step, not built.
+
+## Companies, relationships and follow-ups
+
+- **Company facts:** clause search cannot answer "what is Ingram Micro?" or "how are these two contracts related?". `company_facts()` in `app/ask.py` looks for company names (and aliases) in the question and in the last two questions of the chat (sent as `before`, so "these two contracts" works), and gives the answer model what the graph knows: each company's role in each contract, the contract summaries, and which companies the contracts share. The user sees it under "Used the contract graph". If no clause is relevant but the graph has facts, the answer is written from the facts.
+- **Follow-ups:** after an answer the model suggests three next questions (`followups()`), shown as "Ask next" chips; library answers and "not found" use fixed suggestions with no model call. `tests/eval_answers.py` turns them off so the evaluation does not pay for them.
+- "List my contracts" now shows every contract, not the first 25.
+
+## "Which contract do you mean?"
+
+If a question is about ONE contract ("the bank", "the contract", "what are the payment terms?") but does not say which, any answer is a guess, because each contract answers differently. The router (`scope()`) now also returns `ambiguous`. When it is true and there is more than one contract, Ask searches nothing and answers with a question plus a `clarify` event: the contracts that could fit (or all of them), shown as cards, and a "Search all contracts" button. Picking a card re-asks with `only=[id]` (that contract is searched first, reason "You chose this contract."); the button re-asks with `anywhere=true`. Questions about contracts in general ("across my contracts", "which contracts…") are not flagged. The evaluation scripts pass `clarify=False`, so their numbers are unchanged and still measure retrieval and answers, not this prompt. How often the router flags a question that was clear enough has not been measured; if it over-asks, tighten the router prompt.
+

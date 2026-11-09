@@ -1,4 +1,4 @@
-# 9. Glossary
+# 3. Glossary
 
 | Term | Meaning |
 |---|---|
@@ -19,7 +19,7 @@
 | **Multi-hop** | A question that needs following several links (A → B → C). |
 | **Structured output** | Forcing the AI to reply in an exact JSON shape. |
 | **State machine** | A set of steps where each step decides what runs next. |
-| **LangGraph** | A library for building AI state machines. |
+| **LangGraph** | A library for building AI state machines. Jurion does not use it: the pipeline is one plain function (see the Ask doc). |
 | **Celery** | A Python tool for running background jobs. |
 | **Redis** | Fast in-memory store, used for queues and caching. |
 | **SSE** | Server-Sent Events. Lets the server stream text to the browser live. |

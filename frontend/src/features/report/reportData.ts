@@ -1,4 +1,4 @@
-/** Content of the Parser report tab. Mirrors docs/14-parser-test-results.md (3 Nov 2026); update both together. */
+/** Content of the Parser report tab. Mirrors docs/09-parser-test-results.md (3 Nov 2026); update both together. */
 
 export const tiles = [
   { label: "Contracts surveyed", value: "510", note: "public CUAD set, local parser only" },

@@ -1,4 +1,4 @@
-# 7. Phase 5: Evaluation (is it actually right?)
+# 17. Phase 5: Evaluation (is it actually right?)
 
 Goal: measure answer quality with numbers, so changes don't quietly make things worse.
 

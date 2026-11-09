@@ -15,6 +15,9 @@ export interface Brief {
 export type AskEvent =
   | { event: "retrieved"; query: string; mode: "hybrid" | "keyword"; note: string | null; scope?: string[]; contracts?: number; scope_reason?: string; hits: Brief[] }
   | { event: "graded"; relevant: number[]; reasons?: Record<string, string> } // positions in the last "retrieved" hits
+  | { event: "clarify"; options: { id: string; filename: string; summary: string }[] } // the question does not say which contract
+  | { event: "followups"; questions: string[] } // questions the user could ask next
+  | { event: "facts"; text: string } // what the contract graph knows about the companies named
   | { event: "rewritten"; query: string }
   | { event: "sources"; sources: Brief[] }
   | { event: "token"; text: string }
@@ -22,11 +25,12 @@ export type AskEvent =
   | { event: "error"; detail: string };
 
 /** POST /ask and hand over each event as it arrives (one JSON object per line). axios can't stream in a browser, so fetch. */
-export async function ask(question: string, onEvent: (e: AskEvent) => void, signal: AbortSignal) {
+export interface AskExtra { only?: string[]; anywhere?: boolean }
+export async function ask(question: string, before: string[], extra: AskExtra, onEvent: (e: AskEvent) => void, signal: AbortSignal) {
   const res = await fetch("/api/ask", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ question }),
+    body: JSON.stringify({ question, before, ...extra }),
     signal,
   });
   if (!res.ok || !res.body) {

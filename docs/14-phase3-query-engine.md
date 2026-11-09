@@ -1,8 +1,8 @@
-# 5. Phase 3: Query Engine (answering questions)
+# 14. Phase 3: Query Engine (answering questions)
 
 Goal: take a user's question, find the right clauses, check they're actually relevant, and write a cited answer.
 
-This is built as a small **state machine** (using LangGraph): a set of steps, where each step decides which step runs next.
+This is built as a small **state machine written by hand** (a plain async function, no LangGraph: one branch and one bounded retry do not need a framework): a set of steps, where each step decides which step runs next. The current flow is described in the Ask doc.
 
 ## The flow
 

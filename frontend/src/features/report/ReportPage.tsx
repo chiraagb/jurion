@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { AlertTriangle, ArrowRight, Check, Search } from "lucide-react";
 import { aiRuns, checks, corpus, findings, gaps, labels, next, survey, tiles, worked } from "./reportData";
 
-/** What was tested, what the numbers say, what is still open. Static: it mirrors docs/14-parser-test-results.md. */
+/** What was tested, what the numbers say, what is still open. Static: it mirrors docs/09-parser-test-results.md. */
 export default function ReportPage() {
   return (
     <div className="space-y-10">

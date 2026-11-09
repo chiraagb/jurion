@@ -35,6 +35,7 @@ if __name__ == "__main__":
     async def fake_scope(_key, q, cards):  # "the bank" -> the contract whose party is a bank
         assert all(c["summary"].startswith("A test agreement with") for c in cards), cards  # the router is told what each contract is about
         out = ask.Picked(i for i, c in enumerate(cards) if "bank" in q.lower() and any("Bank" in p["name"] for p in c["parties"]))
+        out.ambiguous = "the contract" in q.lower()
         out.reason = "It says 'the bank', and only Acme Bank is a bank." if out else "It names no party or document."
         return out
 
@@ -46,9 +47,11 @@ if __name__ == "__main__":
     ask.scope = fake_scope
     async def rewrite(_k, q): return q
     ask.rewrite = rewrite
-    async def answer(_k, q, sources):
+    async def answer(_k, q, sources, **_):
         yield "ok"
     ask.answer_stream = answer
+    async def no_followups(*_): return []
+    ask.followups = no_followups
 
     redis.Redis.from_url(settings.REDIS_URL).delete("rl:ask:testclient")
     with TestClient(app) as c:
@@ -95,6 +98,52 @@ if __name__ == "__main__":
             ev = events(c.post("/ask", json={"question": "Can the bank terminate on notice?"}))
             retrieved = [e for e in ev if e["event"] == "retrieved"]
             assert [e["scope"] for e in retrieved] == [["bank.pdf"], []] and len(seen) == 2 and seen[0] == {"bank.pdf"}, (retrieved, seen)  # (the word "bank" itself only matches bank.pdf, so the retry still finds just it)
+            # 4. questions about the library are answered from the database, not by searching clauses (no grading or OpenAI call at all)
+            redis.Redis.from_url(settings.REDIS_URL).delete("rl:ask:testclient")  # (the limit is 10 asks a minute)
+            async def boom(*_): raise AssertionError("library questions must not search or grade")
+            real_hybrid = ask.hybrid
+            ask.grade, ask.hybrid = boom, boom
+            for q in ["How many contracts do we have?", "how many agreements do i have", "List my contracts", "Which companies appear in more than one contract?", "How many companies?"]:
+                ev = events(c.post("/ask", json={"question": q}))
+                assert [e["event"] for e in ev] == ["sources", "token", "followups", "done"], (q, ev)
+            redis.Redis.from_url(settings.REDIS_URL).delete("rl:ask:testclient")
+            text = lambda q: next(e for e in events(c.post("/ask", json={"question": q})) if e["event"] == "token")["text"]
+            assert "**2** saved contracts" in text("How many contracts do we have?")
+            assert "- bank (1 page)" in text("list my contracts") and "- food" in text("list my contracts") and "more" not in text("list my contracts")  # the whole list, no cut-off
+            assert "**2** companies across **2** contracts" in text("how many companies do we have?"), text("how many companies do we have?")
+            assert text("which companies are in more than one contract") == "No company appears in more than one of your contracts yet."
+            # content questions that merely contain the same words still go to search
+            assert not any(ask.library_kind(q) for q in ["How many contracts mention indemnity?", "What contracts allow termination?", "How many days notice for termination in the bank contract?", "list the termination clauses in my contracts"])
+            # 5. a question about a company is answered from the graph even when no clause is relevant; "these two contracts" is resolved from the chat
+            redis.Redis.from_url(settings.REDIS_URL).delete("rl:ask:testclient")
+            ask.hybrid = real_hybrid
+            async def grade_none(_k, q, hits): return []
+            ask.grade = grade_none
+            ev = events(c.post("/ask", json={"question": "What is Acme Bank, is it a vendor?"}))
+            facts = next(e for e in ev if e["event"] == "facts")["text"]
+            assert "Acme Bank is in 1 contract" in facts and "Acme Bank is the Customer" in facts and "bank:" in facts, facts
+            assert [e["text"] for e in ev if e["event"] == "token"] == ["ok"] and not [e for e in ev if e["event"] == "followups"], ev
+            async def some_followups(*_): return ["What can Acme Bank terminate?"]
+            ask.followups = some_followups
+            ev = events(c.post("/ask", json={"question": "What is Acme Bank, is it a vendor?"}))
+            assert [e["event"] for e in ev][-2:] == ["followups", "done"] and ev[-2]["questions"] == ["What can Acme Bank terminate?"], ev  # suggested after the answer
+            redis.Redis.from_url(settings.REDIS_URL).delete("rl:ask:testclient")  # the answer model ran, with the facts, though no clause was relevant
+            assert not [e for e in events(c.post("/ask", json={"question": "How are these two contracts related?"})) if e["event"] == "facts"]
+            ev = events(c.post("/ask", json={"question": "How are these two contracts related?", "before": ["Which contracts does Acme Bank have?"]}))
+            assert any(e["event"] == "facts" and "Acme Bank" in e["text"] for e in ev), ev
+            # 6. one contract is meant but not named: ask which instead of guessing; the user's choice (or "all") then answers it
+            redis.Redis.from_url(settings.REDIS_URL).delete("rl:ask:testclient")
+            ask.hybrid, ask.grade = real_hybrid, grade_first
+            q = "How much notice does the contract need?"
+            ev = events(c.post("/ask", json={"question": q}))
+            assert [e["event"] for e in ev] == ["sources", "token", "clarify", "done"], ev  # nothing was searched or answered
+            assert {o["filename"] for o in ev[2]["options"]} == {"bank.pdf", "food.pdf"} and "doesn't say which contract" in ev[1]["text"], ev
+            ev = events(c.post("/ask", json={"question": q, "only": [bank["id"]]}))
+            first = next(e for e in ev if e["event"] == "retrieved")
+            assert first["scope"] == ["bank.pdf"] and first["scope_reason"] == "You chose this contract." and not [e for e in ev if e["event"] == "clarify"], first
+            ev = events(c.post("/ask", json={"question": q, "anywhere": True}))
+            first = next(e for e in ev if e["event"] == "retrieved")
+            assert first["scope"] == [] and first["scope_reason"] == "You chose to search every contract.", first
             print("ok: narrow by named party, widen by reference, no narrowing, fallback to all")
         finally:
             app.dependency_overrides.clear()

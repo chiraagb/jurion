@@ -90,7 +90,7 @@ async def hybrid(db: AsyncSession, user_id: uuid.UUID, q: str, key: str | None, 
                   Clause.content, Clause.page_number).join(Document, Document.id == Clause.document_id).where(Document.user_id == user_id)
     if doc_ids:  # the graph narrowed the question to these contracts
         mine = mine.where(Document.id.in_([uuid.UUID(d) for d in doc_ids]))
-    tsq = func.websearch_to_tsquery("english", q)  # all words must match; tried "any word" and AND-then-OR, both worse overall (docs/17)
+    tsq = func.websearch_to_tsquery("english", q)  # all words must match; tried "any word" and AND-then-OR, both worse overall (docs/18)
     tsv = func.to_tsvector("english", Clause.title + " " + Clause.content)  # ponytail: no GIN index; add one past ~100k clauses
     keyword = (await db.execute(mine.add_columns(func.ts_rank_cd(tsv, tsq).label("r")).where(tsv.op("@@")(tsq)).order_by(desc("r")).limit(20))).all() if use_keyword else []
 

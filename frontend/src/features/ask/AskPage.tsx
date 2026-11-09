@@ -7,10 +7,10 @@ import { AnswerCard, Trace, type Attempt } from "./AnswerCard";
 import Composer from "./Composer";
 import GettingStarted from "@/features/onboarding/GettingStarted";
 import { useSetup } from "@/features/onboarding/useSetup";
-import { ask, type AskEvent, type Brief } from "./api";
+import { ask, type AskEvent, type AskExtra, type Brief } from "./api";
 
 type Stage = "search" | "grade" | "rewrite" | "write";
-interface Turn { id: number; question: string; attempts: Attempt[]; sources: Brief[]; answer: string; stage: Stage | null; error: string | null; saved: string | null; stopped?: boolean }
+interface Turn { id: number; question: string; attempts: Attempt[]; sources: Brief[]; answer: string; facts?: string; followups?: string[]; clarify?: { id: string; filename: string; summary: string }[]; stage: Stage | null; error: string | null; saved: string | null; stopped?: boolean }
 
 const STAGE: Record<Stage, string> = {
   search: "Finding the right contract and clauses…",
@@ -53,8 +53,11 @@ export default function AskPage({ q: urlQuestion, active }: { q: string; active:
 
   const patch = useCallback((id: number, f: (t: Turn) => Turn) => setTurns((all) => all.map((t) => (t.id === id ? f(t) : t))), []);
 
-  const send = useCallback((question: string) => {
+  const recent = useRef<string[]>([]); // the last questions, sent along so "these two contracts" can be resolved
+  const send = useCallback((question: string, extra: AskExtra = {}) => {
     const id = next.current++;
+    const before = recent.current.slice(-2);
+    recent.current.push(question);
     const c = new AbortController();
     ctl.current = c;
     setOpen(null);
@@ -64,13 +67,16 @@ export default function AskPage({ q: urlQuestion, active }: { q: string; active:
         case "retrieved": return { ...t, stage: "grade", attempts: [...t.attempts, { query: e.query, mode: e.mode, note: e.note, scope: e.scope, contracts: e.contracts, scope_reason: e.scope_reason, hits: e.hits, relevant: null }] };
         case "graded": return { ...t, attempts: t.attempts.map((a, i) => (i === t.attempts.length - 1 ? { ...a, relevant: e.relevant, reasons: e.reasons } : a)) };
         case "rewritten": return { ...t, stage: "rewrite" };
+        case "clarify": return { ...t, clarify: e.options };
+        case "followups": return { ...t, followups: e.questions };
+        case "facts": return { ...t, facts: e.text };
         case "sources": return { ...t, sources: e.sources };
         case "token": return { ...t, stage: "write", answer: t.answer + e.text };
         case "done": return { ...t, stage: null, saved: e.session_id };
         case "error": return { ...t, stage: null, error: e.detail };
       }
     });
-    ask(question, on, c.signal).catch((err) => {
+    ask(question, before, extra, on, c.signal).catch((err) => {
       patch(id, (t) => (c.signal.aborted ? { ...t, stage: null, stopped: true } : { ...t, stage: null, error: err.message }));
     });
   }, [patch]);
@@ -177,6 +183,38 @@ export default function AskPage({ q: urlQuestion, active }: { q: string; active:
                         selected={open?.turn === t.id ? open.index : null}
                         onPick={pick(t.id)}
                       />
+                    )}
+                    {t.facts && (
+                      <details className="mt-3 rounded-md border border-line bg-surface text-sm">
+                        <summary className="cursor-pointer px-4 py-2 font-semibold focus-visible:outline-2 focus-visible:outline-accent">Used the contract graph <span className="font-normal text-muted">· what it knew about the companies named</span></summary>
+                        <p className="whitespace-pre-wrap border-t border-line px-4 py-3 text-fg-soft">{t.facts}</p>
+                      </details>
+                    )}
+                    {t.clarify && t.id === last?.id && !busy && (
+                      <div className="mt-3" role="group" aria-label="Which contract do you mean?">
+                        <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted">Which contract?</p>
+                        <ul className="grid gap-2 sm:grid-cols-2">
+                          {t.clarify.map((o) => (
+                            <li key={o.id}>
+                              <button onClick={() => send(t.question, { only: [o.id] })} className="h-full w-full cursor-pointer rounded-md border border-line-strong bg-surface px-4 py-3 text-left text-sm transition-colors hover:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
+                                <span className="block font-semibold [overflow-wrap:anywhere]">{o.filename.replace(/\.pdf$/i, "")}</span>
+                                {o.summary && <span className="mt-0.5 line-clamp-2 text-muted">{o.summary}</span>}
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                        <button onClick={() => send(t.question, { anywhere: true })} className="mt-2 h-10 cursor-pointer rounded-full border border-line-strong px-4 text-sm text-fg-soft hover:border-accent hover:text-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">Search all contracts</button>
+                      </div>
+                    )}
+                    {t.followups && t.id === last?.id && !busy && (
+                      <div className="mt-3" role="group" aria-label="Suggested follow-up questions">
+                        <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted">Ask next</p>
+                        <div className="flex flex-wrap gap-2">
+                          {t.followups.map((f) => (
+                            <button key={f} onClick={() => send(f)} className="min-h-10 cursor-pointer rounded-full border border-line-strong bg-surface px-4 py-2 text-left text-sm text-fg-soft transition-colors hover:border-accent hover:text-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">{f}</button>
+                          ))}
+                        </div>
+                      </div>
                     )}
                     {t.attempts.length > 0 && <Trace attempts={t.attempts} sources={t.sources} onPick={(c) => { const x = t.sources.findIndex((s) => s.document_id === c.document_id && s.position === c.position); x >= 0 && setOpen({ turn: t.id, index: x }); }} />}
                     {t.saved && !t.stage && (

@@ -1,4 +1,4 @@
-# 3. Phase 1: Setup
+# 4. Phase 1: Setup
 
 Goal: get all the pieces running and prove they can talk to each other.
 

@@ -1,4 +1,4 @@
-# 6. Phase 4: Dashboard (the UI)
+# 16. Phase 4: Dashboard (the UI)
 
 Goal: a screen where legal staff can ask questions and *see* how the answer was found.
 

@@ -50,7 +50,7 @@ async def score(key: str, owner, q: dict, sem: asyncio.Semaphore) -> dict:
     async with sem:
         answer, sources = "", []
         async with AsyncSessionLocal() as s:
-            async for kind, d in pipeline(s, owner, key, q["question"]):
+            async for kind, d in pipeline(s, owner, key, q["question"], suggest=False, clarify=False):
                 if kind == "sources":
                     sources = d["sources"]
                 elif kind == "token":

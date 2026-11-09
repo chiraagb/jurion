@@ -46,9 +46,11 @@ if __name__ == "__main__":
 
             rewrites, grades = [], []
             async def fake_rewrite(_k, q): rewrites.append(q); return "terminate notice"
-            async def fake_answer(_k, q, sources):
+            async def fake_answer(_k, q, sources, **_):
                 for t in ("Thirty days ", "[1]."):
                     yield t
+            async def no_followups(*_): return []
+            ask.followups = no_followups
             ask.rewrite, ask.answer_stream = fake_rewrite, fake_answer
 
             # 1. the first retrieval has a relevant clause: no rewrite
@@ -81,7 +83,7 @@ if __name__ == "__main__":
             async def boom(*_): raise AssertionError("answer model must not run without sources"); yield
             ask.grade, ask.answer_stream = grade_none, boom
             ev = events(c.post("/ask", json={"question": "who owns the moon"}))
-            assert [e["event"] for e in ev][-3:] == ["sources", "token", "done"] and ev[-2]["text"] == ask.NONE_FOUND and ev[-3]["sources"] == []
+            assert [e["event"] for e in ev][-4:] == ["sources", "token", "followups", "done"] and ev[-3]["text"] == ask.NONE_FOUND and ev[-4]["sources"] == [] and ev[-2]["questions"][0] == "List my contracts"
 
             # 4. an OpenAI failure arrives as an error event, not a broken stream
             async def grade_fail(*_): raise RuntimeError("x")

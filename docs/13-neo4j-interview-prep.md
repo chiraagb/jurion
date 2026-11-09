@@ -1,4 +1,4 @@
-# 19. Neo4j from zero: learn it, then pass the interview
+# 13. Neo4j from zero: learn it, then pass the interview
 
 This guide assumes you know nothing about Neo4j. Every idea comes with a real-life example, and every query is explained line by line using **your own contracts**.
 
@@ -10,7 +10,7 @@ How to read it:
 - **Part F**: what is really built, so you never over-claim.
 - **Part G**: a hands-on drill in the Neo4j browser, with the answers.
 
-To follow along, open `http://localhost:7474` (login in `docs/18-graph.md`) and type each query into the box at the top.
+To follow along, open `http://localhost:7474` (login in `docs/12-graph.md`) and type each query into the box at the top.
 
 ---
 

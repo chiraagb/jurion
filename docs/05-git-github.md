@@ -1,4 +1,4 @@
-# 10. Git & GitHub
+# 5. Git & GitHub
 
 One git repo at the project root (`jurion/`) covers backend, frontend and docs together.
 

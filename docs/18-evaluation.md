@@ -1,4 +1,4 @@
-# 17. Evaluation: does the right clause come back?
+# 18. Evaluation: does the right clause come back?
 
 Run: `cd backend && uv run python -W ignore -m tests.eval_qa` (about 40 embedding calls, a fraction of a cent). Results land in `backend/tests/qa/results.json` and show on the **Evaluation** tab (`/evaluation`, served by `GET /evaluation`).
 
@@ -61,7 +61,7 @@ Things found and fixed while building this (kept here because they change how fa
 
 ## Step 2: the graph in Ask (narrowing and widening)
 
-Ask now asks, before searching, which contracts the question names (by company, role or kind of document), using the parties in Neo4j, and searches those first; after grading, it adds clauses that the relevant ones refer to. See `docs/16-ask.md`. The evaluation has a fifth column, **+ Graph**, for retrieval, and the answers are re-scored.
+Ask now asks, before searching, which contracts the question names (by company, role or kind of document), using the parties in Neo4j, and searches those first; after grading, it adds clauses that the relevant ones refer to. See `docs/15-ask.md`. The evaluation has a fifth column, **+ Graph**, for retrieval, and the answers are re-scored.
 
 **First attempt, and why it was changed.** The first scoping prompt told the model to pick contracts the question was "clearly about". Retrieval got no better overall (the right clause in the top 5: 88.6% with plain context, 84.1% with the graph). It rescued the two failures it was built for (the "bank" question and the "clinical trial agreement" question) but broke four others:
 - "Who owns the new inventions created during the work?" and "Who bears the risk of loss during shipments?" were narrowed to a contract on weak topic cues, not names.

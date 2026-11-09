@@ -1,4 +1,4 @@
-# 4. Phase 2: Ingestion (PDF → data)
+# 8. Phase 2: Ingestion (PDF → data)
 
 Goal: take an uploaded contract PDF and store it so we can search it later – both by meaning (vectors) and by relationships (graph).
 
@@ -87,7 +87,7 @@ Click the **key icon** in the top bar, pick Gemini or OpenAI (ChatGPT), paste yo
 - API: `GET /settings/llm` (hints), `PUT /settings/llm/{provider}`, `DELETE /settings/llm/{provider}`.
 - Fallback: `GEMINI_API_KEY` / `OPENAI_API_KEY` in `.env` are used when no key is saved in the database.
 
-Keys belong to the signed-in user (`llm_api_keys` is keyed by `user_id` + provider), and every endpoint except `/health` requires sign-in. See `docs/11-auth.md`.
+Keys belong to the signed-in user (`llm_api_keys` is keyed by `user_id` + provider), and every endpoint except `/health` requires sign-in. See `docs/06-auth.md`.
 
 ### LLM fallback: one attempt, never a loop
 

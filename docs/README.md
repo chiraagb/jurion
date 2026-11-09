@@ -1,27 +1,36 @@
 # Jurion Docs
 
-Plain-English guide to what Jurion is, how it works, and how we build it.
+Plain-English guide to what Jurion is, how it works, and how it was built. Read in this order: each group builds on the one before.
 
-Read them in order:
+## Understand it
+1. [Overview](01-overview.md): what Jurion is and why it exists
+2. [Architecture](02-architecture.md): the pieces and how they connect
+3. [Glossary](03-glossary.md): jargon explained
 
-1. [Overview](01-overview.md) – what Jurion is and why it exists
-2. [Architecture](02-architecture.md) – the pieces and how they connect
-3. [Phase 1: Setup](03-phase1-setup.md) – tools, databases, health check
-4. [Phase 2: Ingestion](04-phase2-ingestion.md) – turning a PDF into searchable data
-5. [Phase 3: Query Engine](05-phase3-query-engine.md) – answering questions
-6. [Phase 4: Dashboard](06-phase4-dashboard.md) – the user interface
-7. [Phase 5: Evaluation](07-phase5-evaluation.md) – measuring answer quality
-8. [Scaling to Production](08-scaling-to-production.md) – making it enterprise-ready
-9. [Glossary](09-glossary.md) – jargon explained
-10. [Git & GitHub](10-git-github.md) – committing and pushing
-11. [Sign in with Google](11-auth.md) – login, sessions, setup
-12. [Looking at the database](12-database.md) – psql, DBeaver, what is stored
-13. [Saved contracts](13-saved-contracts.md) – save, list, open, delete
-14. [Parser test results](14-parser-test-results.md) – what was tested, the numbers, known gaps
-15. [Embeddings and search](15-embeddings-search.md) – pgvector column, embed buttons, hybrid search
-16. [Ask](16-ask.md) – answers with citations, relevance check, one rewrite
-17. [Evaluation](17-evaluation.md) – question set, retrieval scores, findings
-18. [The contract graph](18-graph.md) – parties and cross-references in Neo4j
-19. [Neo4j interview prep](19-neo4j-interview-prep.md) – concepts, Cypher, how Jurion uses it, Q&A, drill
-20. [Operations](20-operations.md) – migrations, tests and CI, duplicate protection, keeping the databases in step
-21. [A 5-minute demo](21-demo-script.md) – what to show and say
+## Set it up
+4. [Phase 1: Setup](04-phase1-setup.md): tools, databases, health check
+5. [Git & GitHub](05-git-github.md): committing and pushing
+6. [Sign in with Google](06-auth.md): login, sessions, setup
+7. [Looking at the database](07-database.md): psql, DBeaver, what is stored
+
+## Follow a contract through the system
+8. [Phase 2: Ingestion](08-phase2-ingestion.md): turning a PDF into clauses
+9. [Parser test results](09-parser-test-results.md): what was tested, the numbers, known gaps
+10. [Saved contracts](10-saved-contracts.md): save, list, open, delete
+11. [Embeddings and search](11-embeddings-search.md): pgvector column, embed buttons, hybrid search
+12. [The contract graph](12-graph.md): companies and cross-references in Neo4j, and the Graph page
+13. [Neo4j interview prep](13-neo4j-interview-prep.md): concepts, Cypher, how Jurion uses it, Q&A, drill
+
+## Ask questions
+14. [Phase 3: Query Engine](14-phase3-query-engine.md): the original plan for answering
+15. [Ask](15-ask.md): answers with citations, relevance check, one rewrite, "which contract?", company facts, follow-ups
+16. [Phase 4: Dashboard](16-phase4-dashboard.md): the user interface
+
+## Prove it works
+17. [Phase 5: Evaluation](17-phase5-evaluation.md): the original plan for measuring quality
+18. [Evaluation](18-evaluation.md): question set, retrieval and answer scores, findings, bugs found in the measuring
+
+## Run it and show it
+19. [Operations](19-operations.md): migrations, tests and CI, duplicate protection, keeping the databases in step
+20. [Scaling to production](20-scaling-to-production.md): the roadmap for real customers
+21. [A 5-minute demo](21-demo-script.md): what to show and say

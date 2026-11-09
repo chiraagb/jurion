@@ -15,6 +15,6 @@ Before you start: the three databases and the API are running, you are signed in
 **6. Measuring it (60 seconds).** **Evaluation**: the table of search setups (from plain meaning search up to the full Ask pipeline), the card on what narrowing and widening rescued and broke, and the answers on 5 versus 15 contracts. Say: *"The graph fixed the failures it was built for, questions that name a contract, and changed overall search quality very little. My first version actually broke four questions by guessing a contract from the topic, so I limited it to names, roles and document kinds."* Close with the limits: small question set, AI-judged faithfulness, no OCR.
 
 **Questions to expect**
-- *Why two databases?* Postgres for text, vectors and ownership; Neo4j only for links, and it can be rebuilt. See `docs/18-graph.md` and `docs/19-neo4j-interview-prep.md`.
-- *How do you know it works?* The Evaluation tab, and the bugs found in my own measuring (`docs/17-evaluation.md`).
+- *Why two databases?* Postgres for text, vectors and ownership; Neo4j only for links, and it can be rebuilt. See `docs/12-graph.md` and `docs/13-neo4j-interview-prep.md`.
+- *How do you know it works?* The Evaluation tab, and the bugs found in my own measuring (`docs/18-evaluation.md`).
 - *What would you do next?* Questions that isolate the cross-reference widening, company-name matching, OCR, and an outbox for the graph.

@@ -1,4 +1,4 @@
-# 20. Operations: migrations, tests, CI and keeping the databases in step
+# 19. Operations: migrations, tests, CI and keeping the databases in step
 
 ## Database migrations (Alembic)
 

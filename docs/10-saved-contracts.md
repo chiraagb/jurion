@@ -1,4 +1,4 @@
-# 13 – Saved contracts
+# 10. Saved contracts
 
 Parse a contract, press **Save contract**, and it is kept for you.
 

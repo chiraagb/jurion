@@ -1,4 +1,4 @@
-# 11 – Sign in with Google
+# 6. Sign in with Google
 
 One click, no passwords to store.
 

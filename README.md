@@ -58,13 +58,13 @@ From the latest runs: 83 questions (77 with an answer) over **15 public contract
 | Unanswerable questions correctly refused | 6 of 6 |
 | Answers that are confident but from the wrong clause (4.5% on 5 contracts) | 6.5% |
 
-**Read these honestly:** accuracy fell when the library tripled, because there are more look-alike clauses (the same 44 questions: 95.5% on 5 contracts, 84.1% on 15). Part of that drop is generic questions that now have several valid answers in different contracts while the test accepts one. The set is still small (one question is about 1.3 points), answers differ slightly between runs, and faithfulness is scored by an AI judge. The graph fixed the failures it was built for (questions that name a contract) and left overall search quality about the same. [`docs/17-evaluation.md`](docs/17-evaluation.md) records what was tried, what did not work, and the bugs found in the measuring itself.
+**Read these honestly:** accuracy fell when the library tripled, because there are more look-alike clauses (the same 44 questions: 95.5% on 5 contracts, 84.1% on 15). Part of that drop is generic questions that now have several valid answers in different contracts while the test accepts one. The set is still small (one question is about 1.3 points), answers differ slightly between runs, and faithfulness is scored by an AI judge. The graph fixed the failures it was built for (questions that name a contract) and left overall search quality about the same. [`docs/18-evaluation.md`](docs/18-evaluation.md) records what was tried, what did not work, and the bugs found in the measuring itself.
 
 ## Run it
 
 ```bash
 docker compose up -d postgres neo4j redis        # the three databases
-cd backend && cp .env.example .env               # then fill in ENCRYPTION_KEY and the Google client ID (docs/11-auth.md)
+cd backend && cp .env.example .env               # then fill in ENCRYPTION_KEY and the Google client ID (docs/06-auth.md)
 uv sync && uv run uvicorn app.main:app --reload  # API on :8000 (applies the database migrations on start)
 cd frontend && cp .env.example .env && npm install && npm run dev   # app on :5173
 ```
@@ -91,4 +91,4 @@ GitHub Actions runs the backend suites against service containers and the fronte
 
 ## Docs
 
-Start with [`docs/README.md`](docs/README.md). The most useful: [Ask](docs/16-ask.md), [Evaluation](docs/17-evaluation.md), [the graph](docs/18-graph.md), [operations](docs/20-operations.md), and the [5-minute demo script](docs/21-demo-script.md).
+Start with [`docs/README.md`](docs/README.md). The most useful: [Ask](docs/15-ask.md), [Evaluation](docs/18-evaluation.md), [the graph](docs/12-graph.md), [operations](docs/19-operations.md), and the [5-minute demo script](docs/21-demo-script.md).

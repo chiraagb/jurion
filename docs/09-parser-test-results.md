@@ -1,4 +1,4 @@
-# Parser test results
+# 9. Parser test results
 
 What was tested on the contract parser, the numbers, and what is still unknown. Dates are from the build session (3 Nov 2026).
 
@@ -106,7 +106,7 @@ Re-running the 30 selected contracts (not all 510) found four that the local par
 
 The other 26 of the 30 were identical before and after (one collaboration agreement gained 2 clauses), and the 4 real-contract regression checks in `test_corpus` are unchanged. One contract (a joint filing agreement) still returns no clauses, correctly: it is four pages of company names.
 
-Also new: **OCR** for scanned PDFs (see `docs/04-phase2-ingestion.md`), tested on a synthetic scan (a rendered contract page, no text layer): it parses into the five expected clauses in about half a second and carries the OCR warning. It has not been tested on real scans, which are noisier.
+Also new: **OCR** for scanned PDFs (see `docs/08-phase2-ingestion.md`), tested on a synthetic scan (a rendered contract page, no text layer): it parses into the five expected clauses in about half a second and carries the OCR warning. It has not been tested on real scans, which are noisier.
 
 Regression tests added to `test_parse`: a signature page first, `1)` numbering, bold run-in headings, and a scan.
 

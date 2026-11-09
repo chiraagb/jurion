@@ -36,7 +36,7 @@ Jurion has four layers.
 - **Embedding model** (e.g. OpenAI `text-embedding-3-small`, 1536 numbers per text) – turns text into vectors for similarity search.
 
 ### Testing quality
-- **Ragas** – a library that scores how good the answers are (more in [Phase 5](07-phase5-evaluation.md)).
+- **Ragas** – a library that scores how good the answers are (more in [Phase 5](17-phase5-evaluation.md)).
 
 ## Where we are today
 

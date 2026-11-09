@@ -1,4 +1,4 @@
-# 15. Embeddings and search
+# 11. Embeddings and search
 
 Saved clauses can be turned into vectors and searched by meaning.
 
