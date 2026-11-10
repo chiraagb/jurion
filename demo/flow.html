@@ -1,0 +1,284 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Anatomy of an answer: Jurion</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,wght@0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  /* Layout: a glass control panel on the left, the 3D stage fills the rest, a callout floats next to the active service. */
+  :root {
+    --ink:#0b0f14; --panel:rgba(15,20,27,.82); --card:#141b24; --line:#2a3544; --line-hi:#46556b;
+    --parch:#efe6d2; --mute:#a3acb9; --brass:#e3b04b; --brass-dim:#3a2f16;
+    --panel-w:380px; --ease:cubic-bezier(.2,.7,.2,1); --step-ms:6000ms;
+    --serif:"Newsreader", Georgia, serif; --sans:"IBM Plex Sans", system-ui, sans-serif; --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+  }
+  * { box-sizing:border-box }
+  html, body { margin:0; height:100%; background:var(--ink); color:var(--parch); font:15px/1.5 var(--sans); overflow:hidden }
+  #g { position:fixed; top:0; bottom:0; right:0; left:var(--panel-w) }
+  aside { position:fixed; z-index:5; top:0; bottom:0; left:0; width:var(--panel-w); padding:24px 20px 20px 24px; display:flex; flex-direction:column; gap:16px; background:linear-gradient(90deg, var(--ink) 60%, transparent) }
+  .eyebrow { font:500 12px/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--brass) }
+  h1 { margin:6px 0 0; font:500 34px/1.1 var(--serif); text-wrap:balance }
+  .q { display:flex; gap:10px; align-items:flex-start; padding:12px 14px; border:1px solid var(--line); border-radius:12px; background:var(--card) }
+  .q svg { flex:none; margin-top:3px; color:var(--brass) }
+  .q small { display:block; font:400 12px/1.2 var(--mono); color:var(--mute); margin-bottom:4px; letter-spacing:.04em }
+  .q p { margin:0; font:italic 400 18px/1.35 var(--serif) }
+  ol { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; overflow:auto; min-height:0 }
+  .step { position:relative; display:grid; grid-template-columns:30px 1fr; gap:2px 12px; width:100%; text-align:left; color:var(--parch); background:transparent; border:1px solid transparent; border-radius:12px; padding:10px 12px; min-height:44px; cursor:pointer; font:inherit; overflow:hidden; transition:background .2s var(--ease), border-color .2s var(--ease) }
+  .step:hover { background:#ffffff08; border-color:var(--line) }
+  .step .n { grid-row:span 2; width:30px; height:30px; border-radius:50%; display:grid; place-items:center; font:500 13px var(--mono); color:var(--mute); border:1px solid var(--line-hi); transition:all .25s var(--ease) }
+  .step b { font-weight:500; align-self:center }
+  .step .desc { grid-column:2; color:var(--mute); font-size:14px; display:none }
+  .step .more { display:none }
+  .step[aria-current="step"] { background:var(--card); border-color:var(--line-hi) }
+  .step[aria-current="step"] .n { background:var(--brass); border-color:var(--brass); color:var(--ink) }
+  .step[aria-current="step"] .desc { display:block }
+  .step.done .n { border-color:var(--brass); color:var(--brass) }
+  .step .bar { position:absolute; left:0; bottom:0; height:2px; width:100%; background:var(--brass); transform:scaleX(0); transform-origin:left; opacity:0 }
+  .step[aria-current="step"] .bar { opacity:1; animation:fill var(--step-ms) linear forwards; animation-play-state:var(--run, running) }
+  @keyframes fill { to { transform:scaleX(1) } }
+  .ctl { display:flex; gap:8px; margin-top:auto; flex-wrap:wrap }
+  .ctl button { min-height:44px; padding:0 14px; display:flex; align-items:center; gap:8px; color:var(--parch); background:var(--card); border:1px solid var(--line); border-radius:10px; cursor:pointer; font:500 14px var(--sans); transition:border-color .2s var(--ease), background .2s var(--ease) }
+  .ctl button:hover { border-color:var(--line-hi); background:#1a2330 }
+  button:focus-visible { outline:2px solid var(--brass); outline-offset:2px }
+  .hint { margin:0; font:400 12px/1.4 var(--mono); color:var(--mute) }
+  kbd { font:inherit; border:1px solid var(--line-hi); border-radius:4px; padding:0 5px }
+
+  /* floating callout that follows the active service */
+  #tip { position:fixed; z-index:6; left:0; top:0; width:300px; pointer-events:none; padding:14px 16px; border-radius:14px; background:var(--panel); border:1px solid var(--line-hi); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); box-shadow:0 12px 40px #0009; opacity:0; transition:opacity .3s var(--ease) }
+  #tip.on { opacity:1 }
+  #tip .k { font:500 11px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--brass) }
+  #tip .o { margin:8px 0 6px; font:500 19px/1.25 var(--serif) }
+  #tip .t { margin:0; font-size:13.5px; color:var(--mute) }
+  .legend { position:fixed; z-index:5; right:20px; bottom:18px; display:flex; gap:14px; font:400 12px var(--mono); color:var(--mute) }
+  .legend span::before { content:""; display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; background:var(--brass) }
+  .legend span:nth-child(2)::before { background:#7ee0c6 }
+  .legend span:nth-child(3)::before { background:#a99bff }
+
+  @media (max-width:800px) {
+    :root { --panel-w:0px }
+    #g { bottom:46% }
+    aside { top:auto; height:46%; width:auto; right:0; padding:14px 16px; gap:10px; background:var(--ink) }
+    h1 { font-size:24px; margin-top:4px } .q { display:none } .hint, .legend, #tip { display:none }
+    .step[aria-current="step"] .more { display:block; color:var(--parch); margin-top:4px }
+  }
+  @media (prefers-reduced-motion:reduce) { .step .bar { animation:none; transform:scaleX(1) } #tip { transition:none } }
+</style>
+
+<div id="g" aria-hidden="true"></div>
+<aside>
+  <header>
+    <div class="eyebrow">Jurion · architecture</div>
+    <h1>Anatomy of an answer</h1>
+  </header>
+  <div class="q">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <div><small>THE QUESTION WE FOLLOW</small><p>“When can the bank terminate?”</p></div>
+  </div>
+  <ol id="steps" aria-label="Steps of one question"></ol>
+  <div class="ctl">
+    <button id="prev" aria-label="Previous step">← Back</button>
+    <button id="play" aria-label="Pause">Pause</button>
+    <button id="next" aria-label="Next step">Next →</button>
+    <button id="over">Overview</button>
+  </div>
+  <p class="hint"><kbd>←</kbd> <kbd>→</kbd> step · <kbd>space</kbd> play/pause · drag to look around</p>
+</aside>
+<div id="tip" role="status" aria-live="polite"><div class="k"></div><div class="o"></div><p class="t"></p></div>
+<div class="legend" aria-hidden="true"><span>you</span><span>services</span><span>data</span></div>
+
+<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+<script src="https://unpkg.com/three-spritetext@1.8.2/dist/three-spritetext.min.js"></script>
+<script src="https://unpkg.com/3d-force-graph@1.73.4/dist/3d-force-graph.min.js"></script>
+<script>
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const STEP_MS = 6000;
+const BRASS = "#e3b04b", PARCH = "#efe6d2";
+
+// ---- the architecture: [id, label, colour, x, y, z]
+const N = [
+  ["user",   "You",                          "#e3b04b", -260,   0,   0],
+  ["app",    "React app",                    "#6cb6ff", -130,   0,   0],
+  ["api",    "FastAPI",                      "#7ee0c6",    0,   0,   0],
+  ["redis",  "Redis\nrate limit",            "#ff7a70",  135, 120,  50],
+  ["neo4j",  "Neo4j\ncontract graph",        "#79d98c",  135,  50, -95],
+  ["pg",     "Postgres + pgvector\nclauses", "#a99bff",  135, -55,  55],
+  ["openai", "OpenAI\nembed · grade · answer","#d7dce4", 285, -120, -15],
+];
+// [id, from, to, curvature]; return links bend so they stay visible next to the outgoing ones
+const L = [
+  ["ask","user","app",0], ["post","app","api",0],
+  ["rl","api","redis",0], ["scope","api","neo4j",0], ["search","api","pg",0], ["llm","api","openai",0],
+  ["stream","api","app",.4], ["show","app","user",.4],
+];
+// one worked example; each step names the service that does the work, so the callout can sit on it
+const STEPS = [
+  { title:"You ask", node:"user", links:["ask","post"], desc:"One question becomes one request.",
+    kicker:"Browser → POST /ask", out:"“When can the bank terminate?”", note:"Earlier questions ride along, so “these two contracts” can be understood." },
+  { title:"Check limits", node:"redis", links:["rl"], desc:"Redis keeps the 10-asks-a-minute limit.",
+    kicker:"Redis", out:"Allowed. Not a library question.", note:"“How many contracts do I have?” skips the AI and reads the database." },
+  { title:"Pick the contract", node:"neo4j", links:["scope"], desc:"The contract graph says which contract this is about.",
+    kicker:"Neo4j contract graph", out:"“the bank” → Acme Bank → bank.pdf", note:"Doesn’t say which contract? Jurion asks “Which contract?” instead of guessing." },
+  { title:"Search clauses", node:"pg", links:["search"], desc:"Meaning and keywords, merged.",
+    kicker:"Postgres + pgvector", out:"Best clauses by meaning and by words", note:"Clauses they refer to come along, so “subject to Section 5” brings Section 5." },
+  { title:"Grade and answer", node:"openai", links:["llm"], desc:"Keep only relevant clauses, then answer with citations.",
+    kicker:"OpenAI", out:"Keeps the relevant clauses, cites [1] [2]", note:"If nothing is relevant it says so instead of guessing." },
+  { title:"Stream it back", node:"app", links:["stream","show"], desc:"Words appear while the model is still writing.",
+    kicker:"FastAPI → React", out:"Answer, sources, follow-up questions", note:"Sent as a stream of events; each source links to its clause in the PDF." },
+];
+STEPS.forEach((s) => (s.more = `${s.out}. ${s.note}`));
+
+const nodes = N.map(([id, label, color, x, y, z]) => ({ id, label, color, fx:x, fy:y, fz:z }));
+const links = L.map(([id, source, target, curve]) => ({ id, source, target, curve }));
+const byId = Object.fromEntries(nodes.map((n) => [n.id, n]));
+let active = new Set(STEPS[0].links), activeNode = "user";
+
+// ---- small helpers for the "inner worlds"
+const canvasTex = (draw) => { const c = document.createElement("canvas"); c.width = c.height = 128; draw(c.getContext("2d")); return new THREE.CanvasTexture(c); };
+const haloTex = canvasTex((x) => { const g = x.createRadialGradient(64,64,0,64,64,64); g.addColorStop(0,"rgba(255,255,255,1)"); g.addColorStop(.25,"rgba(255,255,255,.35)"); g.addColorStop(1,"rgba(255,255,255,0)"); x.fillStyle = g; x.fillRect(0,0,128,128); });
+const ringTex = canvasTex((x) => { x.strokeStyle = "#fff"; x.lineWidth = 5; x.beginPath(); x.arc(64,64,56,0,7); x.stroke(); });
+const glow = (tex, color, size, opacity) => { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map:tex, color, transparent:true, opacity, blending:THREE.AdditiveBlending, depthWrite:false })); s.scale.set(size, size, 1); return s; };
+const solid = (c, o = {}) => new THREE.MeshBasicMaterial({ color:c, ...o });
+const wire = (c, o = .55) => new THREE.MeshBasicMaterial({ color:c, wireframe:true, transparent:true, opacity:o });
+const mesh = (geo, mat, y = 0) => { const m = new THREE.Mesh(geo, mat); m.position.y = y; return m; };
+const rnd = (() => { let s = 7; return () => (s = (s * 16807) % 2147483647) / 2147483647; })(); // stable layout every load
+
+// Each builder returns { g, tick(t, a) } where a is 0..1 "how active is this service now".
+const BUILD = {
+  user: (c) => { // a person
+    const g = new THREE.Group();
+    g.add(mesh(new THREE.SphereGeometry(6.5, 24, 16), solid(c), 15), mesh(new THREE.ConeGeometry(11, 22, 24), solid(c), -3), mesh(new THREE.ConeGeometry(11.6, 22.6, 14), wire(PARCH, .35), -3));
+    return { g, tick: (t, a) => { g.position.y = Math.sin(t * 1.4) * 1.5; g.rotation.y = t * .3; } };
+  },
+  app: (c) => { // a browser window
+    const g = new THREE.Group();
+    g.add(mesh(new THREE.BoxGeometry(36, 24, 3), wire(c, .9)), mesh(new THREE.PlaneGeometry(32, 19), solid(c, { transparent:true, opacity:.22 })));
+    const bar = mesh(new THREE.PlaneGeometry(32, 3), solid(c)); bar.position.set(0, 7.5, 1.6); g.add(bar);
+    const lines = [0, 1, 2].map((i) => { const m = mesh(new THREE.PlaneGeometry(14 + (i % 2) * 8, 1.6), solid(PARCH, { transparent:true, opacity:.8 })); m.position.set(-4 + (i % 2) * 4, 1 - i * 4, 1.7); g.add(m); return m; });
+    return { g, tick: (t, a) => { g.rotation.y = Math.sin(t * .6) * .35; lines.forEach((m, i) => (m.scale.x = 1 + a * .2 * Math.sin(t * 4 + i))); } };
+  },
+  api: (c) => { // a hex node with a spinning shell
+    const g = new THREE.Group(), shell = mesh(new THREE.CylinderGeometry(17, 17, 6, 6, 1), wire(c, .9));
+    g.add(mesh(new THREE.CylinderGeometry(12, 12, 5, 6), solid(c, { transparent:true, opacity:.9 })), shell);
+    g.rotation.x = .5;
+    return { g, tick: (t, a) => { shell.rotation.y = t * (.6 + a * 2); } };
+  },
+  redis: (c) => { // stacked rate-limit rings
+    const g = new THREE.Group(), rings = [0, 1, 2].map((i) => { const r = mesh(new THREE.TorusGeometry(13 - i * 2, 1.8, 10, 40), solid(c), -9 + i * 9); r.rotation.x = Math.PI / 2; g.add(r); return r; });
+    return { g, tick: (t, a) => rings.forEach((r, i) => { r.rotation.z = t * (.5 + i * .4); r.material.opacity = 1; r.scale.setScalar(1 + a * .12 * Math.sin(t * 6 - i)); }) };
+  },
+  neo4j: (c) => { // a tiny contract graph; the picked contract lights up when this step is active
+    const g = new THREE.Group(), pts = Array.from({ length: 8 }, () => new THREE.Vector3(rnd() - .5, rnd() - .5, rnd() - .5).normalize().multiplyScalar(14 + rnd() * 10));
+    const dots = pts.map((p, i) => { const m = new THREE.Mesh(new THREE.SphereGeometry(i ? 3 : 4, 14, 10), solid(i ? c : c, { transparent:true })); m.position.copy(p); g.add(m); return m; });
+    const seg = []; pts.forEach((p, i) => { seg.push(p, pts[(i + 1) % pts.length]); if (i % 3 === 0) seg.push(p, pts[(i + 3) % pts.length]); });
+    g.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(seg), new THREE.LineBasicMaterial({ color:c, transparent:true, opacity:.5 })));
+    return { g, tick: (t, a) => { g.rotation.y = t * .4; dots.forEach((m, i) => { const pick = i === 0; m.material.color.set(pick && a > .5 ? BRASS : c); m.material.opacity = a > .5 && !pick ? .35 : 1; m.scale.setScalar(pick ? 1 + a * .7 + a * .15 * Math.sin(t * 7) : 1); }); } };
+  },
+  pg: (c) => { // a ring of clauses; the best matches light up when this step is active
+    const g = new THREE.Group(), ring = new THREE.Group(), cubes = Array.from({ length: 16 }, (_, i) => { const m = new THREE.Mesh(new THREE.BoxGeometry(5, 7, 1.4), solid(c, { transparent:true })); const a = (i / 16) * Math.PI * 2; m.position.set(Math.cos(a) * 21, (rnd() - .5) * 14, Math.sin(a) * 21); m.rotation.y = -a + Math.PI / 2; ring.add(m); return m; });
+    g.add(ring, mesh(new THREE.CylinderGeometry(9, 9, 20, 20, 1, true), wire(c, .6)));
+    return { g, tick: (t, a) => { ring.rotation.y = t * (.35 + a * .9); cubes.forEach((m, i) => { const hit = i % 5 === 0; m.material.color.set(hit && a > .5 ? BRASS : c); m.material.opacity = a > .5 && !hit ? .3 : 1; m.scale.setScalar(hit ? 1 + a * .5 : 1); }); } };
+  },
+  openai: (c) => { // a thinking lattice
+    const g = new THREE.Group(), a1 = mesh(new THREE.IcosahedronGeometry(17, 1), wire(c, .8)), a2 = mesh(new THREE.IcosahedronGeometry(9, 0), solid(c, { transparent:true, opacity:.9 }));
+    g.add(a1, a2);
+    return { g, tick: (t, a) => { a1.rotation.set(t * .5, t * .7, 0); a2.rotation.set(-t * .8, t * .4, 0); g.scale.setScalar(1 + a * .15 * Math.sin(t * 5)); } };
+  },
+};
+
+const rig = {}; // id -> { tick, halo, ring, a }
+function makeNode(n) {
+  const g = new THREE.Group(), body = BUILD[n.id](n.color), halo = glow(haloTex, n.color, 80, .28), ring = glow(ringTex, n.color, 30, 0);
+  g.add(halo, ring, body.g);
+  const t = new SpriteText(n.label, 4.6, PARCH); t.fontFace = "IBM Plex Sans, system-ui, sans-serif"; t.fontWeight = "500"; t.backgroundColor = "rgba(11,15,20,.72)"; t.padding = 2.2; t.borderRadius = 2; t.position.y = -34; t.material.depthWrite = false;
+  g.add(t);
+  rig[n.id] = { tick: body.tick, halo, ring, a: 0 };
+  return g;
+}
+
+// ---- the scene
+const stage = document.getElementById("g");
+const Graph = ForceGraph3D({ controlType:"orbit" })(stage)
+  .backgroundColor("#0b0f14").width(stage.clientWidth).height(stage.clientHeight)
+  .graphData({ nodes, links }).cooldownTicks(0)
+  .nodeThreeObject(makeNode).nodeThreeObjectExtend(false)
+  .linkColor((l) => (active.has(l.id) ? BRASS : "#3a4658"))
+  .linkOpacity(.9).linkWidth((l) => (active.has(l.id) ? 1.4 : .5)).linkCurvature("curve")
+  .linkDirectionalArrowLength((l) => (active.has(l.id) ? 6 : 0)).linkDirectionalArrowRelPos(.97).linkDirectionalArrowColor(() => BRASS)
+  .linkDirectionalParticles((l) => (active.has(l.id) ? 8 : 0)).linkDirectionalParticleWidth(3.2)
+  .linkDirectionalParticleSpeed(.011).linkDirectionalParticleColor(() => "#fff2cf")
+  .showNavInfo(false);
+Graph.controls().enableDamping = true;
+Graph.controls().minDistance = 90; Graph.controls().maxDistance = 900;
+
+// starfield for depth
+const stars = (() => { const n = 700, p = new Float32Array(n * 3); for (let i = 0; i < n; i++) { const r = 500 + rnd() * 1100, a = rnd() * 6.283, b = Math.acos(2 * rnd() - 1); p.set([r * Math.sin(b) * Math.cos(a), r * Math.cos(b), r * Math.sin(b) * Math.sin(a)], i * 3); }
+  const geo = new THREE.BufferGeometry(); geo.setAttribute("position", new THREE.BufferAttribute(p, 3));
+  const pts = new THREE.Points(geo, new THREE.PointsMaterial({ color:PARCH, size:2.2, transparent:true, opacity:.55, sizeAttenuation:false })); Graph.scene().add(pts); return pts; })();
+
+// ---- steps UI
+const ol = document.getElementById("steps"), tip = document.getElementById("tip");
+const btns = STEPS.map((s, i) => {
+  const li = document.createElement("li"), b = document.createElement("button");
+  b.className = "step"; b.innerHTML = `<span class="n">${i + 1}</span><b>${s.title}</b><span class="desc">${s.desc}<span class="more">${s.more}</span></span><span class="bar"></span>`;
+  b.onclick = () => { go(i); setPlaying(false); };
+  li.appendChild(b); ol.appendChild(li); return b;
+});
+let step = 0, playing = !REDUCED, overview = false, timer;
+const refreshLinks = () => Graph.linkColor(Graph.linkColor()).linkWidth(Graph.linkWidth()).linkDirectionalParticles(Graph.linkDirectionalParticles()).linkDirectionalArrowLength(Graph.linkDirectionalArrowLength());
+
+function go(i) {
+  step = (i + STEPS.length) % STEPS.length; overview = false;
+  const s = STEPS[step]; active = new Set(s.links); activeNode = s.node;
+  btns.forEach((b, j) => { b.toggleAttribute("aria-current", false); if (j === step) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current"); b.classList.toggle("done", j < step); });
+  const bar = btns[step].querySelector(".bar"); bar.style.animation = "none"; void bar.offsetWidth; bar.style.animation = ""; // restart the progress bar
+  refreshLinks();
+  tip.querySelector(".k").textContent = s.kicker; tip.querySelector(".o").textContent = s.out; tip.querySelector(".t").textContent = s.note;
+  // fly the camera to frame this step's two ends
+  const ends = [...new Set(s.links.flatMap((id) => { const l = links.find((x) => x.id === id); return [l.source.id || l.source, l.target.id || l.target]; }))].map((id) => byId[id]);
+  const c = { x:avg(ends, "fx"), y:avg(ends, "fy"), z:avg(ends, "fz") }, spread = Math.max(...ends.map((n) => Math.hypot(n.fx - c.x, n.fy - c.y, n.fz - c.z)), 60);
+  Graph.cameraPosition({ x:c.x + spread * .45, y:c.y + 60 + spread * .25, z:c.z + 170 + spread * 1.5 }, c, REDUCED ? 0 : 1500);
+  schedule();
+}
+const avg = (a, k) => a.reduce((s, n) => s + n[k], 0) / a.length;
+function schedule() { clearTimeout(timer); if (playing && !overview) timer = setTimeout(() => go(step + 1), STEP_MS); }
+function setPlaying(p) { playing = p; document.documentElement.style.setProperty("--run", p ? "running" : "paused"); const b = document.getElementById("play"); b.textContent = p ? "Pause" : "Play"; b.setAttribute("aria-label", b.textContent); if (p) go(step); else clearTimeout(timer); }
+document.getElementById("play").onclick = () => setPlaying(!playing);
+document.getElementById("next").onclick = () => { go(step + 1); setPlaying(false); };
+document.getElementById("prev").onclick = () => { go(step - 1); setPlaying(false); };
+document.getElementById("over").onclick = () => { overview = true; clearTimeout(timer); active = new Set(links.map((l) => l.id)); activeNode = null; refreshLinks(); Graph.cameraPosition({ x:0, y:140, z:620 }, { x:20, y:0, z:0 }, REDUCED ? 0 : 1500); };
+addEventListener("keydown", (e) => {
+  if (e.key === "ArrowRight") { go(step + 1); setPlaying(false); } else if (e.key === "ArrowLeft") { go(step - 1); setPlaying(false); }
+  else if (e.key === " " && !(e.target instanceof HTMLButtonElement)) { e.preventDefault(); setPlaying(!playing); }
+});
+addEventListener("resize", () => Graph.width(stage.clientWidth).height(stage.clientHeight));
+
+// ---- per-frame: animate the inner worlds, pulse the active service, move the callout
+let last = performance.now(), tx = 0, ty = 0;
+(function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000), t = now / 1000; last = now;
+  for (const id in rig) {
+    const r = rig[id], on = id === activeNode ? 1 : 0;
+    r.a += (on - r.a) * Math.min(1, dt * 6);
+    r.tick(REDUCED ? 0 : t, r.a);
+    r.halo.material.opacity = .22 + r.a * .6; r.halo.scale.setScalar(80 + r.a * 26);
+    const ph = (t * .9) % 1; r.ring.material.opacity = r.a * (1 - ph) * .9; r.ring.scale.setScalar(26 + ph * 70);
+  }
+  if (!REDUCED) stars.rotation.y += dt * .008;
+  if (overview && !REDUCED) { const p = Graph.cameraPosition(), r = Math.hypot(p.x, p.z), ang = Math.atan2(p.x, p.z) + dt * .12; Graph.cameraPosition({ x:r * Math.sin(ang), y:p.y, z:r * Math.cos(ang) }, { x:20, y:0, z:0 }, 0); }
+  const n = byId[activeNode];
+  if (n && innerWidth > 800) {
+    const s = Graph.graph2ScreenCoords(n.fx, n.fy, n.fz), rect = stage.getBoundingClientRect();
+    let x = rect.left + s.x + 52, y = rect.top + s.y - tip.offsetHeight / 2 - 6;
+    if (x + 316 > innerWidth) x = rect.left + s.x - 352; // flip to the left near the right edge
+    y = Math.max(16, Math.min(innerHeight - tip.offsetHeight - 16, y));
+    tx += (x - tx) * .18; ty += (y - ty) * .18;
+    tip.style.transform = `translate(${tx}px, ${ty}px)`; tip.classList.add("on");
+  } else tip.classList.remove("on");
+  requestAnimationFrame(frame);
+})(last);
+
+Graph.cameraPosition({ x:0, y:140, z:620 }, { x:20, y:0, z:0 }, 0);
+setPlaying(playing);
+go(0);
+</script>
