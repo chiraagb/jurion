@@ -27,17 +27,27 @@ const read = () => { try { return localStorage.getItem(KEY) === "1"; } catch { r
 /** Large screens: a grouped sidebar (icon + label, collapsible). */
 export function Sidebar({ current }: { current: string }) {
   const [collapsed, setCollapsed] = useState(read);
+  const [tip, setTip] = useState<{ text: string; top: number; left: number } | null>(null); // fixed, because the nav clips anything that sticks out of it
+  const point = (e: { target: EventTarget }) => {
+    const el = (e.target as HTMLElement).closest<HTMLElement>("[data-tip]");
+    const r = el?.getBoundingClientRect();
+    setTip(el && r ? { text: el.dataset.tip!, top: r.top + r.height / 2, left: r.right + 10 } : null);
+  };
   const toggle = () => setCollapsed((c) => { try { localStorage.setItem(KEY, c ? "0" : "1"); } catch { /* ignore */ } return !c; });
   return (
     <aside
       aria-label="Sections"
-      className={`sticky top-[var(--header-h)] hidden h-[calc(100dvh-var(--header-h))] shrink-0 flex-col border-r border-line bg-canvas/60 py-4 overflow-x-hidden transition-[width] duration-300 ease-out motion-reduce:transition-none lg:flex ${collapsed ? "w-[4.25rem]" : "w-60"}`}
+      onMouseOver={point}
+      onFocus={point}
+      onMouseLeave={() => setTip(null)}
+      onBlur={() => setTip(null)}
+      className={`sticky top-[var(--header-h)] z-20 hidden h-[calc(100dvh-var(--header-h))] shrink-0 flex-col border-r border-line bg-canvas/60 py-4 overflow-x-hidden transition-[width] duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)] lg:flex ${collapsed ? "w-[4.25rem]" : "w-60"}`}
     >
       <nav className="flex-1 space-y-5 overflow-y-auto overflow-x-hidden px-3">
-        {NAV.map((g, gi) => (
+        {NAV.map((g) => (
           <Fragment key={g.group}>
           <div>
-            <p aria-hidden={collapsed} className={`caption overflow-hidden whitespace-nowrap px-3 transition-[max-height,margin,opacity] duration-300 ease-out motion-reduce:transition-none ${collapsed ? "mb-0 max-h-0 opacity-0" : "mb-2 max-h-6 opacity-100"}`}>{g.group}</p>
+            <p aria-hidden={collapsed} className={`caption overflow-hidden whitespace-nowrap px-3 transition-[max-height,margin,opacity] duration-300 ease-out ${collapsed ? "mb-0 max-h-0 opacity-0" : "mb-2 max-h-6 opacity-100"}`}>{g.group}</p>
             <ul className="space-y-1">
               {g.items.map(({ id, label, Icon }) => {
                 const on = current === id;
@@ -47,20 +57,20 @@ export function Sidebar({ current }: { current: string }) {
                       to={`/${id}`}
                       aria-current={on ? "page" : undefined}
                       aria-label={collapsed ? label : undefined}
-                      title={collapsed ? label : undefined}
+                      data-tip={collapsed ? label : undefined}
                       className={`relative flex h-11 items-center rounded-lg px-3 text-[0.95rem] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-accent ${
                         on ? "bg-accent/10 font-semibold text-fg before:absolute before:inset-y-2 before:left-0 before:w-[3px] before:rounded-full before:bg-accent" : "text-muted hover:bg-raised hover:text-fg"
                       }`}
                     >
                       <Icon className={`h-[1.15rem] w-[1.15rem] shrink-0 ${on ? "text-accent" : ""}`} aria-hidden />
-                      <span aria-hidden={collapsed} className={`overflow-hidden whitespace-nowrap transition-[max-width,margin,opacity] duration-300 ease-out motion-reduce:transition-none ${collapsed ? "ml-0 max-w-0 opacity-0" : "ml-3 max-w-44 opacity-100"}`}>{label}</span>
+                      <span aria-hidden={collapsed} className={`overflow-hidden whitespace-nowrap transition-[max-width,margin,opacity] duration-300 ease-out ${collapsed ? "ml-0 max-w-0 opacity-0" : "ml-3 max-w-44 opacity-100 delay-100"}`}>{label}</span>
                     </Link>
+                    {id === "ask" && <SessionList collapsed={collapsed} />}
                   </li>
                 );
               })}
             </ul>
           </div>
-          {gi === 0 && <SessionList collapsed={collapsed} />}
           </Fragment>
         ))}
       </nav>
@@ -69,12 +79,14 @@ export function Sidebar({ current }: { current: string }) {
           onClick={toggle}
           aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
           aria-expanded={!collapsed}
+          data-tip={collapsed ? "Expand navigation" : undefined}
           className={`flex h-10 w-full cursor-pointer items-center gap-3 overflow-hidden rounded-lg px-3 text-sm text-muted transition-colors hover:bg-raised hover:text-fg focus-visible:outline-2 focus-visible:outline-accent`}
         >
           {collapsed ? <PanelLeftOpen className="h-[1.15rem] w-[1.15rem] shrink-0" aria-hidden /> : <PanelLeftClose className="h-[1.15rem] w-[1.15rem] shrink-0" aria-hidden />}
-          <span aria-hidden className={`overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-300 ease-out motion-reduce:transition-none ${collapsed ? "max-w-0 opacity-0" : "max-w-32 opacity-100"}`}>Collapse</span>
+          <span aria-hidden className={`overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-300 ease-out ${collapsed ? "max-w-0 opacity-0" : "max-w-32 opacity-100 delay-100"}`}>Collapse</span>
         </button>
       </div>
+      {tip && collapsed && <div role="tooltip" style={{ top: tip.top, left: tip.left }} className="pointer-events-none fixed z-40 -translate-y-1/2 whitespace-nowrap rounded-lg border border-line-strong bg-surface px-3 py-1.5 text-sm font-medium text-fg shadow-lg motion-safe:animate-[rise_0.12s_ease-out]">{tip.text}</div>}
     </aside>
   );
 }

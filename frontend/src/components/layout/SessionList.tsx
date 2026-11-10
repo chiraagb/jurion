@@ -112,10 +112,10 @@ export default function SessionList({ collapsed }: { collapsed: boolean }) {
   return (
     <div>
       {/* both views stay mounted and fold into each other, so collapsing the sidebar animates instead of swapping */}
-      <div className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out motion-reduce:transition-none ${collapsed ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+      <div className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${collapsed ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
         <div className="min-h-0 overflow-hidden" inert={!collapsed}>
           <div className="space-y-1">
-            <Link to="/ask" onClick={newSession} aria-label="New session" title="New session" className={`flex h-11 items-center justify-center rounded-lg text-muted transition-colors hover:bg-raised hover:text-fg ${ring}`}>
+            <Link to="/ask" onClick={newSession} aria-label="New session" data-tip="New session" className={`flex h-11 items-center justify-center rounded-lg text-muted transition-colors hover:bg-raised hover:text-fg ${ring}`}>
               <Plus className="h-[1.15rem] w-[1.15rem] text-accent" aria-hidden />
             </Link>
             <button
@@ -123,7 +123,7 @@ export default function SessionList({ collapsed }: { collapsed: boolean }) {
               type="button"
               aria-label="Sessions"
               aria-expanded={!!flyout}
-              title="Sessions"
+              data-tip={flyout ? undefined : "Sessions"}
               onClick={(e) => { const r = e.currentTarget.getBoundingClientRect(); setFlyout((f) => (f ? null : { top: r.top, left: r.right + 10 })); }}
               className={`flex h-11 w-full cursor-pointer items-center justify-center rounded-lg transition-colors hover:bg-raised hover:text-fg ${ring} ${flyout || active ? "bg-accent/10 text-accent" : "text-muted"}`}
             >
@@ -132,25 +132,25 @@ export default function SessionList({ collapsed }: { collapsed: boolean }) {
           </div>
         </div>
       </div>
-      <div className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out motion-reduce:transition-none ${collapsed ? "grid-rows-[0fr] opacity-0" : "grid-rows-[1fr] opacity-100"}`}>
+      <div className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${collapsed ? "grid-rows-[0fr] opacity-0" : "grid-rows-[1fr] opacity-100"}`}>
         <div className="min-h-0 overflow-hidden" inert={collapsed}>
           <div className="mb-1 flex items-center justify-between pr-1">
             <button type="button" onClick={toggle} aria-expanded={open} className={`caption flex flex-1 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1.5 text-left transition-colors hover:text-fg ${ring}`}>
               Sessions
-              <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-300 motion-reduce:transition-none ${open ? "" : "-rotate-90"}`} aria-hidden />
+              <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-300 ${open ? "" : "-rotate-90"}`} aria-hidden />
             </button>
             <Link to="/ask" onClick={newSession} aria-label="New session" title="New session" className={`grid h-8 w-8 place-items-center rounded-lg text-accent transition-colors hover:bg-raised ${ring}`}>
               <Plus className="h-4 w-4" aria-hidden />
             </Link>
           </div>
-          <div className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out motion-reduce:transition-none ${open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+          <div className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
             <div className="min-h-0 overflow-hidden" inert={!open}>{rows(false)}</div>
           </div>
         </div>
       </div>
 
       {flyout && (
-        <div ref={flyBox} role="dialog" aria-label="Sessions" style={{ top: flyout.top, left: flyout.left }} className="fixed z-40 w-72 rounded-xl border border-line-strong bg-surface p-2 shadow-[0_18px_40px_-18px_rgb(0_0_0/0.5)] motion-safe:animate-[rise_0.18s_ease-out]">
+        <div ref={flyBox} role="dialog" aria-label="Sessions" style={{ top: flyout.top, left: flyout.left }} className="fixed z-50 w-72 rounded-xl border border-line-strong bg-surface p-2 shadow-[0_18px_40px_-18px_rgb(0_0_0/0.5)] motion-safe:animate-[rise_0.18s_ease-out]">
           <div className="mb-1 flex items-center justify-between px-3 py-1">
             <p className="caption">Sessions</p>
             <Link to="/ask" onClick={() => { newSession(); setFlyout(null); }} className={`flex items-center gap-1 rounded-md px-2 py-1 text-xs text-accent-fg hover:bg-raised ${ring}`}><Plus className="h-3.5 w-3.5" aria-hidden /> New</Link>
