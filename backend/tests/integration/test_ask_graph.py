@@ -144,7 +144,15 @@ if __name__ == "__main__":
             ev = events(c.post("/ask", json={"question": q, "anywhere": True}))
             first = next(e for e in ev if e["event"] == "retrieved")
             assert first["scope"] == [] and first["scope_reason"] == "You chose to search every contract.", first
-            print("ok: narrow by named party, widen by reference, no narrowing, fallback to all")
+            # 7. a follow-up that names no contract stays in the contract the chat was in, instead of asking again; a context size is reported
+            sid = events(c.post("/ask", json={"question": "When can the bank terminate?"}))[-1]["session_id"]  # a chat that was about bank.pdf
+            ev = events(c.post("/ask", json={"question": q, "session_id": sid}))
+            first = next(e for e in ev if e["event"] == "retrieved")
+            assert first["scope"] == ["bank.pdf"] and first["scope_reason"] == "Same contract as your last question." and not [e for e in ev if e["event"] == "clarify"], first
+            ev = events(c.post("/ask", json={"question": "terminate this agreement on notice"}))
+            ctx = next(e for e in ev if e["event"] == "context")
+            assert 0 < ctx["used"] < ctx["limit"], ctx
+            print("ok: narrow by named party, widen by reference, no narrowing, fallback to all, follow-up keeps the contract")
         finally:
             app.dependency_overrides.clear()
             c.portal.call(drop, user)

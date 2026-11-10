@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowUp, Square } from "lucide-react";
+import { ContextRing } from "./SessionMeter";
 
 /** The message box, pinned under the thread like a chat app: Enter sends, Shift+Enter adds a line, and it grows up to six lines. */
-export default function Composer({ busy, onSend, onStop, focusKey, disabledReason }: { busy: boolean; onSend: (q: string) => void; onStop: () => void; focusKey: unknown; disabledReason?: string }) {
+export default function Composer({ busy, onSend, onStop, focusKey, disabledReason, usage }: { busy: boolean; onSend: (q: string) => void; onStop: () => void; focusKey: unknown; disabledReason?: string; usage?: { used: number; limit: number } | null }) {
   const [text, setText] = useState("");
   const box = useRef<HTMLTextAreaElement>(null);
   const q = text.trim();
@@ -45,6 +46,7 @@ export default function Composer({ busy, onSend, onStop, focusKey, disabledReaso
             placeholder={disabledReason ?? "Ask about your contracts…"}
             className="max-h-[10.5rem] min-h-11 min-w-0 flex-1 resize-none overflow-y-auto bg-transparent px-3 py-2.5 text-base leading-snug text-fg outline-none placeholder:text-subtle"
           />
+          {usage && usage.limit > 0 && <span className="self-center"><ContextRing used={usage.used} limit={usage.limit} /></span>}
           {busy ? (
             <button type="button" onClick={onStop} aria-label="Stop answering" className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-xl bg-fg text-canvas transition-opacity hover:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
               <Square className="h-4 w-4 fill-current" aria-hidden />

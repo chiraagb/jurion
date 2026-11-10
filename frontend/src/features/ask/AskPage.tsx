@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { CSSProperties, KeyboardEvent as KbEvent, PointerEvent as PtrEvent } from "react";
-import { Network, SquarePen } from "lucide-react";
+import { SquarePen } from "lucide-react";
 import { ClauseViewer, type ClauseRef } from "@/features/clause/ClausePanel";
-import { Link, navigate } from "@/lib/router";
+import { navigate } from "@/lib/router";
+import { sessionsChanged } from "@/components/layout/SessionList";
 import { AnswerCard, Trace, type Attempt } from "./AnswerCard";
 import Composer from "./Composer";
 import GettingStarted from "@/features/onboarding/GettingStarted";
 import { useSetup } from "@/features/onboarding/useSetup";
 import { ask, type AskEvent, type AskExtra, type Brief } from "./api";
+import { getSession, type StoredTurn } from "@/features/sessions/api";
 
 type Stage = "search" | "grade" | "rewrite" | "write";
 interface Turn { id: number; question: string; attempts: Attempt[]; sources: Brief[]; answer: string; facts?: string; followups?: string[]; clarify?: { id: string; filename: string; summary: string }[]; stage: Stage | null; error: string | null; saved: string | null; stopped?: boolean }
@@ -26,7 +28,7 @@ const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /** A chat with your contracts. The newest question sits at the top of the view with its answer growing beneath it;
  *  a reference opens beside the answer (docked on wide screens, a sheet on narrow ones). Stays mounted while you visit other tabs. */
-export default function AskPage({ q: urlQuestion, active }: { q: string; active: boolean }) {
+export default function AskPage({ q: urlQuestion, session: urlSession, active }: { q: string; session: string; active: boolean }) {
   const setup = useSetup(active); // re-checked whenever the Ask tab is shown again
   const notReady = !setup.loading && !setup.failed && (setup.contracts === 0 || !setup.hasKey);
   const [turns, setTurns] = useState<Turn[]>([]);
@@ -53,6 +55,8 @@ export default function AskPage({ q: urlQuestion, active }: { q: string; active:
 
   const patch = useCallback((id: number, f: (t: Turn) => Turn) => setTurns((all) => all.map((t) => (t.id === id ? f(t) : t))), []);
 
+  const session = useRef<string | null>(null); // this chat's id once its first answer is saved: the server remembers the chat under it
+  const [usage, setUsage] = useState<{ used: number; limit: number; full: boolean } | null>(null); // how much of the session's context budget is used
   const recent = useRef<string[]>([]); // the last questions, sent along so "these two contracts" can be resolved
   const send = useCallback((question: string, extra: AskExtra = {}) => {
     const id = next.current++;
@@ -62,12 +66,27 @@ export default function AskPage({ q: urlQuestion, active }: { q: string; active:
     ctl.current = c;
     setOpen(null);
     setTurns((all) => [...all, { id, question, attempts: [], sources: [], answer: "", stage: "search", error: null, saved: null }]);
-    const on = (e: AskEvent) => patch(id, (t) => {
+    const on = (e: AskEvent) => {
+      if (e.event === "context") setUsage((u) => ({ used: e.used, limit: e.limit, full: u?.full ?? false })); // while it answers: what is being sent
+      else if (e.event === "full") setUsage({ used: e.used, limit: e.limit, full: true });
+      else if (e.event === "done") {
+        setUsage({ used: e.used, limit: e.limit, full: e.full });
+        if (e.session_id) {
+          session.current = e.session_id;
+          if (location.pathname === "/ask") navigate(`/ask?s=${e.session_id}`, true); // the chat has an address: reload and the sidebar both find it
+          sessionsChanged();
+        }
+      }
+      patch(id, (t) => turn(t, e));
+    };
+    const turn = (t: Turn, e: AskEvent): Turn => {
       switch (e.event) {
         case "retrieved": return { ...t, stage: "grade", attempts: [...t.attempts, { query: e.query, mode: e.mode, note: e.note, scope: e.scope, contracts: e.contracts, scope_reason: e.scope_reason, hits: e.hits, relevant: null }] };
         case "graded": return { ...t, attempts: t.attempts.map((a, i) => (i === t.attempts.length - 1 ? { ...a, relevant: e.relevant, reasons: e.reasons } : a)) };
         case "rewritten": return { ...t, stage: "rewrite" };
         case "clarify": return { ...t, clarify: e.options };
+        case "context": return t;
+        case "full": return { ...t, stage: null };
         case "followups": return { ...t, followups: e.questions };
         case "facts": return { ...t, facts: e.text };
         case "sources": return { ...t, sources: e.sources };
@@ -75,8 +94,8 @@ export default function AskPage({ q: urlQuestion, active }: { q: string; active:
         case "done": return { ...t, stage: null, saved: e.session_id };
         case "error": return { ...t, stage: null, error: e.detail };
       }
-    });
-    ask(question, before, extra, on, c.signal).catch((err) => {
+    };
+    ask(question, before, { sessionId: session.current, ...extra }, on, c.signal).catch((err) => {
       patch(id, (t) => (c.signal.aborted ? { ...t, stage: null, stopped: true } : { ...t, stage: null, error: err.message }));
     });
   }, [patch]);
@@ -97,12 +116,31 @@ export default function AskPage({ q: urlQuestion, active }: { q: string; active:
     else if (active && asked.current !== urlQuestion && urlQuestion.trim().length >= 3) {
       asked.current = urlQuestion;
       send(urlQuestion.trim());
-      navigate("/ask", true);
+      navigate(session.current ? `/ask?s=${session.current}` : "/ask", true);
     }
   }, [active, urlQuestion, send]);
 
+  // /ask?s=<id> (from Sessions): load that chat and carry on in it.
+  useEffect(() => {
+    if (!active || !urlSession || session.current === urlSession) return;
+    session.current = urlSession;
+    getSession(urlSession).then((s) => {
+      const stored = (s.data as { turns: StoredTurn[] }).turns;
+      setTurns(stored.map((t, i) => ({ id: next.current++, question: t.question, attempts: t.attempts, sources: t.sources, answer: t.answer, facts: t.facts, followups: i === stored.length - 1 ? t.followups : undefined, clarify: t.clarify && i === stored.length - 1 ? t.clarify_options ?? undefined : undefined, stage: null, error: null, saved: s.id })));
+      recent.current = stored.map((t) => t.question);
+      setUsage({ used: s.used ?? 0, limit: s.limit ?? 0, full: !!(s as { full?: boolean }).full });
+      setOpen(null);
+    }).catch(() => { session.current = null; navigate("/ask", true); });
+  }, [active, urlSession]);
+
   const stop = () => ctl.current?.abort();
-  const fresh = () => { ctl.current?.abort(); setTurns([]); setOpen(null); };
+  const fresh = () => { ctl.current?.abort(); session.current = null; recent.current = []; setUsage(null); setTurns([]); setOpen(null); if (location.pathname === "/ask") navigate("/ask", true); };
+  useEffect(() => { // "New session" in the sidebar
+    addEventListener("jurion:new-session", fresh);
+    return () => removeEventListener("jurion:new-session", fresh);
+  });
+  // The Ask tab was reopened without ?s: the chat in progress keeps its address.
+  useEffect(() => { if (active && !urlSession && !urlQuestion && session.current) navigate(`/ask?s=${session.current}`, true); }, [active, urlSession, urlQuestion]);
 
   const current = open ? turns.find((t) => t.id === open.turn)?.sources[open.index] : undefined;
   const sources = open ? turns.find((t) => t.id === open.turn)?.sources ?? [] : [];
@@ -129,11 +167,13 @@ export default function AskPage({ q: urlQuestion, active }: { q: string; active:
       <div className={`min-w-0 flex-1 flex-col lg:min-w-[20rem] ${wide ? "hidden" : "flex"}`}>
         <div className="flex h-12 shrink-0 items-center justify-between border-b border-line px-4">
           <h1 className="font-display text-lg font-semibold">Ask your contracts</h1>
-          {turns.length > 0 && (
-            <button onClick={fresh} className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-lg px-3 text-sm text-muted transition-colors hover:bg-raised hover:text-fg focus-visible:outline-2 focus-visible:outline-accent">
-              <SquarePen className="h-4 w-4" aria-hidden /> New chat
-            </button>
-          )}
+          <div className="flex items-center gap-3">
+            {turns.length > 0 && (
+              <button onClick={fresh} className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-lg px-3 text-sm text-muted transition-colors hover:bg-raised hover:text-fg focus-visible:outline-2 focus-visible:outline-accent">
+                <SquarePen className="h-4 w-4" aria-hidden /> New session
+              </button>
+            )}
+          </div>
         </div>
 
         <div ref={scroller} className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain" role="region" aria-label="Conversation" tabIndex={-1}>
@@ -217,11 +257,6 @@ export default function AskPage({ q: urlQuestion, active }: { q: string; active:
                       </div>
                     )}
                     {t.attempts.length > 0 && <Trace attempts={t.attempts} sources={t.sources} onPick={(c) => { const x = t.sources.findIndex((s) => s.document_id === c.document_id && s.position === c.position); x >= 0 && setOpen({ turn: t.id, index: x }); }} />}
-                    {t.saved && !t.stage && (
-                      <p className="flex items-center gap-1.5 text-xs text-subtle">
-                        <Network className="h-3.5 w-3.5" aria-hidden /> Saved to <Link to={`/sessions/${t.saved}`} className="underline hover:text-fg">History</Link> where you can compare it with other questions.
-                      </p>
-                    )}
                   </div>
                 </article>
               ))
@@ -229,7 +264,13 @@ export default function AskPage({ q: urlQuestion, active }: { q: string; active:
           </div>
         </div>
 
-        <Composer busy={busy} onSend={send} onStop={stop} focusKey={active} disabledReason={notReady ? "Finish the steps above to start asking" : undefined} />
+        {usage?.full && !busy && (
+          <p role="status" className="mx-auto flex w-full max-w-3xl flex-wrap items-center justify-between gap-3 px-4 pb-2 text-sm text-fg-soft">
+            <span>This session is full. Long sessions make answers less accurate, so start a new one.</span>
+            <button onClick={fresh} className="h-10 cursor-pointer rounded-lg bg-accent px-4 font-medium text-canvas hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">New session</button>
+          </p>
+        )}
+        <Composer usage={turns.length > 0 ? usage : null} busy={busy} onSend={send} onStop={stop} focusKey={active} disabledReason={notReady ? "Finish the steps above to start asking" : usage?.full ? "This session is full. Start a new session to keep asking." : undefined} />
       </div>
 
       {current && open && !wide && (

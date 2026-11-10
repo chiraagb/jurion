@@ -92,7 +92,7 @@ export default function SearchPage({ q: urlQuery }: { q: string }) { // the quer
             </p>
             <HitList results={data.results} onPick={openReference} />
             {data.session_id && (
-              <p className="text-sm text-muted">Saved to <Link to={`/sessions/${data.session_id}`} className="underline">History</Link>, where you can compare it with other searches.</p>
+              <p className="text-sm text-muted">Saved. <Link to={`/sessions/${data.session_id}`} className="underline">Open it again</Link> later.</p>
             )}
           </>
         )

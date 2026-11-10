@@ -9,6 +9,7 @@ from app.config import settings
 from app.database import AsyncSessionLocal, User
 from app.graph import drop_user as drop_user_graph
 from app.main import app
+from app.sessions import CLAUSE_RESERVE
 from tests.integration.test_parse import make_sample_pdf
 from tests.integration.test_search import RESULT, fake_embed
 
@@ -46,7 +47,9 @@ if __name__ == "__main__":
 
             rewrites, grades = [], []
             async def fake_rewrite(_k, q): rewrites.append(q); return "terminate notice"
-            async def fake_answer(_k, q, sources, **_):
+            seen_memory = []
+            async def fake_answer(_k, q, sources, **kw):
+                seen_memory.append(kw.get("mem"))
                 for t in ("Thirty days ", "[1]."):
                     yield t
             async def no_followups(*_): return []
@@ -61,28 +64,32 @@ if __name__ == "__main__":
             ask.grade = grade_first
             ev = events(c.post("/ask", json={"question": "terminate notice"}))
             kinds = [e["event"] for e in ev]
-            assert kinds == ["retrieved", "graded", "sources", "token", "token", "done"], kinds
+            assert kinds == ["retrieved", "graded", "sources", "context", "token", "token", "done"], kinds
             assert ev[2]["sources"][0]["clause_identifier"] == "1" and "".join(e["text"] for e in ev if e["event"] == "token") == "Thirty days [1]."
             assert not rewrites
             assert ev[1]["reasons"] == {"0": "States the notice period.", "1": "A different subject: payment."}, ev[1]  # the reasons reach the browser
             sid = ev[-1]["session_id"]
+            assert ev[-1]["used"] > 0 and ev[-1]["limit"] == settings.ASK_SESSION_TOKENS, ev[-1]
             saved = c.get(f"/sessions/{sid}").json()
-            assert saved["kind"] == "ask" and saved["data"]["answer"] == "Thirty days [1]." and saved["data"]["sources"][0]["content"]
-            assert saved["data"]["attempts"][0]["relevant"] == [0] and saved["data"]["attempts"][0]["reasons"]["1"].startswith("A different")  # and the saved history
-            assert events(c.post("/ask", json={"question": "terminate notice"}))[-1]["session_id"] == sid  # re-run: same session, no copy
+            t0 = saved["data"]["turns"][0]
+            assert saved["kind"] == "chat" and t0["answer"] == "Thirty days [1]." and t0["sources"][0]["content"]
+            assert t0["attempts"][0]["relevant"] == [0] and t0["attempts"][0]["reasons"]["1"].startswith("A different")  # and the saved session
+            ev = events(c.post("/ask", json={"question": "terminate notice", "session_id": sid}))
+            assert ev[-1]["session_id"] == sid and len(c.get(f"/sessions/{sid}").json()["data"]["turns"]) == 2  # the same chat grows
+            assert seen_memory[-1] == [("terminate notice", "Thirty days.")], seen_memory  # the model is shown the chat so far, without the [1] marks
 
             # 2. nothing relevant at first, relevant after one rewrite
             async def grade_after_rewrite(_k, q, hits): return [] if q != "terminate notice" else [0]
             ask.grade = grade_after_rewrite
-            kinds = [e["event"] for e in events(c.post("/ask", json={"question": "how do we part ways"}))]
-            assert kinds == ["retrieved", "graded", "rewritten", "retrieved", "graded", "sources", "token", "token", "done"], kinds
+            kinds = [e["event"] for e in events(c.post("/ask", json={"question": "how do we part ways", "session_id": sid}))]
+            assert kinds == ["retrieved", "graded", "rewritten", "retrieved", "graded", "sources", "context", "token", "token", "done"], kinds
             assert rewrites == ["how do we part ways"]
 
             # 3. still nothing after the rewrite: says so, and never calls the answer model
             async def grade_none(_k, q, hits): return []
             async def boom(*_): raise AssertionError("answer model must not run without sources"); yield
             ask.grade, ask.answer_stream = grade_none, boom
-            ev = events(c.post("/ask", json={"question": "who owns the moon"}))
+            ev = events(c.post("/ask", json={"question": "who owns the moon", "session_id": sid}))
             assert [e["event"] for e in ev][-4:] == ["sources", "token", "followups", "done"] and ev[-3]["text"] == ask.NONE_FOUND and ev[-4]["sources"] == [] and ev[-2]["questions"][0] == "List my contracts"
 
             # 4. an OpenAI failure arrives as an error event, not a broken stream
@@ -90,7 +97,16 @@ if __name__ == "__main__":
             ask.grade = grade_fail
             assert events(c.post("/ask", json={"question": "terminate notice"}))[-1]["event"] == "error"
 
-            assert len(c.get("/sessions").json()) == 3  # the three finished questions; the failed one is not saved
+            lst = c.get("/sessions").json()
+            assert [(x["id"], x["turns"]) for x in lst] == [(sid, 4)] and lst[0]["used"] > 0, lst  # one session with the four finished questions; the failed one is not saved
+            assert c.patch(f"/sessions/{sid}", json={"title": "  Brightpath notice  "}).json()["query"] == "Brightpath notice"
+            assert c.get("/sessions").json()[0]["query"] == "Brightpath notice" and c.patch(f"/sessions/{sid}", json={"title": " "}).json()["query"] == "Brightpath notice"  # blank keeps the title
+            assert c.patch(f"/sessions/{uuid.uuid4()}", json={"title": "x"}).status_code == 404
+            # a session whose chat has used up its budget asks for a new one, and searches nothing
+            real, settings.ASK_SESSION_TOKENS = settings.ASK_SESSION_TOKENS, CLAUSE_RESERVE + 2
+            ev = events(c.post("/ask", json={"question": "terminate notice", "session_id": sid}))
+            assert [e["event"] for e in ev] == ["full", "done"] and len(c.get(f"/sessions/{sid}").json()["data"]["turns"]) == 4, ev
+            settings.ASK_SESSION_TOKENS = real
             assert c.delete(f"/sessions/{sid}").status_code == 204 and c.get(f"/sessions/{sid}").status_code == 404
 
             # 5. no key: refused up front

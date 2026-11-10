@@ -12,13 +12,13 @@ from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth import current_user
 from app.config import settings
-from app.database import AsyncSessionLocal, User, get_db
+from app.database import AsyncSessionLocal, QuerySession, User, get_db
 from app.embeddings import expand_thin, hybrid, openai_key
 from app.graph import contract_cards, party_key, read_library, references_from
 from sqlalchemy import select
 from app.database import Clause, Document
 from app.ratelimit import limit
-from app.sessions import save_session
+from app.sessions import append_turn, is_full as session_full, memory as chat_memory, tokens
 
 log = logging.getLogger("jurion")
 router = APIRouter()
@@ -39,6 +39,7 @@ class AskIn(BaseModel):
     only: list[uuid.UUID] = Field(default=[], max_length=10)  # the contracts the user picked when asked "which contract?"
     anywhere: bool = False  # the user chose "search all contracts"
     before: list[str] = Field(default=[], max_length=2)  # the last questions of this chat, so "these two contracts" can be resolved
+    session_id: uuid.UUID | None = None  # the chat this question belongs to (none: a new chat is started)
 
 
 class Verdict(BaseModel):
@@ -182,15 +183,18 @@ async def widen(s: AsyncSession, relevant: list[dict], limit: int = 3) -> list[d
     return extras
 
 
-async def answer_stream(key: str, q: str, sources: list[dict], facts: str = "") -> AsyncIterator[str]:
+def _prompt(q: str, sources: list[dict], facts: str = "", mem: list[tuple[str, str]] = ()) -> list[dict]:
+    """Everything the answer model is sent: the chat so far (questions and answers, not their clauses), then this question with its own retrieved clauses."""
     ctx = "\n\n".join(
         f"[{n}] {s['filename']}, clause {s['clause_identifier']} {s['title']} (p.{s['page_number']})\n{s['content'][:3000]}"
         for n, s in enumerate(sources, 1)
     )
-    stream = await _client(key).chat.completions.create(
-        model=settings.ASK_MODEL, stream=True,
-        messages=[{"role": "system", "content": SYSTEM}, {"role": "user", "content": f"{facts + chr(10) * 2 if facts else ''}Clauses:\n{ctx or '(none)'}\n\nQuestion: {q}"}],
-    )
+    past = [m for mq, ma in mem for m in ({"role": "user", "content": mq}, {"role": "assistant", "content": ma})]
+    return [{"role": "system", "content": SYSTEM}, *past, {"role": "user", "content": f"{facts + chr(10) * 2 if facts else ''}Clauses:\n{ctx or '(none)'}\n\nQuestion: {q}"}]
+
+
+async def answer_stream(key: str, q: str, sources: list[dict], facts: str = "", mem: list[tuple[str, str]] = ()) -> AsyncIterator[str]:
+    stream = await _client(key).chat.completions.create(model=settings.ASK_MODEL, stream=True, messages=_prompt(q, sources, facts, mem))
     async for chunk in stream:
         if chunk.choices and (t := chunk.choices[0].delta.content):
             yield t
@@ -277,9 +281,12 @@ def _brief(h: dict, full: bool = False) -> dict:
 
 
 async def pipeline(s: AsyncSession, uid, key: str, question: str, before: list[str] = (), suggest: bool = True,
-                   only_ids: list = (), anywhere: bool = False, clarify: bool = True) -> AsyncIterator[tuple[str, dict]]:
+                   only_ids: list = (), anywhere: bool = False, clarify: bool = True, last_scope: list[str] = (), mem: list[tuple[str, str]] = ()) -> AsyncIterator[tuple[str, dict]]:
     """The whole Ask flow as (event, data) pairs: retrieve, grade, rewrite once if nothing is relevant, then answer.
     The endpoint streams these to the browser; tests.eval_answers runs them to score the answers."""
+    if session_full(sum(tokens(q) + tokens(a) for q, a in mem)):  # the chat itself fills the budget: no room left for clauses
+        yield "full", {"used": sum(tokens(q) + tokens(a) for q, a in mem), "limit": settings.ASK_SESSION_TOKENS}
+        return
     try:
         text = await library_answer(s, uid, question)
     except Exception as e:  # fall back to searching the clauses
@@ -307,7 +314,10 @@ async def pipeline(s: AsyncSession, uid, key: str, question: str, before: list[s
         elif len(cards) > 1:
             picks = await scope(key, question, cards)
             only, why = [cards[i] for i in picks], getattr(picks, "reason", "")
-            if clarify and getattr(picks, "ambiguous", False):  # one contract is meant but not named: ask, do not guess
+            keep = [c for c in cards if c["filename"] in last_scope]
+            if getattr(picks, "ambiguous", False) and keep and (not only or {c["id"] for c in keep} & {c["id"] for c in only}):
+                only, why = keep, "Same contract as your last question."  # a follow-up ("how fast must they report a breach?") stays in the contract of the chat
+            elif clarify and getattr(picks, "ambiguous", False):  # one contract is meant but not named: ask, do not guess
                 options = only or cards
                 yield "sources", {"sources": []}
                 yield "token", {"text": f"Your question doesn't say which contract it means, and the answer would differ between them. {why}".strip()
@@ -338,8 +348,9 @@ async def pipeline(s: AsyncSession, uid, key: str, question: str, before: list[s
         yield "token", {"text": NONE_FOUND}
         yield "followups", {"questions": STATIC_FOLLOWUPS[None]}
         return
+    yield "context", {"used": sum(tokens(m["content"]) for m in _prompt(question, sources, facts, mem)), "limit": settings.ASK_SESSION_TOKENS}
     text = ""
-    async for t in answer_stream(key, question, sources, facts=facts):
+    async for t in answer_stream(key, question, sources, facts=facts, mem=mem):
         text += t
         yield "token", {"text": t}
     try:
@@ -364,9 +375,13 @@ async def ask(
 
     async def events() -> AsyncIterator[str]:
         try:
-            attempts, sources, answer = [], [], ""
+            attempts, sources, answer, extra = [], [], "", {}
             async with AsyncSessionLocal() as s:  # own session: the request's one may be closed while we stream
-                async for kind, d in pipeline(s, uid, key, question, body.before, only_ids=body.only, anywhere=body.anywhere):
+                row = await s.get(QuerySession, body.session_id) if body.session_id else None
+                turns = row.data["turns"] if row and row.user_id == uid and row.kind == "chat" else []
+                answered = [t for t in turns if not t.get("clarify")]
+                last_scope = answered[-1].get("scope", []) if answered else []  # a follow-up that names no contract stays in the one the chat was about
+                async for kind, d in pipeline(s, uid, key, question, body.before, only_ids=body.only, anywhere=body.anywhere, last_scope=last_scope, mem=chat_memory(turns)):
                     if kind == "retrieved":
                         attempts.append({**d, "relevant": None})
                     elif kind == "graded":
@@ -376,14 +391,23 @@ async def ask(
                         sources = d["sources"]
                     elif kind == "token":
                         answer += d["text"]
+                    elif kind in ("clarify", "followups", "facts"):
+                        extra[kind] = d.get("options") or d.get("questions") or d.get("text")
+                    elif kind == "full":
+                        yield ev("full", **d)
+                        yield ev("done", session_id=str(body.session_id), used=d["used"], limit=d["limit"], full=True)
+                        return
                     yield ev(kind, **d)
+            turn = {"question": question, "answer": answer, "sources": sources, "attempts": attempts, "clarify": "clarify" in extra, **{k: v for k, v in extra.items() if k != "clarify"},
+                    "clarify_options": extra.get("clarify"), "scope": (attempts[-1].get("scope") or []) if attempts else last_scope}
             try:
                 async with AsyncSessionLocal() as s:
-                    sid = str(await save_session(s, uid, "ask", question, {"answer": answer, "sources": sources, "attempts": attempts}))
-            except Exception as e:  # history is a convenience: the answer was already delivered
-                log.warning("saving ask session failed: %s", type(e).__name__)
-                sid = None
-            yield ev("done", session_id=sid)
+                    sid, used = await append_turn(s, uid, body.session_id, turn)
+                sid = str(sid)
+            except Exception as e:  # saving is a convenience: the answer was already delivered
+                log.warning("saving chat turn failed: %s", type(e).__name__)
+                sid, used = None, 0
+            yield ev("done", session_id=sid, used=used, limit=settings.ASK_SESSION_TOKENS, full=session_full(used))
         except Exception as e:
             log.warning("ask failed: %s", type(e).__name__)
             yield ev("error", detail=f"The OpenAI call failed ({type(e).__name__}). Check your key and try again.")

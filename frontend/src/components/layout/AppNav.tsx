@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import type { ComponentType } from "react";
 import { ClipboardList, FileText, FlaskConical, Gauge, History, Lightbulb, MessageSquareText, Network, PanelLeftClose, PanelLeftOpen, Search } from "lucide-react";
 import { Link } from "@/lib/router";
+import SessionList from "./SessionList";
 
 interface Item { id: string; label: string; Icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }> }
 export const NAV: { group: string; items: Item[] }[] = [
@@ -13,13 +14,12 @@ export const NAV: { group: string; items: Item[] }[] = [
     { id: "parser", label: "Parser Lab", Icon: FlaskConical },
   ] },
   { group: "Review", items: [
-    { id: "sessions", label: "History", Icon: History },
     { id: "evaluation", label: "Evaluation", Icon: Gauge },
     { id: "problems", label: "Problems & fixes", Icon: Lightbulb },
     { id: "report", label: "Parser report", Icon: ClipboardList },
   ] },
 ];
-export const NAV_LABEL = Object.fromEntries(NAV.flatMap((g) => g.items.map((i) => [i.id, i.label])));
+export const NAV_LABEL: Record<string, string> = { ...Object.fromEntries(NAV.flatMap((g) => g.items.map((i) => [i.id, i.label]))), sessions: "Sessions" }; // sessions have no row of their own: they are listed in the sidebar
 
 const KEY = "jurion.nav.collapsed";
 const read = () => { try { return localStorage.getItem(KEY) === "1"; } catch { return false; } }; // storage can be blocked: never required
@@ -34,8 +34,9 @@ export function Sidebar({ current }: { current: string }) {
       className={`sticky top-[var(--header-h)] hidden h-[calc(100dvh-var(--header-h))] shrink-0 flex-col border-r border-line bg-canvas/60 py-4 transition-[width] duration-200 motion-reduce:transition-none lg:flex ${collapsed ? "w-[4.25rem]" : "w-60"}`}
     >
       <nav className="flex-1 space-y-5 overflow-y-auto px-3">
-        {NAV.map((g) => (
-          <div key={g.group}>
+        {NAV.map((g, gi) => (
+          <Fragment key={g.group}>
+          <div>
             <p className={`caption mb-2 px-3 ${collapsed ? "sr-only" : ""}`}>{g.group}</p>
             <ul className="space-y-1">
               {g.items.map(({ id, label, Icon }) => {
@@ -59,7 +60,12 @@ export function Sidebar({ current }: { current: string }) {
               })}
             </ul>
           </div>
+          {gi === 0 && !collapsed && <SessionList />}
+          </Fragment>
         ))}
+        {collapsed && (
+          <Link to="/sessions" aria-label="Sessions" title="Sessions" className="flex h-11 items-center justify-center rounded-lg text-muted hover:bg-raised hover:text-fg focus-visible:outline-2 focus-visible:outline-accent"><History className="h-[1.15rem] w-[1.15rem]" aria-hidden /></Link>
+        )}
       </nav>
       <div className="px-3">
         <button
@@ -82,7 +88,7 @@ export function MobileNav({ current }: { current: string }) {
   return (
     <nav aria-label="Sections" className="sticky top-[var(--header-h)] z-10 h-[var(--mnav-h)] border-b border-line bg-canvas/90 backdrop-blur lg:hidden">
       <ul className="no-scrollbar flex h-full items-center gap-1.5 overflow-x-auto px-3">
-        {NAV.flatMap((g) => g.items).map(({ id, label, Icon }) => {
+        {[...NAV.flatMap((g) => g.items), { id: "sessions", label: "Sessions", Icon: History }].map(({ id, label, Icon }) => {
           const on = current === id;
           return (
             <li key={id} className="shrink-0">

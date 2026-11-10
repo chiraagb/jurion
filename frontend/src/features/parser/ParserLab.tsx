@@ -6,8 +6,11 @@ import ResultsView from "./components/ResultsView";
 import { loadProvider } from "@/features/settings/llmConfig";
 import { saveDocument } from "@/features/documents/api";
 import { useParseContract } from "./useParseContract";
+import { useBatch } from "./useBatch";
+import BatchList from "./components/BatchList";
 
 export default function ParserLab({ apiDown }: { apiDown: boolean }) {
+  const batch = useBatch();
   const { phase, file, uploadPct, result, results, view, setView, error, busy, start, reset, ai, rerunWithAi } = useParseContract();
   const aiName = loadProvider() === "openai" ? "OpenAI" : "Gemini";
 
@@ -25,9 +28,12 @@ export default function ParserLab({ apiDown }: { apiDown: boolean }) {
         <div className="mt-6 h-1.5 w-24 border-y border-accent" aria-hidden />
       </section>
 
-      <Dropzone phase={phase} file={file} disabled={busy || apiDown} apiDown={apiDown} onFile={start} />
+      <Dropzone phase={phase} file={file} disabled={busy || batch.running || apiDown} apiDown={apiDown}
+        onFiles={(fs) => { if (fs.length === 1) { batch.clear(); start(fs[0]); } else { reset(); batch.run(fs); } }} />
 
-      <Pipeline phase={phase} file={file} uploadPct={uploadPct} result={result} />
+      {batch.items.length > 0 && <BatchList items={batch.items} running={batch.running} onClear={batch.clear} />}
+
+      {batch.items.length === 0 && <Pipeline phase={phase} file={file} uploadPct={uploadPct} result={result} />}
 
       {phase === "error" && error && (
         <div role="alert" className="flex items-start gap-3 rounded-md border border-danger/40 bg-danger/10 p-4">

@@ -21,9 +21,10 @@ The API streams one JSON object per line (`retrieved`, `graded`, `rewritten`, `s
 
 ## Sessions, clause jumps and comparing
 
-- **Every Ask and Search is saved** to the `query_sessions` table (kind, question, and the full result: answer, cited clauses with their text, and the retrieval trace). Asking the same question again within 10 minutes updates its session instead of adding a copy, so reloads and the back button don't fill the history.
-- **History tab** (`/sessions`): your past questions and searches. Open one at `/sessions/<id>`; delete with the bin icon. Sessions are private to you.
-- **Compare:** tick two sessions and press *Compare side by side* (`/sessions/compare?a=<id>&b=<id>`). The two answers (or result lists) sit in two columns, with a strip above listing the clauses that appear in **both**.
+- **Chats are sessions.** A chat is one row in `query_sessions` (kind `chat`) holding every turn: question, answer, cited clauses and the retrieval trace. The browser sends only the `session_id`; the server loads the chat, so it survives a reload.
+- **The chat has memory.** The answer model is sent the earlier questions and answers of the session (citation marks like [1] removed, clauses not repeated), then the new question with its own retrieved clauses. A follow-up that names no contract ("how fast must they report a breach?") stays in the contract the chat was last searched in, instead of asking "Which contract?" again.
+- **Each session has a context limit** (`ASK_SESSION_TOKENS`, 16,000 tokens by default, estimated at 4 characters a token). The Ask header shows how much is left. When the chat leaves less than 4,000 tokens for the next question's clauses, the session is full and asks you to start a new one. The limit is deliberately far below the model's window: answers get worse as the context grows.
+- **Sessions tab** (`/sessions`): your chats with their meters. Open one to continue it in Ask (`/ask?s=<id>`); delete with the bin icon. Sessions are private to you. Saved searches are still stored and open at `/sessions/<id>`, but are not listed. The old side-by-side compare was removed.
 - **Jump to the clause:** clicking a `[1]` citation, a source, a trace row, a search result or a clause in the "in both" strip opens a side panel with the clause's PDF page and its full text (the exact text the model saw), without leaving the page. *Jump to clause* in the panel opens `/contracts/<id>?page=N&clause=<n>` in a new tab: the contract scrolled to that clause, opened and outlined, with the PDF on its page. Clicking a dot on the embedding map goes there directly.
 
 ## The highlighted PDF

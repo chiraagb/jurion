@@ -14,6 +14,7 @@ class Settings(BaseSettings):
 
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-4o"
+    ASK_SESSION_TOKENS: int = 16_000  # one chat session's context budget (the model's window is 128k, but answers get worse long before that); a full session asks you to start a new one
     ASK_MODEL: str = "gpt-4o-mini"  # grades retrieved clauses, rewrites questions, writes answers on the Ask tab
 
     ENCRYPTION_KEY: str = ""  # Fernet key encrypting API keys stored in Postgres; generate: python -c "from cryptography.fernet import Fernet;print(Fernet.generate_key().decode())"

@@ -105,7 +105,7 @@ function stages(e: Eval | null): Stage[] {
         {
           title: "“How do I know this is right?”",
           wrong: "A fluent answer sounds right whether it is or not.",
-          fix: <>Every citation opens the <b>real PDF page with the clause shaded</b> and its full text beside it. Every question and answer is saved in History, and two can be put <b>side by side</b>, with a list of the clauses they share.</>,
+          fix: <>Every citation opens the <b>real PDF page with the clause shaded</b> and its full text beside it. Every chat is kept as a <b>session</b> you can reopen, with a meter of how much of its context is used.</>,
           status: "built",
         },
         {

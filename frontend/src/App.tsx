@@ -68,7 +68,7 @@ function Shell() {
         <main id="main" className={`min-w-0 flex-1 ${tab === "ask" ? "" : "mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-10"}`}>
           {/* Ask and the Parser Lab stay mounted, so a running answer or an unsaved parse survives a visit to another tab */}
           <div hidden={tab !== "ask"}>
-            <AskPage q={params.get("q") ?? ""} active={tab === "ask"} />
+            <AskPage q={params.get("q") ?? ""} session={params.get("s") ?? ""} active={tab === "ask"} />
           </div>
           <div hidden={tab !== "parser"}>
             <ParserLab apiDown={apiDown} />
@@ -76,7 +76,7 @@ function Shell() {
           {tab === "contracts" && <ContractsPage id={segments[1]} page={Number(params.get("page")) || undefined} clause={params.has("clause") ? Number(params.get("clause")) : undefined} />}
           {tab === "graph" && <Suspense fallback={<p className="text-muted" aria-busy>Loading…</p>}><GraphPage /></Suspense>}
           {tab === "search" && <SearchPage q={params.get("q") ?? ""} />}
-          {tab === "sessions" && <SessionsPage id={segments[1]} a={params.get("a") ?? undefined} b={params.get("b") ?? undefined} />}
+          {tab === "sessions" && <SessionsPage id={segments[1]} />}
           {tab === "problems" && <ProblemsPage />}
           {tab === "evaluation" && <EvaluationPage />}
           {tab === "report" && <ReportPage />}

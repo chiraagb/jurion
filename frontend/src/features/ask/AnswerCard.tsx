@@ -139,7 +139,7 @@ export function AnswerCard({ answer, sources, onPick, selected, streaming, scope
         })}
         {streaming && <span aria-hidden className="ml-0.5 inline-block h-5 w-[3px] translate-y-1 bg-accent motion-safe:animate-[caret_1s_steps(2)_infinite]" />}
       </p>
-      {sources.length > 0 && <ReferenceCards sources={sources} selected={selected} onPick={onPick} />}
+            {sources.length > 0 && <ReferenceCards sources={sources} selected={selected} onPick={onPick} />}
     </div>
   );
 }

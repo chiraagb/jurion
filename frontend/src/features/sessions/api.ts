@@ -5,16 +5,27 @@ import type { SearchResponse } from "@/features/search/api";
 
 export interface SessionItem {
   id: string;
-  kind: "ask" | "search";
-  query: string;
+  kind: "chat" | "search";
+  query: string; // the first question
   created_at: string;
-  answer?: string; // ask: the first 200 characters
-  sources?: number;
+  turns?: number; // chat
+  used?: number; // chat: estimated tokens of context used
+  limit?: number;
   results?: number; // search: how many clauses
 }
-export interface AskData { answer: string; sources: Brief[]; attempts: Attempt[] }
-export type SessionFull = SessionItem & { data: AskData | SearchResponse };
+export interface StoredTurn {
+  question: string;
+  answer: string;
+  sources: Brief[];
+  attempts: Attempt[];
+  clarify: boolean;
+  clarify_options?: { id: string; filename: string; summary: string }[] | null;
+  followups?: string[];
+  facts?: string;
+}
+export type SessionFull = SessionItem & { data: { turns: StoredTurn[] } | SearchResponse };
 
 export const listSessions = async () => (await api.get<SessionItem[]>("/sessions")).data;
 export const getSession = async (id: string) => (await api.get<SessionFull>(`/sessions/${id}`)).data;
 export const deleteSession = (id: string) => api.delete(`/sessions/${id}`);
+export const renameSession = async (id: string, title: string) => (await api.patch<SessionItem>(`/sessions/${id}`, { title })).data;
