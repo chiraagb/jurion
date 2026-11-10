@@ -1,5 +1,5 @@
 {
- "ran_at": "2026-11-08T04:49:47.056049+00:00",
+ "ran_at": "2026-11-10T05:40:05.313038+00:00",
  "embedding_model": "text-embedding-3-small",
  "questions": 83,
  "baseline": {
@@ -779,27 +779,27 @@
      "n": 77
     },
     "scope": {
-     "hit@1": 0.481,
-     "hit@3": 0.714,
-     "hit@5": 0.766,
+     "hit@1": 0.494,
+     "hit@3": 0.688,
+     "hit@5": 0.727,
      "hit@10": 0.896,
-     "mrr": 0.613,
+     "mrr": 0.616,
      "n": 77
     },
     "soft": {
-     "hit@1": 0.481,
-     "hit@3": 0.714,
-     "hit@5": 0.766,
+     "hit@1": 0.494,
+     "hit@3": 0.688,
+     "hit@5": 0.727,
      "hit@10": 0.896,
-     "mrr": 0.618,
+     "mrr": 0.621,
      "n": 77
     },
     "graph": {
-     "hit@1": 0.481,
-     "hit@3": 0.688,
-     "hit@5": 0.779,
+     "hit@1": 0.494,
+     "hit@3": 0.662,
+     "hit@5": 0.753,
      "hit@10": 0.909,
-     "mrr": 0.613,
+     "mrr": 0.617,
      "n": 77
     }
    },
@@ -895,27 +895,27 @@
      "n": 32
     },
     "scope": {
-     "hit@1": 0.5,
-     "hit@3": 0.781,
-     "hit@5": 0.781,
+     "hit@1": 0.531,
+     "hit@3": 0.719,
+     "hit@5": 0.719,
      "hit@10": 0.906,
-     "mrr": 0.633,
+     "mrr": 0.64,
      "n": 32
     },
     "soft": {
-     "hit@1": 0.5,
-     "hit@3": 0.781,
-     "hit@5": 0.781,
+     "hit@1": 0.531,
+     "hit@3": 0.719,
+     "hit@5": 0.719,
      "hit@10": 0.906,
-     "mrr": 0.635,
+     "mrr": 0.645,
      "n": 32
     },
     "graph": {
-     "hit@1": 0.5,
-     "hit@3": 0.75,
-     "hit@5": 0.781,
+     "hit@1": 0.531,
+     "hit@3": 0.688,
+     "hit@5": 0.719,
      "hit@10": 0.906,
-     "mrr": 0.63,
+     "mrr": 0.639,
      "n": 32
     }
    },
@@ -1071,17 +1071,17 @@
     "scope": {
      "hit@1": 0.0,
      "hit@3": 0.167,
-     "hit@5": 0.5,
+     "hit@5": 0.333,
      "hit@10": 0.667,
-     "mrr": 0.174,
+     "mrr": 0.168,
      "n": 6
     },
     "soft": {
      "hit@1": 0.0,
      "hit@3": 0.167,
-     "hit@5": 0.5,
+     "hit@5": 0.333,
      "hit@10": 0.667,
-     "mrr": 0.188,
+     "mrr": 0.182,
      "n": 6
     },
     "graph": {
@@ -1089,7 +1089,7 @@
      "hit@3": 0.0,
      "hit@5": 0.667,
      "hit@10": 0.833,
-     "mrr": 0.191,
+     "mrr": 0.192,
      "n": 6
     }
    }
@@ -1223,7 +1223,10 @@
      "11 INTELLECTUAL PROPERTY (AgapeAtpCorp_2)"
     ],
     "widened": [],
-    "scope": []
+    "scope": [
+     "AgapeAtpCorp_20191202_10",
+     "OFGBANCORP_03_28_2007-EX"
+    ]
    },
    {
     "id": 7,
@@ -1290,7 +1293,9 @@
      "9.2 Termination by the Sponsor (EFC18326_Rosa_)"
     ],
     "widened": [],
-    "scope": []
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
+    ]
    },
    {
     "id": 10,
@@ -1334,7 +1339,9 @@
      "9.4 Unavailability of the Investigator (EFC18326_Rosa_)"
     ],
     "widened": [],
-    "scope": []
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
+    ]
    },
    {
     "id": 12,
@@ -1356,8 +1363,7 @@
     ],
     "widened": [],
     "scope": [
-     "EFC18326_Rosa_CTA_-_Fina",
-     "master-services-agreemen"
+     "EFC18326_Rosa_CTA_-_Fina"
     ]
    },
    {
@@ -1379,7 +1385,9 @@
      "3.7 In the event of a Personal Data Breach t (EFC18326_Rosa_)"
     ],
     "widened": [],
-    "scope": []
+    "scope": [
+     "EFC18326_Rosa_CTA_-_Fina"
+    ]
    },
    {
     "id": 14,
@@ -1478,9 +1486,9 @@
      "keyword": null,
      "hybrid": null,
      "context": 9,
-     "scope": null,
-     "soft": null,
-     "graph": null
+     "scope": 9,
+     "soft": 9,
+     "graph": 9
     },
     "top": [
      "11.1 All Intellectual Property during the pro (VgrabCommunica)",
@@ -1488,10 +1496,7 @@
      "11 INTELLECTUAL PROPERTY RIGHTS AND OWNERSH (VgrabCommunica)"
     ],
     "widened": [],
-    "scope": [
-     "ArmstrongFlooringInc_201",
-     "BIOAMBERINC_04_10_2013-E"
-    ]
+    "scope": []
    },
    {
     "id": 19,
@@ -1634,9 +1639,9 @@
      "keyword": null,
      "hybrid": 3,
      "context": 3,
-     "scope": 3,
-     "soft": 3,
-     "graph": 3
+     "scope": 2,
+     "soft": 2,
+     "graph": 2
     },
     "top": [
      "EXHIBIT 10.27 MARKETING AFFILIATE AGREEMENT (CybergyHolding)",
@@ -1644,7 +1649,9 @@
      "14 Relationship of the Parties. (CybergyHolding)"
     ],
     "widened": [],
-    "scope": []
+    "scope": [
+     "CybergyHoldingsInc_20140"
+    ]
    },
    {
     "id": 26,
@@ -1765,9 +1772,9 @@
      "keyword": null,
      "hybrid": 8,
      "context": 8,
-     "scope": 3,
-     "soft": 3,
-     "graph": 3
+     "scope": 8,
+     "soft": 8,
+     "graph": 8
     },
     "top": [
      "1.3 Reporting On Service Levels. (OFGBANCORP_03_)",
@@ -1775,9 +1782,7 @@
      "3.5 Where the Client designates, mandates, s (master-service)"
     ],
     "widened": [],
-    "scope": [
-     "OFGBANCORP_03_28_2007-EX"
-    ]
+    "scope": []
    },
    {
     "id": 32,
@@ -2120,7 +2125,6 @@
     ],
     "widened": [],
     "scope": [
-     "HfEnterprisesInc_2019122",
      "OFGBANCORP_03_28_2007-EX",
      "master-services-agreemen"
     ]
@@ -2144,9 +2148,9 @@
      "SEC_(WITH_INSTITUTI (with Institution and Investigator) (EFC18326_Rosa_)"
     ],
     "widened": [
-     "1.7",
-     "7",
-     "8"
+     "10",
+     "3",
+     "4"
     ],
     "scope": [
      "EFC18326_Rosa_CTA_-_Fina"
@@ -2222,8 +2226,7 @@
      "12"
     ],
     "scope": [
-     "OFGBANCORP_03_28_2007-EX",
-     "PhotronicsInc_20171219_1"
+     "OFGBANCORP_03_28_2007-EX"
     ]
    },
    {
@@ -2237,19 +2240,16 @@
      "context": 2,
      "scope": null,
      "soft": 12,
-     "graph": 13
+     "graph": 12
     },
     "top": [
      "4.2 Deliverables. Upon the request of MA, Co (CybergyHolding)",
      "13 Price Changes and Notification. (CybergyHolding)",
      "3.5 No changes to the scope of Services shal (master-service)"
     ],
-    "widened": [
-     "18"
-    ],
+    "widened": [],
     "scope": [
-     "AgapeAtpCorp_20191202_10",
-     "OFGBANCORP_03_28_2007-EX"
+     "AgapeAtpCorp_20191202_10"
     ]
    },
    {
@@ -2296,9 +2296,9 @@
      "8.3 Record Keeping (EFC18326_Rosa_)"
     ],
     "widened": [
-     "1.7",
-     "8",
-     "1.4"
+     "10",
+     "3",
+     "4"
     ],
     "scope": [
      "EFC18326_Rosa_CTA_-_Fina"
@@ -2313,8 +2313,8 @@
      "keyword": null,
      "hybrid": null,
      "context": null,
-     "scope": 5,
-     "soft": 5,
+     "scope": 6,
+     "soft": 6,
      "graph": 5
     },
     "top": [
@@ -2328,6 +2328,7 @@
      "1.4"
     ],
     "scope": [
+     "HfEnterprisesInc_2019122",
      "OFGBANCORP_03_28_2007-EX"
     ]
    },
@@ -2424,7 +2425,9 @@
      "5 THE CO-BRANDED AREA OF THE SPONSOR SITE  (N2KINC_10_16_1)"
     ],
     "widened": [],
-    "scope": []
+    "scope": [
+     "N2KINC_10_16_1997-EX-10."
+    ]
    },
    {
     "id": 59,
@@ -2446,7 +2449,6 @@
     ],
     "widened": [],
     "scope": [
-     "EFC18326_Rosa_CTA_-_Fina",
      "N2KINC_10_16_1997-EX-10."
     ]
    },
@@ -2470,8 +2472,8 @@
     ],
     "widened": [
      "13",
-     "12",
-     "14"
+     "14",
+     "7"
     ],
     "scope": [
      "EFC18326_Rosa_CTA_-_Fina",
@@ -2499,7 +2501,10 @@
     "widened": [
      "5"
     ],
-    "scope": []
+    "scope": [
+     "HfEnterprisesInc_2019122",
+     "VgrabCommunicationsInc_2"
+    ]
    },
    {
     "id": 62,
@@ -2520,7 +2525,9 @@
      "6.5 WeChat’s Mini Program and WeChat Pay Com (VgrabCommunica)"
     ],
     "widened": [],
-    "scope": []
+    "scope": [
+     "VgrabCommunicationsInc_2"
+    ]
    },
    {
     "id": 63,
@@ -2540,8 +2547,12 @@
      "SEC_AGREEMENT AGREEMENT (VgrabCommunica)",
      "3.5 No changes to the scope of Services shal (master-service)"
     ],
-    "widened": [],
-    "scope": []
+    "widened": [
+     "6"
+    ],
+    "scope": [
+     "VgrabCommunicationsInc_2"
+    ]
    },
    {
     "id": 64,
@@ -2629,7 +2640,10 @@
      "2.4 Rescheduling and Cancellation (PhotronicsInc_)"
     ],
     "widened": [],
-    "scope": []
+    "scope": [
+     "OFGBANCORP_03_28_2007-EX",
+     "PhotronicsInc_20171219_1"
+    ]
    },
    {
     "id": 68,
@@ -2697,8 +2711,7 @@
     ],
     "widened": [],
     "scope": [
-     "HfEnterprisesInc_2019122",
-     "OFGBANCORP_03_28_2007-EX"
+     "HfEnterprisesInc_2019122"
     ]
    },
    {
@@ -2710,19 +2723,23 @@
      "keyword": null,
      "hybrid": 3,
      "context": 3,
-     "scope": 3,
-     "soft": 3,
-     "graph": 3
+     "scope": null,
+     "soft": 13,
+     "graph": 16
     },
     "top": [
      "3.2 Developer hereby acknowledges DSS’s clai (HfEnterprisesI)",
      "3.1 Subject to Developer’s expressly granted (HfEnterprisesI)",
      "1.1 Development License. Subject to the term (HfEnterprisesI)"
     ],
-    "widened": [],
+    "widened": [
+     "12.2",
+     "13.1",
+     "2"
+    ],
     "scope": [
      "CORIOINC_07_20_2000-EX-1",
-     "HfEnterprisesInc_2019122"
+     "OFGBANCORP_03_28_2007-EX"
     ]
    },
    {
@@ -2863,8 +2880,8 @@
      "15 Term and Termination. (StampscomInc_2)"
     ],
     "widened": [
-     "16",
-     "13",
+     "10",
+     "1",
      "14"
     ],
     "scope": []
@@ -2924,9 +2941,9 @@
      "keyword": null,
      "hybrid": 2,
      "context": 2,
-     "scope": 2,
-     "soft": 2,
-     "graph": 2
+     "scope": 1,
+     "soft": 1,
+     "graph": 1
     },
     "top": [
      "3.5 Intellectual Property (AgapeAtpCorp_2)",
@@ -2934,7 +2951,9 @@
      "6.2 Promotion Materials and Activities. All  (CORIOINC_07_20)"
     ],
     "widened": [],
-    "scope": []
+    "scope": [
+     "ArmstrongFlooringInc_201"
+    ]
    },
    {
     "id": 81,
@@ -3002,51 +3021,51 @@
     "scope": []
    }
   ],
-  "ran_at": "2026-11-08T04:49:47.056118+00:00"
+  "ran_at": "2026-11-10T05:40:05.313054+00:00"
  },
  "answers": {
   "summary": {
    "all": {
     "n": 77,
-    "answered": 0.857,
-    "right_clause_in_context": 0.831,
-    "right_clause_cited": 0.792,
-    "answered_wrong_clause": 0.078,
-    "faithfulness": 0.961,
+    "answered": 0.948,
+    "right_clause_in_context": 0.909,
+    "right_clause_cited": 0.87,
+    "answered_wrong_clause": 0.091,
+    "faithfulness": 0.982,
     "addresses_question": 1.0
    },
    "direct": {
     "n": 29,
-    "answered": 0.793,
-    "right_clause_in_context": 0.793,
-    "right_clause_cited": 0.724,
+    "answered": 0.966,
+    "right_clause_in_context": 0.897,
+    "right_clause_cited": 0.897,
     "answered_wrong_clause": 0.069,
-    "faithfulness": 0.931,
+    "faithfulness": 0.985,
     "addresses_question": 1.0
    },
    "paraphrase": {
     "n": 32,
-    "answered": 0.906,
-    "right_clause_in_context": 0.844,
-    "right_clause_cited": 0.812,
+    "answered": 0.938,
+    "right_clause_in_context": 0.938,
+    "right_clause_cited": 0.875,
     "answered_wrong_clause": 0.094,
-    "faithfulness": 0.984,
+    "faithfulness": 0.978,
     "addresses_question": 1.0
    },
    "broad": {
     "n": 4,
     "answered": 1.0,
     "right_clause_in_context": 0.75,
-    "right_clause_cited": 0.75,
-    "answered_wrong_clause": 0.25,
-    "faithfulness": 1.0,
+    "right_clause_cited": 0.5,
+    "answered_wrong_clause": 0.5,
+    "faithfulness": 0.938,
     "addresses_question": 1.0
    },
    "graph": {
     "n": 6,
-    "answered": 0.833,
-    "right_clause_in_context": 0.833,
-    "right_clause_cited": 0.833,
+    "answered": 1.0,
+    "right_clause_in_context": 1.0,
+    "right_clause_cited": 1.0,
     "answered_wrong_clause": 0.0,
     "faithfulness": 1.0,
     "addresses_question": 1.0
@@ -3054,10 +3073,10 @@
    "multi": {
     "n": 6,
     "answered": 0.833,
-    "right_clause_in_context": 1.0,
-    "right_clause_cited": 1.0,
+    "right_clause_in_context": 0.833,
+    "right_clause_cited": 0.833,
     "answered_wrong_clause": 0.0,
-    "faithfulness": 0.893,
+    "faithfulness": 1.0,
     "addresses_question": 1.0
    },
    "none": {
@@ -3070,8 +3089,8 @@
     "id": 1,
     "question": "How long does the supply agreement last, and does it roll over?",
     "kind": "paraphrase",
-    "answer": "The supply agreement lasts for a term of ten (10) years and will be automatically renewed at the end of each ten (10) year term, provided that a six (6) months notice is given by either party if they intend to terminate for any reason other than breach of the agreement [1].",
-    "sources": 2,
+    "answer": "The supply agreement lasts for ten (10) years and will be automatically renewed at the end of each term for another ten (10) years, provided that a six (6) months notice is given by either party if they intend to terminate the agreement for any reason other than breach. This information is covered in clauses [1] and [3].",
+    "sources": 3,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
@@ -3083,8 +3102,8 @@
     "id": 2,
     "question": "What are the payment terms?",
     "kind": "direct",
-    "answer": "The payment terms, as outlined in the clauses, are as follows:\n\n1. 50% of the Total Order Cost must be paid upon placement of the customer’s order.\n2. The remaining 50% of the Total Order Cost must be paid prior to the goods leaving the warehouse of the manufacturer. The Manufacturer will notify the Customer when the goods are ready for shipment.\n\nThese payment terms are specified in clause [1] and are reiterated in clause [2].",
-    "sources": 2,
+    "answer": "The payment terms vary between the different agreements:\n\n1. **Supply Agreement (Agape ATP International Holding Limited & Organic Preparations INC.)**: \n   - 50% of the total order cost must be paid upon placement of the customer’s order.\n   - The remaining 50% must be paid prior to the goods leaving the manufacturer's warehouse, with notification from the manufacturer when the goods are ready for shipment [1], [2].\n\n2. **Affiliate Agreement (Cybergy Holdings Inc. & MA)**:\n   - When fees are not collected directly from the corporate user, MA agrees to pay according to the current price list at the time an order is received [3].\n   - Standard payment terms for technology licensed from Company are Net 30 days unless otherwise approved [4].\n   - For services, training, and support, MA will pay according to agreed terms, with a late payment charge of 1.5% per month on overdue accounts [5].\n\nEach agreement has specific terms that outline when and how payments should be made.",
+    "sources": 5,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
@@ -3096,7 +3115,7 @@
     "id": 3,
     "question": "Can the manufacturer hand its rights to someone else?",
     "kind": "paraphrase",
-    "answer": "No, the Manufacturer cannot transfer or assign any of its rights or obligations under the agreement without the prior written consent of the Customer, as stated in clause 14.6 of the Supply Agreement [1].",
+    "answer": "No, the Manufacturer cannot transfer or assign any of its rights or obligations under the Supply Agreement without the prior written consent of the Customer, as stated in clause [1].",
     "sources": 1,
     "refused": false,
     "context_has_gold": true,
@@ -3109,11 +3128,11 @@
     "id": 4,
     "question": "Who pays for the lawyers if there is a dispute?",
     "kind": "paraphrase",
-    "answer": "In the case of the Endorsement Agreement between Performance Sports Brands Inc. and Andy North, the prevailing party in any litigation or other proceeding shall be entitled to recover all of its reasonable attorney's fees and costs [1]. \n\nIn the License and Hosting Agreement between Corio and Commerce One, the non-prevailing party in arbitration is responsible for paying all fees and charges of the American Arbitration Association, while each party pays for its own case-related expenses [2]. \n\nThus, the responsibility for legal costs depends on the contract involved in the dispute.",
-    "sources": 2,
+    "answer": "The responsibility for paying for lawyers in a dispute depends on the contract in question:\n\n1. For the **Endorsement Agreement** (Performance Sports Brands Inc), the prevailing party in any litigation is entitled to recover all reasonable fees, court costs, and expenses, including attorney fees [1].\n\n2. In the **License and Hosting Agreement** (CORIOINC), the non-prevailing party in arbitration must pay all fees and charges of the American Arbitration Association, but each party is responsible for its own legal fees and expenses related to presenting its case [2].\n\n3. Under the **Supply Agreement** (Agape Atp Corp), each party bears its own legal costs and expenses [3].\n\nIn summary: \n- **Endorsement Agreement**: Prevailing party pays nothing and can recover costs.\n- **License and Hosting Agreement**: Non-prevailing party pays arbitration fees, each bears its own legal costs.\n- **Supply Agreement**: Each pays their own legal costs.",
+    "sources": 3,
     "refused": false,
-    "context_has_gold": false,
-    "cited_gold": false,
+    "context_has_gold": true,
+    "cited_gold": true,
     "faithfulness": 1.0,
     "unsupported": [],
     "answers_question": true
@@ -3122,60 +3141,59 @@
     "id": 5,
     "question": "What happens if a provision is held invalid by a court?",
     "kind": "direct",
-    "answer": "In the Master Services Agreement from Africa Clinical Research Network, if any provision is held to be invalid or unenforceable, the remaining provisions shall remain in full force and effect [1]. \n\nThe clauses from the other contracts also confirm that if a provision is found invalid or unenforceable, the remaining terms of those agreements will still be valid. For example, the Intellectual Property Agreement states that all other terms will remain effective as long as the overall intentions of the agreement are not materially affected [2]. Similarly, other contracts specify that parties should negotiate to maintain the core intent of the agreement following such a determination, ensuring that unaffected provisions continue to be enforced [3, 4, 5, 6]. \n\nThus, in general, it is common across these agreements that invalid provisions do not invalidate the entire agreement; rather, the remaining provisions stay in effect.",
+    "answer": "If a provision of the Master Services Agreement is held to be invalid or unenforceable, the remaining provisions shall remain in full force and effect [1]. Similarly, in the Intellectual Property Agreement, if any term is found to be invalid or unenforceable, all other terms shall remain effective, and the parties will negotiate in good faith to modify the agreement to align with their original intent as closely as possible [2]. In the Development Agreement, a court's finding of any provision being illegal, invalid, or unenforceable indicates that the court intends to modify the provision so it's enforceable, without affecting other provisions [3]. The License and Hosting Agreement states that any provision found contrary to law will be changed to meet legal objectives, while remaining provisions stay in effect [4]. The Supply Agreement similarly ensures that if a provision is held invalid, the remaining provisions remain effective, and the parties will renegotiate those invalid provisions [5]. Lastly, in the Endorsement Agreement, the illegality or invalidity of any provision will not affect the remaining terms, and the agreement continues as if the invalid provision had not been included [6]. \n\nIn summary, across these agreements, if a court finds a provision invalid, the remaining provisions generally continue to be enforceable, with the possibility of renegotiation or modification to uphold the original intent of the parties.",
     "sources": 6,
     "refused": false,
     "context_has_gold": true,
-    "cited_gold": false,
-    "faithfulness": 0.2,
-    "unsupported": [
-     "The clauses from the other contracts also confirm that if a provision is found invalid or unenforceable, the remaining terms of those agreements will still be valid.",
-     "The Intellectual Property Agreement states that all other terms will remain effective as long as the overall intentions of the agreement are not materially affected.",
-     "Similarly, other contracts specify that parties should negotiate to maintain the core intent of the agreement following such a determination, ensuring that unaffected provisions continue to be enforced.",
-     "In general, it is common across these agreements that invalid provisions do not invalidate the entire agreement; rather, the remaining provisions stay in effect."
-    ],
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
     "answers_question": true
    },
    {
     "id": 6,
     "question": "Does the customer get priority if the manufacturer sells its intellectual property?",
     "kind": "paraphrase",
-    "answer": "Yes, the customer does get priority if the manufacturer sells its intellectual property. The clause states that the Manufacturer agrees to offer the Customer the first right of refusal to purchase the intellectual property for the products, indicating that the customer has priority based on agreed terms [1]. This clause is from the ODM Supply Agreement.",
+    "answer": "Yes, the Customer has the first right of refusal to purchase the intellectual property for the products listed in Schedule A, based on agreed terms, as stated in clause 12 of the Supply Agreement [1].",
     "sources": 1,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
-    "faithfulness": 0.75,
-    "unsupported": [
-     "This clause is from the ODM Supply Agreement."
-    ],
+    "faithfulness": 1.0,
+    "unsupported": [],
     "answers_question": true
    },
    {
     "id": 7,
     "question": "Must the customer name the manufacturer as additional insured?",
     "kind": "direct",
-    "answer": "The clauses provided do not mention the requirement for the customer to name the manufacturer as additional insured. Therefore, this question is not covered by the clauses.",
+    "answer": "Yes, the Customer must name the Manufacturer as Additional Insured on their product liability insurance policy, as stated in clause 6.2 of the Supply Agreement [1].",
     "sources": 1,
-    "refused": true,
-    "context_has_gold": false,
-    "cited_gold": false
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
    },
    {
     "id": 8,
     "question": "Who provides the study drug and at what cost?",
     "kind": "direct",
-    "answer": "The clauses do not cover who provides the study drug and at what cost.",
+    "answer": "The Sponsor provides the Study Drug at no cost, in amounts sufficient for the conduct of the Study, according to clause [1]. This information comes from the contract titled \"EFC18326_Rosa_CTA_-_Final_Clean_-_26_Jan_26docx.pdf.\"",
     "sources": 1,
-    "refused": true,
-    "context_has_gold": false,
-    "cited_gold": false
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
    },
    {
     "id": 9,
     "question": "When can the investigator walk away from the study immediately?",
     "kind": "paraphrase",
-    "answer": "The Investigator can terminate the Agreement immediately if: (i) the Sponsor breaches the Agreement and fails to cure such breach within thirty (30) calendar days from receiving written notice; or (ii) if the Investigator believes in good faith that continuing the Study poses an unreasonable medical risk to the Study Participants [1]. This is specified in the Clinical Trial Agreement.",
+    "answer": "Dr. Jennifer F. Rosa, as the Investigator, can terminate the Clinical Trial Agreement immediately if: (i) the Sponsor breaches the Agreement and fails to cure the breach within thirty days of receiving written notice, or (ii) the Investigator believes in good faith that continuing the Study poses an unreasonable medical risk to the Study Participants [1].",
     "sources": 1,
     "refused": false,
     "context_has_gold": true,
@@ -3188,7 +3206,7 @@
     "id": 10,
     "question": "When does the clinical trial agreement start?",
     "kind": "direct",
-    "answer": "The clinical trial agreement starts on the last date of signature by the Parties, as stated in clause 9.1 of the Clinical Trial Agreement [1].",
+    "answer": "The clinical trial agreement starts on the last date of signature by the parties, as stated in clause 9.1 of the agreement [1].",
     "sources": 2,
     "refused": false,
     "context_has_gold": true,
@@ -3201,8 +3219,8 @@
     "id": 11,
     "question": "What is a participant who fails the entry checks called?",
     "kind": "paraphrase",
-    "answer": "The clauses do not provide a term or definition for a participant who fails the entry checks.",
-    "sources": 3,
+    "answer": "The clauses do not cover the terminology or definitions related to a participant who fails the entry checks.",
+    "sources": 1,
     "refused": true,
     "context_has_gold": false,
     "cited_gold": false
@@ -3211,8 +3229,8 @@
     "id": 12,
     "question": "What security measures must the institution maintain for personal data?",
     "kind": "direct",
-    "answer": "The security measures that the institution must maintain for personal data include:\n\n1. Appropriate technical and organizational security measures that ensure confidentiality, integrity, availability, and resilience of processing systems and services.\n2. Measures for the physical security of equipment and premises, as well as provisions for file backup.\n3. Conditions of access to data, including management of access rights and identification and authentication measures.\n4. Procedures to ensure traceability of access to medical information and connection history.\n5. Security measures for data transfer.\n6. Ensuring that study data is not entered, even temporarily, on tools other than those necessary to conduct the study in accordance with the protocol.\n\nThese requirements are outlined in clause 4 of the Clinical Trial Agreement [1].",
-    "sources": 1,
+    "answer": "The institution must take, implement, and maintain appropriate technical and organizational security measures to ensure the confidentiality, integrity, availability, and resilience of its processing systems and service, including: \n\n- Measures for the physical security of equipment and premises\n- Provisions for file backup\n- Conditions of access to data, including the management of access rights and authentication measures\n- Procedures for traceability of access to medical information\n- Security measures for data transfer\n\nAdditionally, in the event of a personal data breach, the institution must notify the sponsor without undue delay, minimize the effects of the breach, record all relevant information, and take measures to prevent future breaches [1], [2].",
+    "sources": 4,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
@@ -3224,8 +3242,8 @@
     "id": 13,
     "question": "Who covers injury to participants during the study?",
     "kind": "paraphrase",
-    "answer": "The Sponsor agrees to defend, indemnify, and hold harmless the Institution, the Investigator, and the Study Personnel from claims arising out of injuries to Study Participants caused by the administration of the Study Drug or procedures required under the Protocol, except in certain situations as outlined in clause 7(c). The indemnity is solely provided by the Sponsor, not by PSI [1].",
-    "sources": 1,
+    "answer": "The Sponsor agrees to defend, indemnify, and hold harmless the Institution, the Investigator, and the Study Personnel from claims arising out of injury to a Study Participant caused by the administration of the Study Drug or the performance of procedures required under the Protocol, except under certain conditions outlined in clause 7(c) [1]. The Institution and the Investigator are required to maintain their own liability insurance, but the primary indemnification for claims related to participant injuries comes from the Sponsor. \n\nThis information comes from the contract specified in [1].",
+    "sources": 2,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
@@ -3237,8 +3255,8 @@
     "id": 14,
     "question": "Which duties continue after the agreement ends?",
     "kind": "paraphrase",
-    "answer": "The duties that continue after the agreement ends can be found in specific clauses of each contract. \n\nFor the Master Services Agreement between Africa Clinical Research Network and ACRN, the provisions that survive termination or expiry include confidentiality, data protection, intellectual property, liability, and payment obligations as stated in clauses [1] and [2]. Additionally, confidentiality obligations last for five years post-termination, or indefinitely for trade secrets and personal data as per clause [3].\n\nIn the Clinical Trial Agreement, the termination or expiration of this agreement does not relieve any Party of its obligations concerning various provisions, including confidentiality, data protection, liability, indemnification, and obligations related to financial disclosure and regulatory compliance, as outlined in clause [4].\n\nThus, both agreements contain provisions that survive beyond their termination, particularly relating to confidentiality, data protection, liability, and payment obligations.",
-    "sources": 7,
+    "answer": "Under the master services agreement [1], [2], the duties that continue after termination or expiry include provisions related to confidentiality, data protection, intellectual property, liability, indemnification, and payment obligations. Specifically, clause [3] details that confidentiality obligations continue for a period of five years post-termination, and indefinitely for trade secrets and personal data as required by applicable law. The EFC18326_Rosa agreement similarly specifies that obligations regarding confidentiality and data protection also survive termination, as outlined in clause [4] and [8]. \n\nIn summary, the key continuing duties after the expiration or termination include:\n\n1. Confidentiality obligations (survive for five years, or indefinitely for trade secrets and personal data) [3], [4].\n2. Data protection obligations [8]. \n3. Other aspects like indemnification and payment obligations as explicitly noted in the respective agreements [1], [2].",
+    "sources": 8,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
@@ -3250,7 +3268,7 @@
     "id": 15,
     "question": "How is personal data defined?",
     "kind": "direct",
-    "answer": "Personal data is defined as any information relating to an identified or identifiable natural person. An identifiable natural person is one who can be identified, directly or indirectly, particularly by reference to an identifier such as a name, identification number, location data, online identifier, or to one or more factors specific to the person's physical, physiological, genetic, mental, economic, cultural, or social identity. This definition is provided in both clauses [1] and [2].",
+    "answer": "Personal data is defined as any information relating to an identified or identifiable natural person. An identifiable natural person is one who can be identified, directly or indirectly, in particular by reference to an identifier such as a name, identification number, location data, online identifier, or to factors specific to the person's identity, including physical, physiological, genetic, mental, economic, cultural, or social aspects. This definition is provided in both clauses [1] and [2].",
     "sources": 2,
     "refused": false,
     "context_has_gold": true,
@@ -3263,8 +3281,8 @@
     "id": 16,
     "question": "Can the client cancel a project early, and with how much notice?",
     "kind": "paraphrase",
-    "answer": "Yes, the client can cancel a project early. According to clause 5.3 of the Master Services Agreement, the client may terminate any Project Agreement, in whole or in part, for convenience upon thirty (30) or sixty (60) days' prior written notice [1].",
-    "sources": 1,
+    "answer": "Yes, the Client can terminate any Project Agreement early, in whole or in part, for convenience with thirty (30) or sixty (60) days’ prior written notice, as stated in the master services agreement [1].",
+    "sources": 2,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
@@ -3276,14 +3294,14 @@
     "id": 17,
     "question": "When must invoices be paid?",
     "kind": "direct",
-    "answer": "Invoices must be paid within thirty (30) days from receipt. This applies to both the Master Services Agreement between Africa Clinical Research Network and ACRN [1] and the Co-branding Agreement between iShip.com and Mail Boxes Etc. [2]. In both agreements, if a portion of an invoice is disputed in good faith, the undisputed portion must still be paid by the Client when due.",
-    "sources": 3,
+    "answer": "Invoices must be paid as follows:\n\n1. Under the Master Services Agreement, invoices are payable within thirty (30) days from receipt. If any portion of an invoice is disputed, the undisputed portion must be paid when due, and the parties should resolve the disputed portion promptly [1].\n\n2. In the Outsourcing Agreement, payments for products delivered must be made within a specified time frame after shipment, which is not quoted here [2].\n\n3. In the Affiliate Agreement, payment terms generally specify Net 30 days for licenses from the company unless otherwise approved [6]. Additionally, services, training, and support must be paid according to agreed-upon terms, with a late payment charge applicable on overdue accounts [3]. \n\nOverall, the typical payment term mentioned across the contracts is 30 days from receipt or shipment, depending on the context.",
+    "sources": 6,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
-    "faithfulness": 0.75,
+    "faithfulness": 0.833,
     "unsupported": [
-     "If a portion of an invoice is disputed in good faith, the undisputed portion must still be paid by the Client when due in the Co-branding Agreement."
+     "Overall, the typical payment term mentioned across the contracts is 30 days from receipt or shipment, depending on the context."
     ],
     "answers_question": true
    },
@@ -3291,21 +3309,24 @@
     "id": 18,
     "question": "Who owns the new inventions created during the work?",
     "kind": "paraphrase",
-    "answer": "The clauses provided do not specify who owns new inventions created during the work. They only address the ownership of the Company Licensed IP, stating that the Company and its Affiliates own it, and that Arizona and its Affiliates will not acquire any ownership rights in the Company Licensed IP [1]. Therefore, I cannot answer your question based on the provided clauses.",
-    "sources": 1,
-    "refused": true,
+    "answer": "For the Vgrab Communications Inc. Development Agreement, all intellectual property created during the project is owned by VAL and will be turned over to VAL upon the project's conclusion, according to clauses 11.1 and 11.2 [2], [3]. \n\nThe Armstrong Flooring Inc. Intellectual Property Agreement specifies that the Company and its Affiliates own the Company Licensed IP, but it does not mention anything about new inventions during a project [1]. \n\nTherefore, based on the relevant clauses, VAL owns the new inventions created during the work in the Vgrab Communications Inc. contract.",
+    "sources": 3,
+    "refused": false,
     "context_has_gold": false,
-    "cited_gold": false
+    "cited_gold": false,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
    },
    {
     "id": 19,
     "question": "Which courts have jurisdiction over disputes?",
     "kind": "direct",
-    "answer": "The relevant clauses specify the following courts with jurisdiction over disputes:\n\n1. For the Intellectual Property Agreement (Armstrong Flooring Inc.), the jurisdiction is the Court of Chancery of the State of Delaware or any state or federal court in New Castle County, Delaware, depending on jurisdictional requirements [1].\n\n2. For the License and Hosting Agreement (Corio), disputes shall be resolved by binding arbitration in San Francisco County, California, but a judgment may be entered in any court having jurisdiction, including those in San Francisco, California [2].\n\n3. For the Master Services Agreement (Africa Clinical Research Network), if no governing law is specified in the applicable Project Agreement, disputes will be subject to the competent courts of Mauritius [3].\n\n4. In the Clinical Trial Agreement (Duvakitug), the competent courts for disputes are those in Pretoria, South Africa [4].\n\n5. The Development Agreement (Hf Enterprises Inc.) specifies that legal jurisdiction is in the state or federal courts located in Monroe County, State of New York [5].\n\nEach agreement has its own specified jurisdiction depending on the context of the dispute.",
-    "sources": 6,
+    "answer": "The jurisdiction over disputes varies by contract:\n\n1. For the Armstrong Flooring Inc. Intellectual Property Agreement, disputes are subject to the jurisdiction of the Court of Chancery of the State of Delaware or any state or federal court in New Castle County, Delaware, if the Court of Chancery lacks jurisdiction [1].\n\n2. In the Corio Inc. License and Hosting Agreement, disputes are to be resolved by binding arbitration in San Francisco County, California [2].\n\n3. The EFC Agreement specifies that the competent courts for disputes are in Pretoria, South Africa [3].\n\n4. In the Hf Enterprises Inc. Development Agreement, jurisdiction and venue for disputes is in the state or federal courts located in Monroe County, New York [4]. \n\nThus, the specific courts and methods of dispute resolution depend on the applicable agreement.",
+    "sources": 5,
     "refused": false,
-    "context_has_gold": true,
-    "cited_gold": true,
+    "context_has_gold": false,
+    "cited_gold": false,
     "faithfulness": 1.0,
     "unsupported": [],
     "answers_question": true
@@ -3314,8 +3335,8 @@
     "id": 20,
     "question": "What happens to secret information when the contract ends?",
     "kind": "paraphrase",
-    "answer": "Upon termination or expiry of the Master Services Agreement, the Receiving Party must either return or securely destroy all Confidential Information, except as required by Applicable Law or regulatory requirements [1]. Additionally, the obligations of confidentiality regarding that information will remain in effect for five years after the contract ends, and indefinitely for trade secrets and personal data, as required by law [2].",
-    "sources": 2,
+    "answer": "Upon termination or expiry of the Agreement, the Receiving Party is obligated to promptly return or securely destroy all Confidential Information, except where retention is required by Applicable Law or regulatory requirements [1]. Additionally, the obligations of confidentiality remain in effect for a period of five years following termination or expiry of the Agreement, and indefinitely regarding trade secrets and personal data, as required by Applicable Law [2].",
+    "sources": 3,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
@@ -3327,20 +3348,22 @@
     "id": 21,
     "question": "Who bears the risk of loss during shipments?",
     "kind": "direct",
-    "answer": "The risk of loss during shipments is determined by the arrangements made. According to the clauses:\n\n1. In the Master Services Agreement (Contract [1]), if shipments are arranged directly by the Client, the risk remains with the Client. If the Service Provider handles the materials or if they are under its control, the risk remains with the Service Provider until delivery to the designated recipient [1].\n\n2. In the Outsourcing Agreement (Contract [2]), the risk of loss and title to the Products passes to the Company in accordance with the Delivery Term specified in that agreement [2]. \n\nThus, the risk of loss during shipments will vary between agreements based on who arranges the shipment and the specific delivery terms outlined.",
+    "answer": "The risk of loss during shipments depends on how the shipments are arranged:\n\n1. Under the Master Services Agreement [1], if shipments are arranged directly by the Client, the risk of loss remains with the Client. If the Service Provider arranges the shipment or is handling the materials, the risk remains with the Service Provider until delivery to the designated recipient.\n\n2. However, according to the Outsourcing Agreement [2], the risk of loss for the Products passes to the Company in accordance with the Delivery Term. \n\nTherefore, the responsibility for risk of loss during shipments is based on the specific agreement and arrangements made.",
     "sources": 3,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
-    "faithfulness": 1.0,
-    "unsupported": [],
+    "faithfulness": 0.75,
+    "unsupported": [
+     "The responsibility for risk of loss during shipments is based on the specific agreement and arrangements made."
+    ],
     "answers_question": true
    },
    {
     "id": 22,
     "question": "Is a party excused if a pandemic or war stops it performing?",
     "kind": "paraphrase",
-    "answer": "Yes, a party may be excused from performance due to a pandemic or war. \n\nIn the Master Services Agreement [1], clause 10.7 states that neither party shall be liable for failure or delay in performance resulting from events beyond its reasonable control, which includes pandemics and war. They must promptly notify the other party and make reasonable efforts to mitigate the impact.\n\nIn the ODM Supply Agreement [2], clause 14.7 also covers similar events, specifying that neither party is liable for breaches caused by occurrences such as war or any act of a competent authority, among other force majeure events. \n\nBoth agreements recognize that a pandemic or war can constitute a force majeure event, thereby excusing the affected party from liability for non-performance.",
+    "answer": "Yes, a party may be excused from performance due to a pandemic or war, as both events are listed as causes for liability exemption in multiple contracts. \n\nIn the Master Services Agreement, clause 10.7 states that neither party is liable for failure or delay in performance resulting from events beyond its reasonable control, including pandemics and war [1]. Similarly, the Supply Agreement mentions that a breach is not considered a breach if it results from the outbreak of hostilities (war) or other factors beyond reasonable control, which includes various catastrophic events [2]. \n\nTherefore, under both agreements, parties can be excused from performance due to such circumstances.",
     "sources": 4,
     "refused": false,
     "context_has_gold": true,
@@ -3353,8 +3376,8 @@
     "id": 23,
     "question": "What insurance must each party maintain?",
     "kind": "direct",
-    "answer": "Each party must maintain the following insurance throughout the term of the agreement:\n\n1. Commercial General Liability insurance\n2. Professional Liability / Errors & Omissions insurance\n3. Cyber Liability insurance\n4. Workers Compensation insurance\n5. Any additional insurance required by Applicable Laws or the applicable Project Agreement\n\nCertificates of insurance must also be provided upon reasonable request [1]. Furthermore, each party must ensure that appropriate insurance coverage is maintained for risks within its responsibility, as agreed in the applicable Project Agreement [2].",
-    "sources": 2,
+    "answer": "Each party must maintain the following types of insurance throughout the term of the agreement:\n\na. Commercial General Liability insurance;  \nb. Professional Liability / Errors & Omissions insurance;  \nc. Cyber Liability insurance;  \nd. Workers Compensation insurance;  \ne. any additional insurance required by Applicable Laws or the applicable Project Agreement.  \nf. Certificates of insurance shall be provided upon reasonable request.\n\nThis information is sourced from the master services agreement, clause [1].",
+    "sources": 1,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
@@ -3366,7 +3389,7 @@
     "id": 24,
     "question": "Can either party assign the agreement?",
     "kind": "direct",
-    "answer": "Yes, both contracts provide for assignment under certain conditions.\n\n1. In the **Master Services Agreement** ([1]), neither party may assign or transfer the agreement without prior written consent from the other party, which cannot be unreasonably withheld or delayed. However, either party can assign the agreement in whole or in part to an Affiliate or in connection with a merger, acquisition, or sale of substantially all of its business, upon written notice to the other party.\n\n2. In the **License and Hosting Agreement** ([2]), neither party may assign the agreement or its rights and obligations without the prior written consent of the other party, except in cases of a merger or acquisition, or the sale of substantially all assets related to the agreement, unless it involves a direct competitor.\n\nThe other agreements ([3], [4], [5], [6]) also contain similar clauses allowing assignment with conditions, primarily requiring consent from the other party or allowing assignment in connection with certain corporate transactions like mergers or acquisitions.",
+    "answer": "Yes, the ability for either party to assign the agreement depends on specific conditions as outlined in each contract:\n\n1. In the **Master Services Agreement**, neither party may assign or transfer the agreement without prior written consent, except in cases of assignment to an Affiliate or in connection with a merger, acquisition, or sale of substantially all of its business after providing written notice to the other party [1].\n\n2. In the **License and Hosting Agreement**, neither party can assign the agreement or its rights and obligations without prior written consent, but they may do so in connection with a merger or acquisition, or if it involves the sale of substantially all of its assets, unless it involves a direct competitor, in which case consent is required [2].\n\n3. The **Intellectual Property Agreement** states that neither party may assign the agreement or its rights and obligations without consent, though allowances are made for assignments in connection with a sale or transfer of business or assets, under certain restrictions related to specific trademarks [3].\n\n4. The **Sponsorship Agreement** has similar provisions, where neither party may assign the agreement without written consent, but exceptions allow for mergers, reorganizations, or subsidiary assignments [4].\n\n5. In the **Endorsement Agreement**, neither party may assign the agreement without the other party's prior written consent [5].\n\n6. The **Supply Agreement** requires prior written consent from the other party before any assignment can be made by either side [6].\n\nThus, assignment is possible but generally requires prior written consent, with some exceptions regarding mergers and sales of substantially all assets.",
     "sources": 7,
     "refused": false,
     "context_has_gold": true,
@@ -3379,8 +3402,8 @@
     "id": 25,
     "question": "Is the affiliate an employee of the company?",
     "kind": "paraphrase",
-    "answer": "No, the affiliate (MA) is not an employee of the company. MA is deemed to be an independent contractor and shall not hold itself out as an employee or agent of the company, except for limited marketing purposes. This is explicitly stated in clause 14 of the Marketing Affiliate Agreement [1].",
-    "sources": 1,
+    "answer": "The clauses state that the affiliate (referred to as \"MA\") is deemed to be an independent contractor in its relationship with the company. MA shall not hold itself out as an employee or agent of the company, nor will it be treated as an employee for tax purposes. Therefore, the affiliate is not an employee of the company as per the Affiliate Agreement [1]. \n\nThis is further reinforced by general language in the second contract (the CORIO agreement) which also confirms that parties are independent contractors with respect to each other and shall not be deemed employees or agents of one another [3].",
+    "sources": 3,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
@@ -3392,7 +3415,7 @@
     "id": 26,
     "question": "Which state's law governs the marketing affiliate agreement?",
     "kind": "direct",
-    "answer": "The law governing the marketing affiliate agreement is the State of Nevada, as stated in clause 24 [1].",
+    "answer": "The marketing affiliate agreement is governed by the laws of the State of Nevada, as stated in clause [1].",
     "sources": 1,
     "refused": false,
     "context_has_gold": true,
@@ -3405,20 +3428,22 @@
     "id": 27,
     "question": "Can the company be made to pay for lost profits?",
     "kind": "paraphrase",
-    "answer": "The clauses indicate that in both the Master Services Agreement and the Outsourcing Agreement, neither party can be held liable for lost profits or indirect, incidental, special, or consequential damages.\n\nIn the Master Services Agreement, Clause 9.3 states: \"Neither Party shall be liable to the other for any indirect, incidental, consequential, special, punitive, or exemplary damages, including loss of profits...\"[1].\n\nIn the Outsourcing Agreement, Article 8(A) states: \"IN NO EVENT SHALL ANY PARTY HAVE ANY LIABILITY TO THE OTHERS... FOR ANY LOST PROFITS, ANY INDIRECT, INCIDENTAL, SPECIAL OR CONSEQUENTIAL DAMAGES...\"[2].\n\nThus, based on the clauses provided, the company cannot be made to pay for lost profits.",
+    "answer": "The clauses address the limitation of liability concerning lost profits in two contracts. \n\n1. In the master services agreement, clause 9.3 states that neither party shall be liable for any indirect, incidental, consequential, special, punitive, or exemplary damages, including loss of profits, whether arising in contract, tort, or otherwise, even if advised of the possibility of such damages [1].\n\n2. In the outsourcing agreement, clause ARTICLE 8 (specifically 8(A)) states that in no event shall any party have any liability for lost profits or any indirect, incidental, special, or consequential damages of any kind related to the agreement, regardless of how caused [2].\n\nAs a result, based on these clauses, the company cannot be made to pay for lost profits under both contracts.",
     "sources": 5,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": false,
-    "faithfulness": 1.0,
-    "unsupported": [],
+    "faithfulness": 0.667,
+    "unsupported": [
+     "The company cannot be made to pay for lost profits under both contracts."
+    ],
     "answers_question": true
    },
    {
     "id": 28,
     "question": "Can either party end the agreement when the term expires?",
     "kind": "direct",
-    "answer": "Yes, either party can terminate the agreement at the expiration of its term or any renewal term upon thirty (30) days written notice to the other party, as stated in clause 18.1 of the Marketing Affiliate Agreement. This applies to both parties [1].",
+    "answer": "Yes, either party can terminate the agreement at the expiration of its term by providing thirty (30) days written notice to the other party, as stated in clause [1]. This applies to any renewal term as well.",
     "sources": 2,
     "refused": false,
     "context_has_gold": true,
@@ -3431,20 +3456,17 @@
     "id": 29,
     "question": "Is the affiliate allowed to change the software?",
     "kind": "paraphrase",
-    "answer": "The contract allows Corio to modify the Source Code to support and maintain the Software under certain conditions. According to Section 12.2, Corio has a royalty-free, nonexclusive, nontransferable right and license to use and modify the Source Code until the expiration or termination of Corio's Customers' End User License Agreements. However, Corio is not allowed to distribute, sell, or sublicense the Source Code. Therefore, the affiliate (Corio) can make changes to the software within the terms provided but cannot distribute those changes to others [1].",
-    "sources": 6,
-    "refused": false,
-    "context_has_gold": false,
-    "cited_gold": false,
-    "faithfulness": 1.0,
-    "unsupported": [],
-    "answers_question": true
+    "answer": "The clauses do not cover any details regarding an \"affiliate\" or their rights to change the software. The relevant clause from the contracts focuses on Corio's rights and limitations in modifying the source code. Specifically, under the CORIOINC License and Hosting Agreement, Corio is not permitted to modify, adapt, or derive source code from the Software, except as required by law, as stated in clause [3]. \n\nThe other contract mentioned, the Cybergy Holdings Affiliate Agreement, indicates that MA (if this refers to the affiliate) also does not have the right to modify the source code without written consent, as stated in clause [4]. Therefore, in summary, neither party (Corio or MA as an affiliate) is allowed to independently change the software without consent.",
+    "sources": 7,
+    "refused": true,
+    "context_has_gold": true,
+    "cited_gold": true
    },
    {
     "id": 30,
     "question": "What availability must the core systems reach?",
     "kind": "direct",
-    "answer": "The core systems must reach an availability of ninety-nine percent (99%) during the Scheduled Hours of Availability, which are from 7:00 a.m. to 10:00 p.m. each Processing Day, as stated in clause 2.1 [1].",
+    "answer": "The Core Systems must have ninety-nine percent (99%) Availability, meaning the Customer can access each Core System and perform necessary transactions during the Scheduled Hours of Availability, which are from 7:00 a.m. to 10:00 p.m. on each Processing Day [1]. This information comes from the Outsourcing Agreement, clause 2.1.",
     "sources": 1,
     "refused": false,
     "context_has_gold": true,
@@ -3457,8 +3479,8 @@
     "id": 31,
     "question": "What do I get back if the vendor misses its service targets?",
     "kind": "paraphrase",
-    "answer": "If Metavante misses its service targets, different Service Level Credits apply based on the specific service level that was not met:\n\n1. For the Year-End Batch Report Service Level, if Metavante fails to complete the report processing by 6:00 a.m. after the end of year command, the Service Level Credit will be four percent (4%) of the service fees associated with that service [1].\n\n2. For the EFD Reports Service Level, if Metavante fails to make the daily EFD reports available by 3:00 p.m. three times within a month, the Service Level Credit for each failure will be six percent (6%) [2].\n\n3. For the Core System Service Level, if the Availability falls to 96.5% or less three times in any consecutive six-month period, the Service Level Credit will be six percent (6%) [3].\n\nThus, you are entitled to varying credits depending on which service level fails.",
-    "sources": 3,
+    "answer": "If the vendor, Metavante, misses its service targets, you, as the Customer, may be entitled to receive Service Level Credits. Specifically, under clauses regarding Service Level Failures, Metavante is required to notify you when you become entitled to a Service Level Credit, which will specify the events, associated failures, and the amount of the credit. For the Year-End Batch Report Service Level specifically, if Metavante fails to provide the reports by the specified time, you are entitled to a Service Level Credit of four percent (4%) of the service fees related to that service failure [1], [2].",
+    "sources": 2,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
@@ -3470,8 +3492,8 @@
     "id": 32,
     "question": "What does the bank owe if it ends the contract early?",
     "kind": "paraphrase",
-    "answer": "If the bank (Customer) elects to terminate the agreement early, it must pay a termination fee to Metavante. This termination fee will be calculated in accordance with Section 8.4 of the Agreement, as stated in clause [2]. The specific amount of the termination fee will depend on the particulars outlined in that section, which is not provided in the clauses available.",
-    "sources": 5,
+    "answer": "If the bank (Customer) elects to terminate the Agreement early for any reason, it is required to pay Metavante a termination fee, as specified in Section 3 of the Agreement. This fee is calculated according to the provisions set forth in Section 8.4. Additionally, if the bank enters into a new exclusive agreement with Metavante for Initial Services within six months following the termination, the bank may receive a rebate of a portion of the termination fee paid, as outlined in Section 3 and the Termination Fee Schedule [2], [3].",
+    "sources": 6,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
@@ -3483,8 +3505,8 @@
     "id": 33,
     "question": "What is the performance warranty?",
     "kind": "direct",
-    "answer": "The performance warranty, as outlined in clause [1], states that Metavante warrants it will provide all services in a commercially reasonable manner and in material conformance with the applicable documentation. Additionally, if the parties have agreed upon service levels for any aspect of Metavante's performance, those service levels will apply instead of the performance warranty.",
-    "sources": 1,
+    "answer": "The performance warranty is a guarantee from Metavante that it will provide all services in a commercially reasonable manner and in material conformance with the applicable documentation. If the parties have agreed upon service levels for any aspect of Metavante’s performance, those service levels will apply instead of the general performance warranty. This warranty is subject to specific exclusions detailed in clause [1] and other applicable provisions [2].",
+    "sources": 2,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
@@ -3496,8 +3518,8 @@
     "id": 34,
     "question": "How are disputes between the parties resolved?",
     "kind": "direct",
-    "answer": "Dispute resolutions are addressed differently depending on the specific contract:\n\n1. **Technology Outsourcing Agreement (Oriental Financial Group and Metavante)**: Disputes must first be referred through various representatives and executives of each party before any legal proceedings can commence. Specifically, after an initial five Business Days, the managers and then senior executives are involved, ultimately leading to the chief executive officers if unresolved. Legal proceedings can only commence after these steps are exhausted, except for preserving rights [1].\n\n2. **Master Services Agreement (Africa Clinical Research Network and ACRN)**: Disputes are initially to be resolved through good faith negotiation. If unresolved within 30 days, the parties may then refer the dispute to mediation or another agreed-upon resolution mechanism before initiating formal proceedings [2].\n\n3. **Sponsorship Agreement (Excite)**: Disputes concerning trademarks, service marks, or confidentiality can lead to seeking equitable relief in court. For other disputes, the parties attempt to resolve issues through good faith negotiation and, if that fails, move to mediation. If still unresolved, arbitration via the American Arbitration Association is required [3].\n\n4. **License and Hosting Agreement (Corio and Commerce One)**: This agreement stipulates that disputes will be resolved through binding arbitration according to the American Arbitration Association's rules, conducted by an arbitrator in San Francisco County, California [4].\n\n5. **ODM Supply Agreement (Agape ATP International Holding and Organic Preparations)**: Disputes must first be settled by mutual consultation in good faith. If an amicable resolution is not achieved, arbitration will occur through the Arbitration Committee of the International Chamber of Commerce in Switzerland [5][6]. \n\nEach agreement has its own process, reflecting a variety of methods from negotiation to arbitration.",
-    "sources": 6,
+    "answer": "Dispute resolution varies across the different contracts:\n\n1. **Outsourcing Agreement**: Disputes are referred to representatives of each party for initial resolution. If unresolved after five business days, it escalates through managers and then to senior executives, ending with the CEOs. Legal proceedings cannot commence until these procedures are completed, except to preserve rights or maintain a superior position against creditors ([1]).\n\n2. **Master Services Agreement**: Parties attempt good faith negotiation for disputes, referring to mediation or another agreed resolution mechanism if unresolved within 30 days ([2]).\n\n3. **Sponsorship Agreement**: For disputes not involving trademarks or confidentiality, the parties first negotiate in good faith. If unsuccessful, disputes go to mediation, and if still unresolved, to binding arbitration with the American Arbitration Association ([3]).\n\n4. **License and Hosting Agreement**: Disputes are resolved through binding arbitration under the rules of the American Arbitration Association, conducted in San Francisco, California ([4]).\n\n5. **Supply Agreement**: Disputes are settled through mutual consultation in good faith. If that fails, they proceed to arbitration by the Arbitration Committee of the International Chamber of Commerce in Switzerland ([5], [7]).\n\nIn summary, the methods include negotiation, mediation, and arbitration, with specific processes and timelines differing by agreement.",
+    "sources": 8,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
@@ -3509,8 +3531,8 @@
     "id": 35,
     "question": "What is the vendor's annual revenue?",
     "kind": "none",
-    "answer": "The clauses do not specify the vendor's annual revenue. They focus on the definition of Application Management Revenue, payment terms, and conditions related to fees but do not provide information on the total annual income or revenue figures. Therefore, I cannot answer your question.",
-    "sources": 2,
+    "answer": "The clauses do not provide information about the vendor's annual revenue. Therefore, I cannot answer the question based on the provided clauses.",
+    "sources": 3,
     "refused": true
    },
    {
@@ -3525,24 +3547,24 @@
     "id": 37,
     "question": "Which contract requires the parties to use ICC arbitration in Paris?",
     "kind": "none",
-    "answer": "The clauses do not cover any contract that requires the parties to use ICC arbitration in Paris. They specify arbitration shall be conducted in Switzerland, not Paris, as per clause 8.1 of the ODM Supply Agreement [1].",
-    "sources": 1,
+    "answer": "I couldn't find this in your saved contracts.",
+    "sources": 0,
     "refused": true
    },
    {
     "id": 38,
     "question": "What is the maximum number of staff the vendor may assign to the bank?",
     "kind": "none",
-    "answer": "The clauses provided do not specify the maximum number of staff the vendor may assign to the bank. Therefore, I cannot answer this question based on the given clauses.",
-    "sources": 4,
+    "answer": "I couldn't find this in your saved contracts.",
+    "sources": 0,
     "refused": true
    },
    {
     "id": 39,
     "question": "What are the terms and conditions?",
     "kind": "broad",
-    "answer": "The terms and conditions outline in each contract are summarized as follows:\n\n1. **OFG Bancorp Outsourcing Agreement**: \n   - The document includes definitions, interpretations, and responsibilities of the Customer and its Affiliates regarding compliance and data handling. It states that the terms and conditions are incorporated into the entire Agreement, and in case of conflicts, the specific schedules or exhibits will prevail [1].\n\n2. **BioAmber Development Agreement First Amendment**: \n   - The amendments specify Bioamber's funding terms for the BRI Project and related obligations concerning production facilities and regulatory approvals for using a specific strain in production processes. It reinstates obligations in existing agreements and allows for scale-up operations under defined conditions [2].\n\n3. **Stamps.com Co-Branding Agreement**: \n   - This Agreement encompasses the provision of services through specific documentation, equipment responsibilities, exclusivity conditions, and terms regarding amendments, assignment, the independent contractor relationship, and force majeure events [3][5].\n\nThese outlines provide an overview of the terms and conditions from each of the contracts listed.",
-    "sources": 5,
+    "answer": "The relevant terms and conditions from the Outsourcing Agreement include:\n\n1. **Construction**: It establishes definitions and interpretations of terms used within the Agreement, indicating that capitalized terms have meanings defined in Article 18, and that \"includes\" and \"any\" imply a broader interpretation.\n\n2. **Affiliates**: The Customer is responsible for compliance with the Agreement by its Affiliates, including submitting and processing data for these Affiliates, and is liable for fees related to services provided to them. Affiliates can also include entities that become affiliates due to reorganization without increasing transaction volume.\n\nThese concepts are summarized from clauses [1] and [2], specifically sections discussing definitions and responsibilities concerning Affiliates.",
+    "sources": 3,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
@@ -3554,8 +3576,8 @@
     "id": 40,
     "question": "What are the terms of the agreement?",
     "kind": "broad",
-    "answer": "The terms of the agreement vary based on the specific contract:\n\n1. **Vgrab Communications Inc. Development Agreement**: The agreement commences on the date it is executed and continues until full performance by both parties or until earlier terminated by one party as per the agreement terms [1].\n\n2. **Performance Sports Brands Inc. Endorsement Agreement**: The term of this agreement is for the defined Contract Period, unless it is terminated or extended in accordance with the agreement’s provisions [2]. \n\nEach agreement specifies its term conditions and potential for termination.",
-    "sources": 2,
+    "answer": "The terms of the agreement vary by contract:\n\n1. **Vgrab Communications Inc. Development Agreement**: This Agreement commences on the date it is executed and continues until full performance by both parties or earlier termination by one party as outlined in the Agreement [1].\n\n2. **Performance Sports Brands Inc. Endorsement Agreement**: The Term of this Agreement lasts for the Contract Period unless it is terminated or extended according to its provisions [2].\n\n3. **Stamps.com Inc. Co-Branding Agreement**: This agreement does not explicitly outline a term, stating any amendments or waivers, assignments, and that the agreement constitutes the entire agreement [3].\n\n4. **Agape ATP Corp. Supply Agreement**: This agreement has a term of ten (10) years and will automatically renew for additional ten (10) year terms unless a party gives six (6) months notice of intention to terminate for reasons other than breach of agreement [4].\n\nEach of these terms is specific to the respective contract.",
+    "sources": 4,
     "refused": false,
     "context_has_gold": false,
     "cited_gold": false,
@@ -3567,11 +3589,11 @@
     "id": 41,
     "question": "What does the manufacturer promise to do?",
     "kind": "broad",
-    "answer": "The Manufacturer promises to adhere to several obligations, including:\n\n1. **Compliance with Local Laws and Regulations**: The Manufacturer covenants to remain compliant with all applicable local laws and regulations during the agreement term [6].\n2. **Manufacturing Standards**: The Manufacturer commits to comply with international standards in production and manufacturing [4].\n3. **Packaging**: The Manufacturer promises to comply with all applicable packaging laws and regulations in all territories [5].\n4. **Ability to Perform**: The Manufacturer assures that it is willing and able to perform its obligations under the agreement [1].\n5. **Intellectual Property**: The Manufacturer guarantees that the products are free from third-party intellectual property claims and indemnifies the Customer for any claims related to this [3].\n6. **New Products**: The Manufacturer agrees to design and formulate new products, providing the Customer with at least one new product each quarter [7].\n7. **Guarantee of Packaging Quality**: The Manufacturer guarantees that products shipped will be adequately packaged to prevent foreseeable damage during shipment [8].\n\nThese obligations are outlined in the ODM Supply Agreement between Organic Preparations Inc. and Agape ATP International Holding Limited.",
-    "sources": 8,
+    "answer": "The Manufacturer makes several promises under the Supply Agreement, specifically in the following areas:\n\n1. **Ability to Perform**: The Manufacturer covenants that it is willing and able to perform any and all of its obligations under the agreement [1].\n   \n2. **Compliance with Local Laws and Regulations**: The Manufacturer guarantees compliance with all local laws and regulations throughout the term of the agreement [2.1].\n\n3. **Manufacturing Standards**: The Manufacturer commits to complying with all international standards in production and manufacturing throughout the agreement's term [2.2].\n\n4. **Packaging Laws and Regulations**: The Manufacturer promises compliance with all packaging laws and regulations in all territories [2.3].\n\n5. **Intellectual Property**: The Manufacturer guarantees that the products are free of any intellectual property claims from third parties and indemnifies the Customer for such claims, providing full rights to sell and market the products [2.5].\n\n6. **Design and Formulation of New Products**: The Manufacturer agrees to focus on designing and formulating new products, providing the Customer with at least one new product each quarter, with exclusive rights to market and sell those products if the Customer chooses [6].\n\n7. **Guarantee of Packaging Quality**: The Manufacturer guarantees that products will be packaged to protect against foreseeable damage during shipment [7].\n\nThese promises establish the responsibilities and commitments the Manufacturer has towards the Customer in the context of the Supply Agreement.",
+    "sources": 7,
     "refused": false,
     "context_has_gold": true,
-    "cited_gold": true,
+    "cited_gold": false,
     "faithfulness": 1.0,
     "unsupported": [],
     "answers_question": true
@@ -3580,20 +3602,22 @@
     "id": 42,
     "question": "What documentation must each party provide?",
     "kind": "broad",
-    "answer": "In the ODM Supply Agreement between Organic Preparations Inc. and Agape ATP International Holding Limited, the documentation responsibilities are as follows:\n\n1. **Manufacturer's Responsibilities**: The Manufacturer must provide the Customer with all documentation and information related to the Products and their Manufacture necessary for product registration in the specified Territories, within a reasonable time period. The Customer is responsible for any documentation fees and costs ([3]).\n\n2. **Customer's Responsibilities**: The Customer must supply the Manufacturer with all documentation and information that is reasonably required or beneficial for the Manufacturer's performance of its obligations under the agreement, also within a reasonable time period and at the Customer's own expense ([2]).\n\nThese responsibilities are outlined in the clauses from the first contract. The clauses from the Master Services Agreement are not applicable to this question as they pertain to a different contract.",
+    "answer": "In the Supply Agreement ([1]), the documentation responsibilities for each party are as follows:\n\n- **Manufacturer**: The Manufacturer must supply the Customer with all documentation and information relating to the Products and their Manufacture, necessary for the registration of the Products in the specified Territories, within a reasonable period of time. The Customer is responsible for documentation fees and costs ([3]).\n\n- **Customer**: The Customer must provide the Manufacturer with all documentation and information that is reasonably required or beneficial for the Manufacturer to perform its obligations under the agreement, also within a reasonable period of time, and at the Customer's own expense ([2]).\n\nThe clauses related to documentation in the Supply Agreement are therefore [2] and [3]. The second agreement, the Master Services Agreement, does not provide documentation obligations for the parties that are comparable to those outlined in the Supply Agreement.",
     "sources": 4,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
-    "faithfulness": 1.0,
-    "unsupported": [],
+    "faithfulness": 0.75,
+    "unsupported": [
+     "The Master Services Agreement does not provide documentation obligations for the parties comparable to those in the Supply Agreement."
+    ],
     "answers_question": true
    },
    {
     "id": 43,
     "question": "What notice must the Marketing Affiliate give to end the agreement?",
     "kind": "graph",
-    "answer": "The Marketing Affiliate must provide thirty (30) days written notice to the other party to terminate the Agreement upon the expiration of its term or any renewal term, as stated in clause 18.1 [1]. This applies to both parties involved in the agreement.",
+    "answer": "The Marketing Affiliate must provide thirty (30) days written notice to the other party to terminate the agreement at the expiration of its term or any renewal term, according to clause [1]. This information is from the CybergyHoldingsInc_20140520_10-Q_EX-10.27_Affiliate Agreement.",
     "sources": 2,
     "refused": false,
     "context_has_gold": true,
@@ -3606,18 +3630,21 @@
     "id": 44,
     "question": "What insurance does the Sponsor maintain for the study?",
     "kind": "graph",
-    "answer": "The clauses do not cover information regarding the insurance that the Sponsor maintains for the study.",
+    "answer": "The Sponsor maintains a liability insurance policy to cover its liability as required by applicable law for the duration of the Study [1].",
     "sources": 1,
-    "refused": true,
-    "context_has_gold": false,
-    "cited_gold": false
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
    },
    {
     "id": 45,
     "question": "What does Metavante warrant about its services?",
     "kind": "graph",
-    "answer": "Metavante warrants that it has the right to provide the services using all necessary computer software and that it will provide all services in a commercially reasonable manner in material conformance with applicable documentation. Additionally, where service levels have been agreed upon, those shall apply in lieu of the performance warranty. Metavante also disclaims any other warranties outside of what is explicitly stated [1], [2], [3]. This information comes from the Technology Outsourcing Agreement between Oriental Financial Group and Metavante.",
-    "sources": 4,
+    "answer": "Metavante warrants that it has the right to provide the services using all necessary computer software and that it will provide all services in a commercially reasonable manner in material conformance with applicable documentation. Additionally, it affirms that it is a corporation validly existing under Wisconsin law and has the requisite authority to perform its obligations under the Outsourcing Agreement [1], [2], [5].",
+    "sources": 5,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
@@ -3629,7 +3656,7 @@
     "id": 46,
     "question": "What must the Client pay the Service Provider if it ends a project early?",
     "kind": "graph",
-    "answer": "If the Client ends a project early, they must pay the Service Provider for the following as per Clause 5.4:\n\n- Services properly performed up to the effective date of termination;\n- Reasonable and documented wind-down costs; and\n- Any non-cancellable commitments expressly approved by the Client [1].",
+    "answer": "If the Client ends a project early, it must pay the Service Provider for the following, as outlined in the master-services-agreement-acrn-template-05052026docx:\n\n- Services properly performed up to the effective date of termination\n- Reasonable and documented wind-down costs\n- Any non-cancellable commitments expressly approved by the Client\n\nThis information is covered under clause [1].",
     "sources": 1,
     "refused": false,
     "context_has_gold": true,
@@ -3642,7 +3669,7 @@
     "id": 47,
     "question": "Which law and courts apply under the clinical trial agreement?",
     "kind": "graph",
-    "answer": "The Clinical Trial Agreement stipulates that it shall be governed by the laws of South Africa, and any disputes must be settled in the competent courts of Pretoria, South Africa. The parties waive any other forum they may be entitled to due to their present or future address or for any other reason [1].",
+    "answer": "Under the clinical trial agreement EFC18326_Rosa_CTA, the applicable law is the law of South Africa, and the competent courts for any disputes are the courts of Pretoria, South Africa [1].",
     "sources": 1,
     "refused": false,
     "context_has_gold": true,
@@ -3655,7 +3682,7 @@
     "id": 48,
     "question": "What are the Manufacturer's packaging obligations?",
     "kind": "graph",
-    "answer": "The Manufacturer has two key packaging obligations according to the Supply Agreement:\n\n1. The Manufacturer must comply with all packaging laws and regulations in all Territories throughout the term of the agreement [1].\n2. The Manufacturer guarantees that the Products will be packaged in a manner that protects them from any foreseeable damage during shipment [2].",
+    "answer": "The Manufacturer has two key packaging obligations as outlined in the Supply Agreement:\n\n1. The Manufacturer must comply with all packaging laws and regulations in all Territories for the duration of the agreement [1].\n2. The Manufacturer guarantees that the Products will be packaged in a way that protects them from foreseeable damage during shipment [2].",
     "sources": 2,
     "refused": false,
     "context_has_gold": true,
@@ -3668,7 +3695,7 @@
     "id": 49,
     "question": "How long does the clinical trial agreement run, and when can it be ended early?",
     "kind": "multi",
-    "answer": "The Clinical Trial Agreement commences on the last date of signature by the Parties and will remain in effect until the receipt by the Sponsor or PSI of all data generated at the Study site and the completion of the Study closeout visit at the Institution, unless terminated earlier as specified in Section 9 [3].\n\nThe Agreement can be terminated early under various circumstances:\n\n1. By the Sponsor with immediate effect if:\n   - The Institution and/or Investigator breaches the Agreement and fails to cure such breach within thirty (30) calendar days from written notice.\n   - The Sponsor believes in good faith that the Study Drug or continuation of the Study presents an unreasonable medical risk to Study Participants, or there are efficacy or safety concerns.\n   - The Study is suspended or not initiated at the Institution for any reason.\n   - The Sponsor can also terminate without cause upon thirty (30) calendar days’ notice [2].\n\n2. By the Institution or the Investigator with immediate effect if:\n   - The Sponsor breaches the Agreement and fails to cure within thirty (30) calendar days from written notice.\n   - They believe in good faith that the continuation of the Study presents an unreasonable medical risk to Study Participants [1].",
+    "answer": "The clinical trial agreement commences on the last date of signature by the Parties and will remain in effect until receipt by the Sponsor or PSI of all data generated at the Study site and completion of the Study closeout visit at the Institution, unless terminated earlier in accordance with the termination clauses [3], [4].\n\nIt can be ended early under the following conditions:\n1. By the Sponsor, if the Institution and/or Investigator breaches the agreement and fails to cure the breach within thirty (30) calendar days of notice, if there are medical risks or safety concerns regarding the Study Drug, or if the Study is suspended or not initiated at the Institution. The Sponsor can also terminate without cause with thirty (30) calendar days’ notice [2], [4].\n2. By the Institution or Investigator, if the Sponsor breaches the agreement and fails to cure the breach within thirty (30) calendar days of notice, or if they believe continuation of the Study presents unreasonable medical risks to the Study Participants [1], [4].",
     "sources": 4,
     "refused": false,
     "context_has_gold": true,
@@ -3681,8 +3708,18 @@
     "id": 50,
     "question": "Besides the performance warranty, what other warranties does the outsourcing agreement make?",
     "kind": "multi",
-    "answer": "The outsourcing agreement disclaims any and all other warranties in addition to the performance warranty. Specifically, it states that the performance warranty and the warranties in Article 12 are in lieu of any other warranties, conditions, or representations—express or implied—with respect to the services provided, including implied warranties of merchantability or fitness for a particular purpose. Metavante disclaims any warranty or representation to any person other than the customer regarding the services provided under this agreement [2].",
-    "sources": 3,
+    "answer": "I couldn't find this in your saved contracts.",
+    "sources": 0,
+    "refused": true,
+    "context_has_gold": false,
+    "cited_gold": false
+   },
+   {
+    "id": 51,
+    "question": "Can the company change the prices of the deliverables it supplies at the affiliate's request?",
+    "kind": "multi",
+    "answer": "Yes, the Company can change the prices of the deliverables it supplies at the affiliate's request. According to clause 13, the Company reserves the right to change its prices and/or fees at its discretion and must notify MA in writing ninety days prior to the effective date of any change for Technology. All other prices and/or fees may be adjusted without prior notice to MA [2]. This applies to the deliverables outlined in clause 4.2, which are provided at prices or fees then in effect or mutually agreed upon [1].",
+    "sources": 2,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
@@ -3691,21 +3728,11 @@
     "answers_question": true
    },
    {
-    "id": 51,
-    "question": "Can the company change the prices of the deliverables it supplies at the affiliate's request?",
-    "kind": "multi",
-    "answer": "The clauses do not cover whether the company can change the prices of the deliverables at the affiliate's request. Clause [1] provides that the company reserves the right to change its prices and fees and must notify the affiliate of any changes regarding technology fees with a 90-day notice, but it does not specify that these changes are at the affiliate's request.",
-    "sources": 1,
-    "refused": true,
-    "context_has_gold": true,
-    "cited_gold": true
-   },
-   {
     "id": 52,
     "question": "How does the marketing affiliate agreement start, and how can it end?",
     "kind": "multi",
-    "answer": "The Marketing Affiliate Agreement starts upon the execution by Mount Knowledge Holdings Inc. (MA) and acceptance in writing by Birch First Global Investments Inc. (Company). It remains in effect until the end of the current calendar year and is automatically renewed for successive one-year periods unless terminated according to the provisions outlined in clause 18 [1], [2].\n\nThe agreement can end in several ways:\n1. Either party may terminate the agreement at the expiration of its term or any renewal term with thirty (30) days written notice [3], [4].\n2. It can be canceled due to specific occurrences, such as a material breach not remedied within ten days after notice, bankruptcy proceedings, or other significant financial issues [4].\n3. Upon termination, various obligations and rights cease, including MA's use of the Technology and the return of materials related to it [4].",
-    "sources": 5,
+    "answer": "The Marketing Affiliate Agreement between Birch First Global Investments Inc. and Mount Knowledge Holdings Inc. begins on the date of execution by Mount Knowledge Holdings and acceptance in writing by Birch First Global Investments. It remains in effect until the end of the current calendar year, with automatic renewal for successive one-year periods unless terminated according to the provisions in the agreement [1], [3].\n\nThe agreement can end in several ways:\n1. Either party can terminate it at the expiration of its term or any renewal term with thirty (30) days written notice [5].\n2. It can also be cancelled due to material breach not remedied within ten (10) days after notice, bankruptcy proceedings, assignment for the benefit of creditors, or the appointment of a trustee [5].\n\nThese details come from the Marketing Affiliate Agreement clauses.",
+    "sources": 6,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
@@ -3717,37 +3744,33 @@
     "id": 53,
     "question": "Which obligations survive after the clinical trial agreement ends, and does that cover the sponsor's insurance and indemnification?",
     "kind": "multi",
-    "answer": "After the termination or expiration of the Clinical Trial Agreement, several obligations survive, including provisions regarding Study Drug and Study Supplies, Financial Disclosure, Notification, Confidentiality, Data Protection, Property Rights, Publication and Communications, Insurance, Liability, Indemnification, Inspections, Audits, Monitoring and Record Keeping, Non-Debarment and Anti-Corruption, Miscellaneous, and Applicable Law and Place of Jurisdiction [1].\n\nSpecifically regarding insurance and indemnification, the obligations outlined in Section 7 related to Insurance, Liability, and Indemnification do survive the termination or expiration of the agreement, meaning the Sponsor's obligations to maintain insurance and provide indemnification remain in effect post-termination [1], [2].",
-    "sources": 5,
+    "answer": "The following obligations survive after the termination or expiration of the clinical trial agreement, according to clause 9.5:\n\n- Section 1.4 b) and c) [Study Drug and Study Supplies]\n- Section 1.7 [Financial Disclosure]\n- Section 1.8 [Notification]\n- Section 3 [Confidentiality]\n- Section 4 [Data Protection]\n- Section 5 [Property Rights]\n- Section 6 [Publication and Communications]\n- Section 7 [Insurance, Liability, Indemnification]\n- Section 8 [Inspections, Audits, Monitoring and Record Keeping]\n- Section 10 [Non-Debarment and Anti-Corruption]\n- Section 11 [Miscellaneous]\n- Section 12 [Applicable Law and Place of Jurisdiction]\n\nThis means that the obligations regarding insurance and indemnification from Section 7 do survive after the agreement ends, covering both the Sponsor's and the Institution's and Investigator's responsibilities in this context. Therefore, the Sponsor's insurance and indemnification obligations do survive the agreement's termination [1], [2].",
+    "sources": 6,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
-    "faithfulness": 0.667,
-    "unsupported": [
-     "The Sponsor's obligations to maintain insurance and provide indemnification remain in effect post-termination."
-    ],
+    "faithfulness": 1.0,
+    "unsupported": [],
     "answers_question": true
    },
    {
     "id": 54,
     "question": "What do the capitalised terms in the outsourcing agreement mean, and what does ACH stand for?",
     "kind": "multi",
-    "answer": "The capitalized terms in the outsourcing agreement, as defined, include various technical and operational terms pertinent to the services provided. Here are some key terms along with their definitions:\n\n- “ACH Services” refers to services whereby Metavante initiates or receives automated clearing house debit and credit entries, and adjustments to them [1].\n- “Availability” denotes that the service is functioning normally and accessible to the customer and end users [1].\n- “Business Day” specifies the days of the week when services are operational, defined as Monday through Friday, excluding holidays recognized by the Federal Reserve Bank of New York [1, 2].\n- “SLA” may refer to Service Level Agreement, but it’s not explicitly defined in the provided clauses.\n  \nAdditionally, “ACH” stands for automated clearing house services [2]. \n\nFor a complete understanding of other capitalized terms, further review of the relevant sections of the agreement would be necessary, as not all are defined in the provided clauses.",
-    "sources": 4,
+    "answer": "In the outsourcing agreement from OFGBANCORP, the capitalized terms are defined in Article 18 of the Agreement [1.1]. Specifically, \"ACH\" stands for automated clearing house services [3].",
+    "sources": 3,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
-    "faithfulness": 0.8,
-    "unsupported": [
-     "'SLA' may refer to Service Level Agreement, but it’s not explicitly defined in the provided clauses."
-    ],
+    "faithfulness": 1.0,
+    "unsupported": [],
     "answers_question": true
    },
    {
     "id": 55,
     "question": "Who joins the board under the cooperation agreement with the Marathon parties?",
     "kind": "paraphrase",
-    "answer": "Under the Cooperation Agreement with the Marathon parties, Lori Keith (the \"New Director\") joins the board as a Class III director. This is stated in clause 1(c), which outlines the actions to be taken to appoint her following the execution of the agreement [1].",
+    "answer": "Under the Cooperation Agreement, Lori Keith is appointed as the New Director to join the board. The Marathon Parties are involved in the process of this appointment, which includes increasing the size of the board and nominating her as a Class III director [1].",
     "sources": 1,
     "refused": false,
     "context_has_gold": true,
@@ -3760,8 +3783,8 @@
     "id": 56,
     "question": "What does the support period covenant in the cooperation agreement cover, and when does it end?",
     "kind": "direct",
-    "answer": "The Support Period Covenant in the Cooperation Agreement covers the obligations of the Marathon Parties during a specified period. It requires them to appear in person or by proxy at the 2020 Annual Meeting and vote their shares in favor of the Board's nominated candidates and recommendations, except in extraordinary matters where they can vote at their sole discretion. \n\nThis support period begins on the date of the agreement and ends at 11:59 PM New York Time on the date that is thirty (30) days prior to the expiration of the advance notice period for the submission of stockholder director nominations for consideration at the Company’s 2021 Annual Meeting, as determined by applicable law and set forth in the Bylaws [1], [2].",
-    "sources": 3,
+    "answer": "The Support Period Covenants in the Cooperation Agreement cover a period that commences on the date of the agreement and ends at 11:59 pm New York Time on the date that is thirty (30) days prior to the expiration of the advance notice period for stockholders to submit director nominations for consideration at the Company’s 2021 Annual Meeting of Stockholders, as determined by applicable law and set forth in the Bylaws [1].",
+    "sources": 1,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
@@ -3773,7 +3796,7 @@
     "id": 57,
     "question": "Are the company and the shareholder group allowed to criticise each other in public?",
     "kind": "paraphrase",
-    "answer": "No, the company and the shareholder group (Marathon Parties) are not allowed to publicly criticize each other. According to Clause 6(a), both parties, along with their representatives, covenant not to publicly criticize, disparage, or defame each other in any manner that could damage the other's business or reputation during the Support Period, or until a breach of this section occurs [1].",
+    "answer": "According to the clauses, the Company and the Marathon Parties (the shareholder group) are not allowed to criticize each other publicly during the Support Period. Clause 6(a) states that neither the Company nor the Marathon Parties, or their representatives, shall publicly criticize, disparage, or defame the other party or their representatives in any manner that could damage their business or reputation. Therefore, public criticism is prohibited as outlined in the Cooperation Agreement [1].",
     "sources": 3,
     "refused": false,
     "context_has_gold": true,
@@ -3786,8 +3809,8 @@
     "id": 58,
     "question": "What counts as an impression for the sponsorship guarantee?",
     "kind": "direct",
-    "answer": "An \"Impression\" for the sponsorship guarantee is defined as any appearance of a link to the Sponsor Site, which can be graphic, text, or a combination of both. Specific limitations apply: no more than three (3) Impressions per Channel page, two (2) Impressions maximum per generic search results page (at least one must link to pages offering Music Products), and one (1) Impression per specific search results page. Additionally, Excite will make efforts to avoid duplicate Impressions on a single page. For purposes of the contract, further definitions of generic and specific search results pages are provided [1]. \n\nThis information is derived from the Sponsorship Agreement outlined in the clauses provided.",
-    "sources": 2,
+    "answer": "An \"Impression\" means any appearance of a link to the Sponsor Site, which can be graphic, text, or a combination of both. However, there are specific limits on how many Impressions can count from various types of pages: \n\n- No more than three (3) Impressions per Channel page, with at least two (2) linking to pages in the Sponsor Site offering Music Products.\n- No more than two (2) Impressions per generic search results page, with at least one (1) linking to pages in the Sponsor Site offering Music Products.\n- No more than one (1) Impression per specific search results page, which is displayed in response to a query about a specific artist or album.\n\nAdditionally, Excite is required to make a good faith effort to avoid duplicate Impressions on a single page, but only one (1) Impression for the same artist on a Music Product page counts towards the guarantee [2]. This information is derived from the Sponsorship Agreement.",
+    "sources": 6,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
@@ -3799,7 +3822,7 @@
     "id": 59,
     "question": "Who owns the material the sponsor supplies to Excite?",
     "kind": "paraphrase",
-    "answer": "The sponsor retains all right, title, and interest in the material it supplies to Excite, including ownership of all copyrights and other intellectual property rights therein, as stated in clause 9(a) of the Sponsorship Agreement [1].",
+    "answer": "The sponsor, N2K Inc., retains all right, title, and interest in and to the content they supply to Excite, which includes ownership of all copyrights and other intellectual property rights. This is stated in clause [1].",
     "sources": 1,
     "refused": false,
     "context_has_gold": true,
@@ -3812,8 +3835,8 @@
     "id": 60,
     "question": "What can the sponsor do if Excite does not deliver the promised visibility?",
     "kind": "paraphrase",
-    "answer": "If Excite fails to deliver the guaranteed number of Impressions on the Excite Site during the first year, the Sponsor may terminate the Agreement if Excite does not \"make good\" the shortfall within a specified period following the first year end. In the second year, if Excite fails to deliver the guaranteed number of Impressions, the Agreement will continue until Excite makes good on the guarantee, and the Sponsor will not be obligated to make certain payments during this \"make good\" period, although they must continue revenue sharing payments as described in Section 7(e) [1].",
-    "sources": 4,
+    "answer": "If Excite fails to deliver the guaranteed number of Impressions during the first year, it must make commercially reasonable efforts to \"make good\" the shortfall. If it fails to do so within a specific time frame after the first year ends, the Sponsor may terminate the Agreement. In the second year, similar provisions apply; Excite must also make good any shortfall, and the term of the Agreement will continue until that is accomplished. During the \"make good\" period after the second year, the Sponsor is not obligated to make certain payments to Excite, but will continue to pay revenue sharing payments as specified in the contract [2].",
+    "sources": 5,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
@@ -3825,18 +3848,21 @@
     "id": 61,
     "question": "How long does the WeChat app development agreement last?",
     "kind": "direct",
-    "answer": "The clauses provided do not cover a WeChat app development agreement. They pertain only to a mobile application development agreement for the Duesey Coffee app. Therefore, I cannot answer your question about the WeChat app development agreement.",
+    "answer": "The WeChat app development agreement lasts for a maximum period of six (6) months from the commencement date, with the possibility of renewal, unless terminated earlier as per the agreement [1].",
     "sources": 1,
-    "refused": true,
+    "refused": false,
     "context_has_gold": true,
-    "cited_gold": false
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
    },
    {
     "id": 62,
     "question": "Who sets up the WeChat account for the coffee app?",
     "kind": "paraphrase",
-    "answer": "The Developer will register a WeChat Official Account on behalf of VAL for the coffee app, as stated in clause [1]. This information comes from the Development Agreement.",
-    "sources": 4,
+    "answer": "The Developer will register a WeChat Official Account on behalf of VAL, which has access to all advanced APIs for the development of WeChat Online Duesey Coffee Store in P.R. China, as stated in clause 6.3 of the Development Agreement [1].",
+    "sources": 3,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
@@ -3848,32 +3874,33 @@
     "id": 63,
     "question": "What is a change order in the app development agreement?",
     "kind": "direct",
-    "answer": "A change order in the app development agreement is defined as any change or modification in functionality, feature, or user interface of the app required by VAL that goes beyond the agreed functional requirements outlined in the agreement. Such changes must be agreed upon in writing by the Developer and VAL. However, change orders do not cover fixing bugs or glitches in the code written by the Developer; these will be fixed by the Developer for free for up to 3 months after the final delivery under the Bug Fixing Warranty. This information is sourced from clause 7 of the Development Agreement [1].",
+    "answer": "In the app development agreement, a change order is defined as any change or modification in functionality, feature, or user interface of the App required by VAL that goes beyond the agreed functional requirements outlined in the agreement. These changes must be agreed upon in writing by the Developer and VAL. Additionally, change orders do not include fixes for bugs or glitches produced by the Developer's code, as such bugs will be addressed by the Developer free of charge for up to three months after final delivery, as per the Bug Fixing Warranty [1].",
     "sources": 1,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
-    "faithfulness": 0.8,
-    "unsupported": [
-     "This information is sourced from clause 7 of the Development Agreement."
-    ],
+    "faithfulness": 1.0,
+    "unsupported": [],
     "answers_question": true
    },
    {
     "id": 64,
     "question": "Which golf clubs must the golfer use in public?",
     "kind": "paraphrase",
-    "answer": "The clauses provided do not cover anything related to golf clubs or their use in public. Therefore, I cannot provide an answer to your question based on the given contracts.",
+    "answer": "According to the Endorsement Agreement, the golfer (North) is required to use the Company's F2 branded wedges when competing, conducting public clinics, participating in public golf events, or appearing at other public functions. Additionally, North is encouraged to make reasonable efforts to use F2 branded irons, woods, and putters at all public events, though there is no requirement to do so. Thus, the mandatory club is the F2 branded wedges, while the use of other clubs is optional [1].",
     "sources": 1,
-    "refused": true,
-    "context_has_gold": false,
-    "cited_gold": false
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
    },
    {
     "id": 65,
     "question": "What happens if the advertising materials fall under the Screen Actors Guild?",
     "kind": "direct",
-    "answer": "If the advertising materials fall under the jurisdiction of the Screen Actors Guild (SAG) and/or the American Federation of Television and Radio Artists (AFTRA), Andy North agrees to join these unions if required. The Company will cover all related expenses, including dues, assessments, and contributions for North to render his services. Additionally, North's participation will not affect his Guaranteed Fee or Royalties under the Endorsement Agreement. This is outlined in clause 10 of the Endorsement Agreement. [1]",
+    "answer": "If the advertising materials fall under the jurisdiction of the Screen Actors Guild (SAG) and North is required to become a member, North agrees to join the union. The Company will pay all expenses related to North's membership, including dues, assessments, and contributions necessary for North to render services. Additionally, North's participation in such advertising materials will not reduce the Guaranteed Fee or Royalties from the Endorsement Agreement in any way [1]. This information comes from the Endorsement Agreement.",
     "sources": 1,
     "refused": false,
     "context_has_gold": true,
@@ -3886,7 +3913,7 @@
     "id": 66,
     "question": "When is the golfer in default of the endorsement agreement?",
     "kind": "paraphrase",
-    "answer": "The golfer, Andy North, is in default of the endorsement agreement if he materially breaches the agreement and does not cure the breach within thirty (30) days after receiving written notice from the Company, or if he is indicted for a felony involving moral turpitude that brings disrepute to the Company [1].",
+    "answer": "The golfer, referred to as \"North,\" is in default of the endorsement agreement under the following conditions: \n\n1. If North materially breaches the agreement and such breach remains uncured for a period of thirty days after written notice from the Company.\n2. If North is indicted for a felony involving moral turpitude that brings disrepute to the Company.\n\nThese conditions are outlined in clause 12 of the endorsement agreement [1].",
     "sources": 1,
     "refused": false,
     "context_has_gold": true,
@@ -3899,8 +3926,8 @@
     "id": 67,
     "question": "Can a supplier stop making a product under the outsourcing agreement with the mask suppliers?",
     "kind": "paraphrase",
-    "answer": "Yes, a supplier can stop making a product under the outsourcing agreement by providing written notice of the end of life of the product to the company, in accordance with the provisions of clause 2.5. The supplier must give notice at least a specified time before the effective termination date, and they are obligated to continue supplying and the company is obliged to purchase the product until that termination date, including any accepted purchase orders outstanding on that date [1].",
-    "sources": 1,
+    "answer": "Yes, a supplier can terminate its obligations to supply a particular product under the outsourcing agreement by giving written notice of the end of life of such product to the company, provided they adhere to the specified requirements in clause 2.5. This includes supplying the product until the effective termination date and fulfilling any outstanding purchase orders. Moreover, if the company has a long-term supply agreement with a customer and the supplier has confirmed its intention to continue the supply, the supplier cannot terminate the agreement until certain conditions are met [1].",
+    "sources": 2,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
@@ -3912,22 +3939,20 @@
     "id": 68,
     "question": "Who pays the taxes on the products in the mask outsourcing agreement?",
     "kind": "direct",
-    "answer": "The Customer is responsible for paying any taxes as indicated in the agreement. This is specified in clause 5.3, which states that the fees in the Services and Charges Schedule do not include taxes, all of which shall be the responsibility of the Customer [1]. This statement pertains to the Technology Outsourcing Agreement between Oriental Financial Group and Metavante.",
+    "answer": "In the mask outsourcing agreement, the Company is responsible for and shall pay any applicable sales, use, excise or similar taxes on the products sold by the Suppliers, excluding any taxes based on the Suppliers’ income and any applicable withholding taxes [1].",
     "sources": 1,
     "refused": false,
-    "context_has_gold": false,
-    "cited_gold": false,
-    "faithfulness": 0.667,
-    "unsupported": [
-     "This statement pertains to the Technology Outsourcing Agreement between Oriental Financial Group and Metavante."
-    ],
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
     "answers_question": true
    },
    {
     "id": 69,
     "question": "When do ownership and risk of the products pass to the company?",
     "kind": "paraphrase",
-    "answer": "According to clause 5.1 of the Outsourcing Agreement, ownership and risk of loss for the Products pass to the Company in accordance with the Delivery Term. The specific conditions of the Delivery Term will dictate the exact moment of transfer. This is stated in [1].",
+    "answer": "Ownership and risk of the products pass to the company in accordance with the Delivery Term, as stated in the Outsourcing Agreement clause [1].",
     "sources": 1,
     "refused": false,
     "context_has_gold": true,
@@ -3940,8 +3965,8 @@
     "id": 70,
     "question": "What law governs the outsource technology development agreement?",
     "kind": "direct",
-    "answer": "The clauses provided do not specify which law governs the Outsource Technology Development Agreement. Therefore, I cannot answer your question based on the available information.",
-    "sources": 2,
+    "answer": "The clauses provided do not cover the \"outsource technology development agreement.\" Therefore, I cannot determine the governing law for that specific agreement based on the information given.",
+    "sources": 1,
     "refused": true,
     "context_has_gold": false,
     "cited_gold": false
@@ -3950,8 +3975,8 @@
     "id": 71,
     "question": "Is the developer's licence to the technology exclusive?",
     "kind": "paraphrase",
-    "answer": "No, the developer's license to the technology is not exclusive. It is described as a \"non-exclusive, limited, and non-transferable license\" specifically for the purpose of developing improvements for DSS [3]. This indicates that other parties may also have licenses to the technology.",
-    "sources": 3,
+    "answer": "No, the developer's license to the technology is not exclusive. It is described as a non-exclusive, limited, and non-transferable license in clause [1].",
+    "sources": 1,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
@@ -3963,7 +3988,7 @@
     "id": 72,
     "question": "Can a party ask a court to stop a breach of the technology development agreement?",
     "kind": "paraphrase",
-    "answer": "Yes, a party can ask a court for injunctive relief to stop a breach of the technology development agreement. Clause 9.6 states that a material breach may subject the non-breaching party to irreparable injury and entitles them to seek injunctive relief and specific performance to enforce the terms of the agreement [1].",
+    "answer": "Yes, a party can ask a court to stop a breach of the technology development agreement. According to clause 9.6 of the agreement, the non-breaching party may be entitled to injunctive relief to enforce the terms of the agreement due to the irreparable injury that a material breach may cause, indicating that monetary damages may not be adequate [1].",
     "sources": 1,
     "refused": false,
     "context_has_gold": true,
@@ -3976,7 +4001,7 @@
     "id": 73,
     "question": "Who owns the software in the license and hosting agreement?",
     "kind": "direct",
-    "answer": "In the License and Hosting Agreement, Commerce One retains all ownership rights to the software, including all copyrights, patents, and other intellectual property rights ([2]). Corio owns developments created solely by it during the term of the agreement, but this ownership is subject to Commerce One's pre-existing rights ([1]). Thus, the software itself is owned by Commerce One.",
+    "answer": "Commerce One owns the software in the License and Hosting Agreement, as it retains all rights, title, and interest in and to the software, including all intellectual property rights. This is stated in clause 2.8 [2]. This information comes from the CORIO INC. LICENSE AND HOSTING AGREEMENT.",
     "sources": 2,
     "refused": false,
     "context_has_gold": true,
@@ -3989,7 +4014,7 @@
     "id": 74,
     "question": "Who is responsible for taxes in the hosting agreement with Commerce One?",
     "kind": "paraphrase",
-    "answer": "Corio is responsible for payment of all taxes concerning the Corio Services, excluding taxes based solely upon Commerce One's income, as stated in clause 4.3 of the License and Hosting Agreement [1].",
+    "answer": "Corio Inc. is responsible for the payment of all taxes concerning the Corio Services under the hosting agreement with Commerce One, excluding taxes based solely upon Commerce One's income [1].",
     "sources": 1,
     "refused": false,
     "context_has_gold": true,
@@ -4002,42 +4027,7 @@
     "id": 75,
     "question": "Can Corio resell Commerce One software to its customers?",
     "kind": "direct",
-    "answer": "The clauses provided do not explicitly mention the ability of Corio to resell Commerce One's software to its customers. Therefore, the question is not covered by the clauses.",
-    "sources": 1,
-    "refused": true,
-    "context_has_gold": false,
-    "cited_gold": false
-   },
-   {
-    "id": 76,
-    "question": "Can MBE check the company's shipping records?",
-    "kind": "paraphrase",
-    "answer": "Yes, MBE can check the company's shipping records. Clause 5 states that MBE is entitled to audit all records related to the number of packages shipped by the MBE Centers using the Service, provided they give ten days written notice. However, this audit can only be conducted once in a ninety-day period and will be at MBE's expense, unless the audit reveals non-compliance, in which case the Company will bear the cost [1]. This clause comes from the Co-branding Agreement between iShip.com and Mail Boxes Etc.",
-    "sources": 1,
-    "refused": false,
-    "context_has_gold": true,
-    "cited_gold": true,
-    "faithfulness": 0.8,
-    "unsupported": [
-     "This clause comes from the Co-branding Agreement between iShip.com and Mail Boxes Etc."
-    ],
-    "answers_question": true
-   },
-   {
-    "id": 77,
-    "question": "How long is the initial term of the manifest system services agreement?",
-    "kind": "direct",
-    "answer": "The clauses do not specify the length of the initial term of the Master Services Agreement. Clause 5.1 indicates that the initial term is defined as \"[X] years,\" but the actual duration is not provided in the text given. Therefore, the specific duration of the initial term is not covered by the clauses.",
-    "sources": 1,
-    "refused": true,
-    "context_has_gold": false,
-    "cited_gold": false
-   },
-   {
-    "id": 78,
-    "question": "Who protects MBE and its centres against claims about the shipping service?",
-    "kind": "paraphrase",
-    "answer": "Claims relating to the shipping service affecting MBE and its centres are protected under two clauses:\n\n1. **Indemnity for Patent or Copyright Infringement**: The Company will defend MBE and its directors, officers, employees, agents, affiliates, successors, assigns, or franchisees against claims that the Service, used properly, infringes U.S. patent or copyright or misappropriates a trade secret. The Company is responsible for paying all damages and costs incurred by any Indemnitee in connection with such claims, and it has sole control over the defense and settlement of these actions [2].\n\n2. **General Indemnification**: The Company also indemnifies MBE against claims, suits, or actions related to misrepresentation or breach of its covenants or agreements. This indemnification includes coverage for costs, damages, and expenses incurred by MBE in connection with such claims [1].\n\nTherefore, the Company is responsible for protecting MBE and its centres against relevant claims.",
+    "answer": "Yes, Corio can resell Commerce One software to its customers. According to clause [1], Corio is granted a nonexclusive, nontransferable right and license to sell and distribute Commerce One's software licenses to Corio customers in the specified territory, subject to the terms and conditions of the agreement. This statement is based on the Licensing and Hosting Agreement between Commerce One, Inc. and Corio Inc.",
     "sources": 2,
     "refused": false,
     "context_has_gold": true,
@@ -4047,11 +4037,52 @@
     "answers_question": true
    },
    {
+    "id": 76,
+    "question": "Can MBE check the company's shipping records?",
+    "kind": "paraphrase",
+    "answer": "Yes, MBE is entitled to audit the company's records of the number of packages shipped by the MBE Centers using the Service. This can be done upon providing ten (10) days written notice and is subject to certain conditions as outlined in clause 5 of the Co-Branding Agreement [1].",
+    "sources": 1,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": true,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 77,
+    "question": "How long is the initial term of the manifest system services agreement?",
+    "kind": "direct",
+    "answer": "The initial term of the Master Services Agreement (MSA) is specified as [X] years, according to clause 5.1. The exact duration is not provided in the text you have, so it depends on the agreement between the parties. This information comes from the Master Services Agreement.",
+    "sources": 1,
+    "refused": false,
+    "context_has_gold": false,
+    "cited_gold": false,
+    "faithfulness": 1.0,
+    "unsupported": [],
+    "answers_question": true
+   },
+   {
+    "id": 78,
+    "question": "Who protects MBE and its centres against claims about the shipping service?",
+    "kind": "paraphrase",
+    "answer": "The Company protects MBE and its centers against claims related to the shipping service through the indemnification provision outlined in clause 12, which states that the Company will defend MBE and its affiliated entities against claims of patent or copyright infringement related to the Service, as long as it is used in accordance with the agreement. The Company agrees to pay all damages and costs incurred by MBE in connection with such claims [2].",
+    "sources": 2,
+    "refused": false,
+    "context_has_gold": true,
+    "cited_gold": false,
+    "faithfulness": 0.667,
+    "unsupported": [
+     "The Company protects MBE and its centers against claims related to the shipping service through the indemnification provision outlined in clause 12."
+    ],
+    "answers_question": true
+   },
+   {
     "id": 79,
     "question": "Can Arizona sublicense the licences it receives under the intellectual property agreement?",
     "kind": "direct",
-    "answer": "Yes, Arizona can sublicense the licenses it receives under the Intellectual Property Agreement. Specifically, clause 7.1 states that Arizona may sublicense the licenses granted to its Affiliates and Third Parties in the ordinary course of business, but not for the independent use of Third Parties [1].",
-    "sources": 1,
+    "answer": "Yes, Arizona can sublicense the licenses granted under the intellectual property agreement to its Affiliates and Third Parties, but only in the ordinary course of business and in support of its and its Affiliates’ business, not for the independent use of Third Parties. This is specified in clause 7.1 of the Intellectual Property Agreement [1].",
+    "sources": 2,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
@@ -4063,8 +4094,8 @@
     "id": 80,
     "question": "How is the quality of trademark use controlled in the intellectual property agreement?",
     "kind": "paraphrase",
-    "answer": "The quality of trademark use is controlled in the Intellectual Property Agreement through several measures outlined in clause 6.3. These measures include:\n\n1. The Buyer Entities acknowledge the importance of quality control by Arizona over the Seller Licensed Trademarks to maintain their integrity and goodwill [1].\n2. The Company must ensure that all goods and services provided under the Seller Licensed Trademarks meet or exceed the quality of those provided prior to the Effective Date, and must not be associated with goods or services that could harm the trademarks' image or reputation [1(a)].\n3. The Company is prohibited from tarnishing the reputation associated with the Seller Licensed Trademarks or Arizona [1(b)].\n4. The Company must comply with applicable laws while using the Seller Licensed Trademarks [1(c)].\n5. The Company is required to include trademark notices as requested by Arizona and provide samples or descriptions of trademark use upon request [1(d), 1(e)].\n6. The license does not grant rights to use similar or derivative trademarks, ensuring protection of the Seller Licensed Trademarks [1(f)].\n\nAdditionally, clause 6.4 states that the Company must comply with obligations under the Trademark License Agreement, including reporting and quality control standards [2].",
-    "sources": 2,
+    "answer": "The quality of trademark use is controlled in the Intellectual Property Agreement through several key provisions:\n\n1. The Buyer Entities acknowledge the importance of Arizona's exercise of quality control to maintain the integrity and goodwill associated with Seller Licensed Trademarks. The Company must ensure that all goods and services provided under these trademarks meet certain quality standards and are not associated with anything that could adversely affect the trademarks' image or reputation [1].\n\n2. The Company is prohibited from tarnishing or bringing disrepute to the Seller Licensed Trademarks and must comply with all applicable laws when using these trademarks [1].\n\n3. Additionally, the Company is obligated to provide samples and written descriptions of its use of the Seller Licensed Trademarks to Arizona upon request, ensuring ongoing oversight of how the trademarks are utilized [1].\n\n4. The Company must also comply with obligations outlined in the Trademark License Agreement concerning quality control and reporting [2].\n\nThese provisions collectively emphasize the need for quality control measures and accountability in the use of trademarks under the Agreement.",
+    "sources": 4,
     "refused": false,
     "context_has_gold": true,
     "cited_gold": true,
@@ -4076,7 +4107,7 @@
     "id": 81,
     "question": "What does each party indemnify the other for under the intellectual property agreement?",
     "kind": "direct",
-    "answer": "Each party indemnifies the other for losses incurred due to: (a) a breach by the indemnifying party of the agreement; or (b) any gross negligence or willful misconduct of the indemnifying party in connection with the agreement. This is outlined in clause 10.1 of the Intellectual Property Agreement [1], [2].",
+    "answer": "Under the Intellectual Property Agreement, each party indemnifies the other for losses, costs, liabilities, claims, and expenses incurred as a result of: (a) a breach by the indemnifying party of the agreement; or (b) any gross negligence or willful misconduct of the indemnifying party in connection with the agreement [1], [2].",
     "sources": 2,
     "refused": false,
     "context_has_gold": true,
@@ -4089,7 +4120,7 @@
     "id": 82,
     "question": "What is the chief executive's mobile phone number?",
     "kind": "none",
-    "answer": "The clauses you provided do not mention a chief executive or any related contact information. Therefore, I cannot provide the chief executive's mobile phone number as the clauses do not cover this information.",
+    "answer": "The clauses do not cover the chief executive's mobile phone number.",
     "sources": 1,
     "refused": true
    },
@@ -4102,7 +4133,7 @@
     "refused": true
    }
   ],
-  "ran_at": "2026-11-08T04:58:05.962272+00:00",
+  "ran_at": "2026-11-10T05:46:56.091206+00:00",
   "answer_model": "gpt-4o-mini",
   "judge_model": "gpt-4o"
  },

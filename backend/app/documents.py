@@ -37,7 +37,12 @@ class ResultIn(BaseModel):
     clauses: list[ClauseIn] = Field(min_length=1, max_length=5000)
 
 
-def _summary(doc: Document, clause_count: int, embedded: int = 0) -> dict:
+def _why(e: Exception) -> str:
+    """What went wrong with an OpenAI call, in words the user can act on (shown after saving)."""
+    return {"AuthenticationError": "OpenAI rejected your API key", "RateLimitError": "OpenAI says your key is out of quota or rate-limited"}.get(type(e).__name__, f"the OpenAI call failed ({type(e).__name__})")
+
+
+def _summary(doc: Document, clause_count: int, embedded: int = 0, warnings: list[str] | None = None) -> dict:
     return {
         "id": str(doc.id),
         "filename": doc.filename,
@@ -50,6 +55,7 @@ def _summary(doc: Document, clause_count: int, embedded: int = 0) -> dict:
         "graph_parties": doc.graph_parties,
         "graph_refs": doc.graph_refs,
         "created_at": doc.created_at.isoformat(),
+        "warnings": warnings or [],  # things that did not work on save (the contract itself is saved)
     }
 
 
@@ -127,21 +133,27 @@ async def save_document(
             "existing": {"id": str(first.id), "filename": first.filename, "created_at": first.created_at.isoformat()},
         })
     await db.refresh(doc)
-    embedded = 0
+    embedded, warnings = 0, []
     key = await openai_key(db, user.id)
-    if key:  # a failed embedding never fails the save: the contract stays, and the Contracts page offers "Embed"
+    fix = "Fix the key (key icon, top bar), then press Embed and Build graph on My contracts."
+    if not key:
+        warnings.append(f"No OpenAI key is saved, so this contract was not embedded and its companies were not found. Add a key (key icon, top bar), then press Embed and Build graph on My contracts.")
+    else:  # a failed embedding never fails the save: the contract stays, and the Contracts page offers "Embed"
         try:
             embedded = await embed_document(db, key, doc.id)
         except Exception as e:
             log.warning("embedding on save failed: %s", type(e).__name__)
+            warnings.append(f"Not embedded: {_why(e)}. {fix}")
     try:  # same for the graph (works without a key too, but then holds references only)
         await build_graph(db, key, doc)
         await db.refresh(doc)
     except Exception as e:
         log.warning("graph on save failed: %s", type(e).__name__)
+        if key and len(warnings) < 2 and not any(_why(e) in w for w in warnings):
+            warnings.append(f"No graph: {_why(e)}. {fix}")
     for old in same:  # replaced copies leave the graph too
         await drop_document(old.id, user.id)
-    return _summary(doc, len(data.clauses), embedded)
+    return _summary(doc, len(data.clauses), embedded, warnings)
 
 
 @router.get("")

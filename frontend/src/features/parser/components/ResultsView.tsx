@@ -43,11 +43,15 @@ export default function ResultsView({ result, file, onClear, onSave, clearLabel 
   // Set when the server says this exact file is already saved (409): offers to replace that copy.
   const [dupe, setDupe] = useState<{ filename: string; created_at: string } | null>(null);
 
+  const [warnings, setWarnings] = useState<string[]>([]); // saved, but embedding or the graph did not work (usually the OpenAI key)
+
   const doSave = async (replace = false) => {
     setSave("saving");
     setDupe(null);
+    setWarnings([]);
     try {
-      await onSave?.(replace);
+      const saved = (await onSave?.(replace)) as { warnings?: string[] } | undefined;
+      setWarnings(saved?.warnings ?? []);
       setSave("saved");
     } catch (e: any) {
       if (e.response?.status === 409 && e.response.data?.existing) {
@@ -122,6 +126,15 @@ export default function ResultsView({ result, file, onClear, onSave, clearLabel 
         </div>
         {save !== "idle" && save !== "saving" && save !== "saved" && (
           <p role="alert" className="w-full text-sm text-danger">{save}</p>
+        )}
+        {warnings.length > 0 && (
+          <div role="alert" className="flex w-full flex-wrap items-center justify-between gap-3 rounded-md border border-warn/40 bg-warn/10 p-3 text-sm text-fg-soft">
+            <p className="flex min-w-0 items-start gap-2">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warn" aria-hidden />
+              <span><strong className="text-fg">Saved, but not fully set up.</strong> {warnings.join(" ")}</span>
+            </p>
+            <button onClick={() => window.dispatchEvent(new Event("jurion:open-settings"))} className="h-10 shrink-0 cursor-pointer rounded-lg border border-line-strong px-3 text-fg hover:bg-raised focus-visible:outline-2 focus-visible:outline-accent">Open key settings</button>
+          </div>
         )}
         {dupe && (
           <div role="alert" className="flex w-full flex-wrap items-center justify-between gap-3 rounded-md border border-warn/40 bg-warn/10 p-3 text-sm text-fg-soft">

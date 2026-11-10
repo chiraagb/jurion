@@ -47,18 +47,19 @@ flowchart LR
 
 ## Measured results
 
-From the latest runs: 83 questions (77 with an answer) over **15 public contracts**, 847 clauses (see the Evaluation tab for the live numbers and the question-by-question detail):
+From the latest runs: 83 questions (77 with an answer) over **public contracts** (15, then 22 with look-alikes added; 847 clauses on 15), (see the Evaluation tab for the live numbers and the question-by-question detail):
 
 | | Result |
 |---|---|
 | Right clause in the top 5 results: meaning only / words only / hybrid / + heading context / + widened by the graph | 77% / 18% / 77% / 78% / 79% |
-| Right clause inside the clauses Ask gives the grader: no narrowing / hard / soft narrowing | 88% / 90% / 92% |
-| Answers that cite the right clause (95.5% when the library was 5 contracts) | 84.4% |
-| Claims supported by the clauses given | 99.1% |
+| Right clause inside the clauses Ask gives the grader: no narrowing / hard / soft narrowing (15 contracts) | 88% / 90% / 92% |
+| Right clause in the top 10 with the graph: 15 / 22 contracts | 90.9% / 92.2% |
+| Answers that cite the right clause (95.5% on 5 contracts) | 87.0% on 15 / 79.2% on 22 |
+| Claims supported by the clauses given | 98.2% on 15 / 97.8% on 22 |
 | Unanswerable questions correctly refused | 6 of 6 |
-| Answers that are confident but from the wrong clause (4.5% on 5 contracts) | 6.5% |
+| Answers that are confident but from the wrong clause (4.5% on 5 contracts) | 9.1% on 15 / 13.0% on 22 |
 
-**Read these honestly:** accuracy fell when the library tripled, because there are more look-alike clauses (the same 44 questions: 95.5% on 5 contracts, 84.1% on 15). Part of that drop is generic questions that now have several valid answers in different contracts while the test accepts one. The set is still small (one question is about 1.3 points), answers differ slightly between runs, and faithfulness is scored by an AI judge. The graph fixed the failures it was built for (questions that name a contract) and left overall search quality about the same. [`docs/18-evaluation.md`](docs/18-evaluation.md) records what was tried, what did not work, and the bugs found in the measuring itself.
+**Read these honestly:** the last run added 7 look-alike contracts (a distributor agreement with two amendments, services agreements, a duplicate development agreement) and right-clause-cited fell from 87.0% to 79.2%; hiding them restored it, so the drop is the harder library, not the code. The "Which contract?" step is switched off in these runs, so it is not measured. accuracy fell when the library tripled, because there are more look-alike clauses (the same 44 questions: 95.5% on 5 contracts, 84.1% on 15). Part of that drop is generic questions that now have several valid answers in different contracts while the test accepts one. The set is still small (one question is about 1.3 points), answers differ slightly between runs, and faithfulness is scored by an AI judge. The graph fixed the failures it was built for (questions that name a contract) and left overall search quality about the same. [`docs/18-evaluation.md`](docs/18-evaluation.md) records what was tried, what did not work, and the bugs found in the measuring itself.
 
 ## Run it
 

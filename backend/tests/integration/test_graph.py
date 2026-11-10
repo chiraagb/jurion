@@ -112,6 +112,20 @@ if __name__ == "__main__":
             assert c.post(f"/documents/{a['id']}/graph").json() == {"parties": 0, "references": 1}
             assert c.get(f"/documents/{a['id']}/graph").json()["parties"] == []
 
+            # saving without a key, or with a rejected key, says why (the contract is still saved)
+            from openai import AuthenticationError
+            import httpx
+            def save(tag):
+                return c.post("/documents", files={"file": ("w.pdf", make_sample_pdf() + tag, "application/pdf")}, data={"result": json.dumps(RESULT("Runs two years."))}).json()
+            w = save(b"\n%nokey")
+            assert w["warnings"] and w["warnings"][0].startswith("No OpenAI key is saved"), w
+            documents.openai_key = a_key
+            async def rejected(*_): raise AuthenticationError("bad", response=httpx.Response(401, request=httpx.Request("POST", "http://x")), body=None)
+            documents.embed_document, graph.extract_parties = rejected, rejected
+            w = save(b"\n%badkey")
+            assert w["warnings"] == ["Not embedded: OpenAI rejected your API key. Fix the key (key icon, top bar), then press Embed and Build graph on My contracts."], w  # one clear message, not two
+            documents.embed_document, graph.extract_parties = (lambda *a: _zero()), fake_parties
+
             # deleting a contract removes its subgraph; the shared party stays for the other contract
             assert c.delete(f"/documents/{a['id']}").status_code == 204
             assert c.portal.call(counts, a["id"]) == (0, 0)

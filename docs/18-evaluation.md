@@ -114,6 +114,22 @@ Ten public contracts (cooperation, sponsorship, app development, endorsement, ou
 
 **Answers on 15 contracts with soft narrowing** (77 answerable): answered 90.9%, cites the right clause 84.4%, answered from the wrong clause 6.5% (4.5% on 5 contracts), faithful 99.1%, and 6 of 6 unanswerable questions refused.
 
+## Growing from 15 to 22 contracts (look-alikes)
+
+Added a distributor agreement with two amendments, three services agreements and a duplicate development agreement. Same 77 questions, same code, run twice (the "Which contract?" step is off in both):
+
+| | 15 contracts | 22 contracts |
+|---|---|---|
+| Right clause in top 10 (graph) | 90.9% | 92.2% |
+| Right clause in top 1 (graph) | 49.4% | 50.6% |
+| Answered | 94.8% | 92.2% |
+| Cites the right clause | 87.0% | 79.2% |
+| Answered from the wrong clause | 9.1% | 13.0% |
+| Faithful | 98.2% | 97.8% |
+| Refused correctly | 6 of 6 | 6 of 6 |
+
+Retrieval did not move; the answer step cites the wrong clause more often when several contracts have a similar clause. Run-to-run noise is about 13 flipped questions, so 1 to 3 points mean nothing. The "Which contract?" step is the intended fix and is not yet measured.
+
 ## Limits
 
 - Widening is measured on only 6 questions I designed to need it, with one clear rescue.

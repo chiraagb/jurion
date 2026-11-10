@@ -13,6 +13,7 @@ export interface DocSummary {
   graph_parties: number | null; // null = graph not built
   graph_refs: number | null;
   created_at: string;
+  warnings?: string[]; // only on the save response: what did not work (no key, key rejected)
 }
 
 /** replace: the same file is already saved; swap that copy for this result. */
