@@ -149,12 +149,13 @@ async def scope(key: str, q: str, cards: list[dict]) -> list[int]:
                                              "When unsure, return an empty list. "
                                              "Also set ambiguous=true when the question is about ONE contract (it says \"the contract\", \"the agreement\", \"the bank\", \"it\", or asks for one contract's own terms such as payment terms or notice period) "
                                              "but its words do not identify which, so a different contract would give a different answer. Set ambiguous=false when it names the contract, asks about contracts in general "
-                                             "(\"across my contracts\", \"which contracts\", \"compare\"), or asks what a legal term means."},
+                                             "(\"across my contracts\", \"which contracts\", \"which agreement\", \"compare\"), or asks what a legal term means. "
+                                             "If you listed any contract in contract_numbers, ambiguous must be false: the question names something that fits."},
                {"role": "user", "content": f"Question: {q}\n\nContracts:\n{listing}"}],
     )
     out = Picked(sorted({i for i in r.output_parsed.contract_numbers if 0 <= i < len(cards)}))
     out.reason = r.output_parsed.reason.strip()[:240]
-    out.ambiguous = r.output_parsed.ambiguous
+    out.ambiguous = r.output_parsed.ambiguous and not out  # a question that names something (a role, a kind of document) is never "which contract?": the named ones are searched first
     return out
 
 

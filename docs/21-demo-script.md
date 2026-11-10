@@ -1,5 +1,7 @@
 # 21. A 5-minute demo
 
+A 40-second recording of steps 3 and 4 is in `demo/jurion-demo.mp4` (and `.gif`, used in the README).
+
 Before you start: the three databases and the API are running, you are signed in, an OpenAI key is saved (key icon), and your contracts are saved with embeddings and graphs (My contracts shows `Embedded` and `Graph …`). Use a window at least 1300px wide.
 
 **1. The problem (30 seconds).** Open **Problems & fixes**. Say: *"A plain 'search, then ask an AI' system breaks in predictable places: how the contract is cut up, finding the right text, knowing which contract you mean, and making things up. This page lists the ones I actually hit, each with a real example and a number."* Point at the bank example: it answered from a contract with no bank in it.
@@ -8,7 +10,7 @@ Before you start: the three databases and the API are running, you are signed in
 
 **3. Ask (90 seconds).** **Ask**: click "What does the bank owe if it ends the contract early?". Point out: the question jumps to the top and the answer streams below; the "Narrowed by the graph" tag; the numbered chips; **References** cards. Click a chip: the clause opens beside the answer on the PDF page with the clause shaded. Use the arrows to step through references; press **Read full width** to read the page, then back. Say: *"Every claim is checkable in one click. And if nothing in the contracts supports an answer, it says so and the answer model is never called."* Ask something the contracts cannot answer ("What is the vendor's annual revenue?") to show the refusal.
 
-**4. Compare (30 seconds).** **History**: tick two questions, **Compare side by side**. Open a clause that appears in both.
+**4. Sessions (30 seconds).** In the sidebar under **Ask**, open a session: the chat is restored with its memory. Ask a follow-up that names no contract ("how fast must they report a breach?") and point at the context ring by the send button: the answer stays in the same contract, and hovering the ring shows how much of the session's limit is used. Rename or delete a session to show the popups.
 
 **5. The graph (45 seconds).** **My contracts** → open a contract → the **Graph** panel: parties and cross-references. Optionally show Neo4j at `localhost:7474` with `MATCH (p:Party)-[r:PARTY_TO]->(d:Document) RETURN p, r, d`. Say: *"Neo4j holds only the links; Postgres is the source of truth, so the graph can always be rebuilt."*
 

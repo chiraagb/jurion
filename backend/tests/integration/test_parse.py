@@ -269,6 +269,13 @@ if __name__ == "__main__":
         pass
     hp._local_from_lines, hp._llm_headings = real_local, real_llm
 
+    # A document with no sections (a power of attorney): kept as one clause, not an error.
+    async def none_found(*a): raise hp.NoStructure("LLM found no structure")
+    hp._local_from_lines, hp._llm_headings = (lambda r, relaxed=False: None), none_found
+    one = asyncio.run(hp.parse_contract_fast(make_table_pdf(), "gemini", "k"))
+    assert len(one["clauses"]) == 1 and one["clauses"][0]["clause_identifier"] == "DOC" and one["confidence"]["score"] <= 0.5, one
+    hp._local_from_lines, hp._llm_headings = real_local, real_llm
+
     pdf0 = make_sample_pdf()
     assert TestClient(app).post("/parse", files={"file": ("a.pdf", pdf0, "application/pdf")}).status_code == 401  # signed out
     assert TestClient(app).get("/auth/me").status_code == 401

@@ -86,6 +86,7 @@ What the disagreements showed: some PDFs put clause numbers in a separate column
 
 ## Known gaps
 
+- A document with no sections at all (a one-block limited power of attorney in the public set) is kept as a single clause with confidence capped at 0.5, instead of failing; found and fixed 10 Nov 2026 (see `docs/18-evaluation.md`).
 - No measured boundary accuracy yet (labels not reviewed).
 - OCR runs for mostly-scanned documents of up to 20 scanned pages (needs Tesseract); larger scans go whole to the AI.
 - Tables on pages with no ruled lines at all are still read as plain text, and two-column layouts are untested.

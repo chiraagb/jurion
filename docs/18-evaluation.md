@@ -130,6 +130,32 @@ Added a distributor agreement with two amendments, three services agreements and
 
 Retrieval did not move; the answer step cites the wrong clause more often when several contracts have a similar clause. Run-to-run noise is about 13 flipped questions, so 1 to 3 points mean nothing. The "Which contract?" step is the intended fix and is not yet measured.
 
+## Re-measured on 28 contracts (10 Nov 2026)
+
+The 15 and 22-contract columns above were quoted from runs that were not all archived: the later 15-contract run overwrote the 22-contract one in `results.json`, so the 22-contract figures could not be traced to a stored file. Both full evaluations were re-run on the library as it stands (22 public contracts plus the 6 realistic test contracts in `demo/test-contracts/`), and the stored 15-contract results were kept as `retrieval_15_contracts` and `answers_15_contracts`.
+
+| | 5 contracts | 15 contracts | 28 contracts |
+|---|---|---|---|
+| Right clause in the top 5 (hybrid + context) | | 77.9% | 75.3% |
+| Right clause in the top 10 with the graph | | 90.9% | 88.3% |
+| Answered | 100% | 94.8% | 93.5% |
+| Cites the right clause | 95.5% (44 questions) | 87.0% | 81.8% |
+| Answered from the wrong clause | 4.5% | 9.1% | 13.0% |
+| Faithful (AI judge) | 100% | 98.2% | 97.1% |
+| Unanswerable refused | 4 of 4 | 6 of 6 | 6 of 6 |
+
+Linked-clause questions (6): right clauses in the top 10 for 50% with plain context, 67% with narrowing, **100% with widening** (top 5: 33%, 50%, 83%), the same direction as before. The 6 `graph` questions (they name a contract) and the 6 `multi` ones were all cited correctly; the weak spots are `paraphrase` (78% cited) and `broad` (50% of 4).
+
+The trend is steady, not a collapse: each tripling of the library costs roughly 5 to 10 points of right-clause-cited, with most of the loss being the answer step choosing a look-alike clause, not retrieval (top 10 moved 2.6 points). Run-to-run noise is about 13 flipped questions, so compare columns, not single points.
+
+## "Which contract?" rate (10 Nov 2026)
+
+Run on the router alone (`scope()`), without searching, over the 83 evaluation questions and 28 contracts. First prompt: **26 of 83 (31%)** flagged as needing a contract choice. Reading them: about half were fair ("What are the payment terms?" names no contract), but several named their contract by kind or role ("the outsourcing agreement", "the manifest system services agreement", "the Marketing Affiliate") or asked across contracts ("Which agreement requires…"), where asking the user is only friction. The prompt now says so, and `ambiguous` is forced to false in code whenever the router returned a contract. Re-measured: **19 of 83 (23%)**, and the remaining ones name nothing. The router is an AI model and varies between runs (a different handful of questions flipped), so this is a rate for this deliberately vague question set, not for real use.
+
+## A document with no sections (found 10 Nov 2026)
+
+One of the four public Federated files, a 5-page limited power of attorney, is one block of prose with no headings. The local parser found no structure and the AI heading picker found none either, so the upload ended in the error "LLM found no structure". It is now kept as **one clause** (identifier `DOC`, confidence capped at 0.5, with the note "No sections were found, so the whole document is kept as one clause"), so it can still be saved, searched and cited. A test in `tests/integration/test_parse.py` covers it. The other three Federated files parse normally (11, 4 and 6 clauses, scores 0.91, 1.0 and 0.8).
+
 ## Limits
 
 - Widening is measured on only 6 questions I designed to need it, with one clear rescue.

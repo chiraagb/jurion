@@ -22,12 +22,12 @@ Plain-English guide to what Jurion is, how it works, and how it was built. Read 
 13. [Neo4j interview prep](13-neo4j-interview-prep.md): concepts, Cypher, how Jurion uses it, Q&A, drill
 
 ## Ask questions
-14. [Phase 3: Query Engine](14-phase3-query-engine.md): the original plan for answering
+14. [Phase 3: Query Engine](14-phase3-query-engine.md): the original plan for answering, and what changed
 15. [Ask](15-ask.md): answers with citations, relevance check, one rewrite, "which contract?", company facts, follow-ups
-16. [Phase 4: Dashboard](16-phase4-dashboard.md): the user interface
+16. [Phase 4: The interface](16-phase4-dashboard.md): the pages, and how the plan changed
 
 ## Prove it works
-17. [Phase 5: Evaluation](17-phase5-evaluation.md): the original plan for measuring quality
+17. [Phase 5: Evaluation plan](17-phase5-evaluation.md): the original plan for measuring quality, and what changed
 18. [Evaluation](18-evaluation.md): question set, retrieval and answer scores, findings, bugs found in the measuring
 
 ## Run it and show it

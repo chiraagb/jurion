@@ -717,6 +717,21 @@ async def llm_fallback_parse(pdf_bytes: bytes, provider: str, api_key: str) -> L
 # ---------------------------------------------------------
 # 3. Main Hybrid Entrypoint
 # ---------------------------------------------------------
+class NoStructure(ValueError):
+    """Neither the rules nor the AI found any sections: a letter, a power of attorney, a one-paragraph agreement."""
+
+
+def _whole_document(read: Read) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    """A document with no sections is kept as ONE clause (all its text, searchable and citable) rather than refused."""
+    lines, _, pitch, pages = read
+    clause = {"clause_identifier": "DOC", "title": lines[0]["text"].strip().title()[:80] or "Full document", "page_number": lines[0]["page_number"],
+              "parent_identifier": None, "start_line": 0, "end_line": len(lines), "content": _reflow(lines, pitch)}
+    conf = _confidence([clause], sum(len(l["text"]) for l in lines), pages)
+    conf["score"] = min(conf["score"], 0.5)
+    conf["issues"] = ["No sections were found, so the whole document is kept as one clause."]
+    return [clause], conf
+
+
 class NoApiKey(RuntimeError):
     """The LLM was needed (or asked for) but no key is configured."""
 
@@ -756,13 +771,17 @@ async def parse_contract_fast(
         if read:
             picked = await asyncio.wait_for(_llm_headings(read, provider, api_key), LLM_TIMEOUT_S)
             if not picked:
-                raise ValueError("LLM found no structure")
+                raise NoStructure("LLM found no structure")
             clauses, llm_conf = picked
         else:
             clauses, llm_conf = await asyncio.wait_for(llm_fallback_parse(pdf_bytes, provider, api_key), LLM_TIMEOUT_S), None
     except Exception as e:  # includes the timeout
         log.warning("LLM fallback failed (%s, %s)", provider, type(e).__name__)
         if not local:
+            if isinstance(e, NoStructure) and read:
+                steps.append({"name": "llm", "status": "insufficient", "ms": round((time.perf_counter() - t) * 1000, 1), "provider": provider})
+                clauses, conf = _whole_document(read)
+                return {"method": "local", "clauses": clauses, "confidence": conf, "steps": steps}
             raise
         # LLM unavailable: a low-confidence local parse beats an error.
         steps.append({"name": "llm", "status": "failed", "ms": round((time.perf_counter() - t) * 1000, 1), "provider": provider})

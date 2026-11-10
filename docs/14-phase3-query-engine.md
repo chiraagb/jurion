@@ -1,71 +1,26 @@
-# 14. Phase 3: Query Engine (answering questions)
+# 14. Phase 3: the query engine (plan vs. what was built)
 
-Goal: take a user's question, find the right clauses, check they're actually relevant, and write a cited answer.
+The goal: take a question, find the right clauses, check they are relevant, and write a cited answer. The full, current description is [15. Ask](15-ask.md); this page records the original plan and how it changed.
 
-This is built as a small **state machine written by hand** (a plain async function, no LangGraph: one branch and one bounded retry do not need a framework): a set of steps, where each step decides which step runs next. The current flow is described in the Ask doc.
+## The plan
 
-## The flow
+A "check, and retry if bad" loop (Corrective RAG): classify the question, search (vector for simple questions, a Neo4j graph query for multi-step ones), grade the results with an LLM, rewrite the question and retry if the grade is low, then write an answer with citations. Written as a hand-made state machine, with no framework.
 
-```
- Question
-    |
-    v
- 1. Classify the question
-    |
-    +--- simple ------> 2a. Vector search (Postgres)
-    |                        |
-    +--- multi-step --> 2b. Graph search (Neo4j)
-                             |
-                             v
-                    3. Grade the results
-                       |            |
-                  good (≥ 0.7)   bad (< 0.7)
-                       |            |
-                       v            v
-              5. Write answer   4. Rewrite the question
-                 with citations     and search again
-```
+## What was built, and what changed
 
-This "check, and retry if bad" pattern is called **Corrective RAG (CRAG)**.
-
-## Step 1 – Classify the question
-
-An LLM puts the question in one of three buckets:
-
-| Type | Meaning | Example |
+| Plan | Built | Why it changed |
 |---|---|---|
-| `DIRECT_LOOKUP` | Find one clause | "What's the standard indemnity window?" |
-| `MULTI_HOP` | Follow links between clauses/documents | "Does SOW 3's liability cap override the MSA?" |
-| `GLOBAL_AGGREGATION` | Look across all contracts | "Which agreements lack a GDPR addendum?" |
+| Classify into direct / multi-hop / global | **No classifier.** One hybrid search for every question, plus a small "which contract?" router | A classifier call adds cost and a way to be wrong; the router only decides which *contracts* to search first |
+| Vector search or graph search | **Hybrid search** (vector + keyword, merged) in Postgres; the graph is used to *narrow* (which contract) and *widen* (clauses a relevant clause refers to) | Measured: keyword alone is weak, vector alone misses exact terms; the graph helps most with names and cross-references ([18](18-evaluation.md)) |
+| Grade with a 0-1 confidence score, threshold 0.7 | The grader returns **which clauses help**, with a one-sentence reason each | A score threshold is arbitrary; per-clause reasons can be shown to the user ("Used because / Left out because") |
+| Up to 3 rewrites | **One rewrite**, then stop | A second miss means the contracts do not say it; looping hides that |
+| Answer with `[SOW_2: Section 4]` style citations | Numbered `[1] [2]` citations that open the clause on its PDF page | The UI can link a number; free-text names could not be checked |
+| `POST /query` | `POST /ask`, streamed as one JSON event per line | The page shows each step as it happens |
 
-## Step 2 – Search
+Added later, not in the plan: a refusal that never calls the answer model when nothing is relevant; "Which contract do you mean?" when a question is about one contract but does not say which; answers to questions about the library itself ("how many contracts?") straight from the databases; company facts from the graph; and chat sessions with memory and a context limit.
 
-- **Direct lookup:** turn the question into an embedding and find the closest clauses in pgvector.
-- **Multi-hop:** run a Cypher query in Neo4j that follows `SUPERSEDES`, `REFERENCES`, etc.
+## Still true from the plan
 
-## Step 3 – Grade the results
-
-Ask an LLM: *"Do these clauses actually answer this question?"* It returns:
-
-```json
-{ "is_relevant": true, "confidence_score": 0.85, "critique": "..." }
-```
-
-If the score is below **0.7**, the results aren't good enough.
-
-## Step 4 – Rewrite and retry
-
-If grading fails, ask the LLM to rephrase the question (using legal synonyms, cross-references) and search again. Keep a counter (`rewrite_count`) so it never loops forever – stop after **at most 3 tries**, then answer with what was found and say the evidence is weak.
-
-## Step 5 – Write the answer with citations
-
-The LLM writes the answer using **only** the retrieved clauses. Every fact must have a citation like:
-
-> The liability cap is $250,000 **[SOW_2: Section 4]**, which overrides the MSA **[MSA_2021: Section 11]**.
-
-Temperature is set to 0 so answers are consistent, not creative.
-
-## Done when
-
-- `POST /query` returns a cited answer
-- Bad retrievals trigger a rewrite instead of a made-up answer
+- The answer model sees only the retrieved clauses and is told to use nothing else, and to treat text inside a clause as data, never as instructions.
+- Bad retrieval triggers a rewrite or an honest "I couldn't find this", not a made-up answer.
+- The retry is bounded: it can never loop.

@@ -1,40 +1,26 @@
-# 17. Phase 5: Evaluation (is it actually right?)
+# 17. Phase 5: evaluation (plan vs. what was built)
 
-Goal: measure answer quality with numbers, so changes don't quietly make things worse.
+The goal: measure quality with numbers, so changes do not quietly make things worse. The results and findings are in [18. Evaluation](18-evaluation.md); this page records the original plan and how it changed.
 
-## Step 1 – A test set of 25 questions
+## The plan
 
-Write 25 questions where we already know the correct answer ("ground truth"). Cover the hard cases:
+25 hand-written questions with known answers, scored by the **Ragas** library on faithfulness, answer relevancy, context precision and context recall, run after every significant change.
 
-- SOW vs Master Agreement conflicts
-- Indemnity chains across 3+ companies
-- Which country's law applies when contracts disagree
-- Definitions that change across amendments
+## What was built
 
-Each test looks like:
+- **83 questions** (77 with an answer, 6 that the contracts cannot answer) over public contracts. Each has a *gold* definition ("a clause of a contract whose file name starts with X and whose text contains this phrase"), so re-parsing a contract does not break it.
+- **Retrieval metrics** (right clause in the top 1, 3, 5, 10 and the mean reciprocal rank) for each search setup: vector only, keyword only, hybrid, plus heading context, plus narrowing, plus widening.
+- **Answer metrics** from running the real Ask pipeline: answered or refused, cited the right clause, answered from the *wrong* clause (the failure that misleads), faithfulness, and refusing the unanswerable ones.
+- **Two commands**, `tests.eval_qa` (retrieval, about 40 embedding calls) and `tests.eval_answers` (answers, a few cents), whose results are shown live on the Evaluation page.
 
-```json
-{
-  "question": "Does the liability cap in SOW #2 supersede Section 11 of the 2021 MSA?",
-  "ground_truth": "Yes. SOW #2 Section 4 overrides MSA Section 11, capping liability at $250,000.",
-  "expected_nodes": ["MSA_2021_Sec11", "SOW_2_Sec4"],
-  "relationship_traversed": "SUPERSEDES"
-}
-```
+## What changed from the plan
 
-## Step 2 – Score with Ragas
+- **Ragas was not used.** Its newest release crashes on import (a module was removed from `langchain_community`), so faithfulness is judged by a small prompt of our own with the same idea: list each claim in the answer and mark it supported or not by the clauses. The judge is a larger model than the one that wrote the answer.
+- **Answer relevancy was dropped as a headline**: it came out 100% for every row, so it tells us nothing. It is recorded but ignored.
+- **The "did it refuse?" check is a pattern, not an AI judge.** A yes/no AI judge flagged clean answers as refusals; a pattern on how the answer starts is reliable and free.
+- **Context recall became "right clause present"** because a gold clause is a known phrase, which is a stricter test than recall over a free-text ground truth.
+- **The numbers are not a single score.** Run-to-run noise is about 13 flipped questions out of 77, so the page reports ranges and says what a difference of a point or two means (nothing).
 
-Run every question through Jurion, then let **Ragas** score the results on four things:
+## Still true from the plan
 
-| Metric | Plain-English question it answers |
-|---|---|
-| **Faithfulness** | Did the answer stick to the retrieved clauses, or make things up? |
-| **Answer relevancy** | Did it actually answer the question asked? |
-| **Context precision** | Were the retrieved clauses mostly useful (little junk)? |
-| **Context recall** | Did we retrieve *all* the clauses needed? |
-
-Run this after every significant change. If scores drop, something broke.
-
-## Done when
-
-- One command runs all 25 questions and prints the four scores
+Run it after every significant change, and read some of the rows, not only the totals: two of the bugs recorded in [18](18-evaluation.md) were in the measuring, not the system.
