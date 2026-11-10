@@ -57,10 +57,9 @@ function Shell() {
   return (
     <div className="min-h-dvh">
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-surface focus:px-4 focus:py-2 focus:shadow-lg">Skip to content</a>
-      <Header>
+      <Header account={<UserMenu user={user} onLogout={logout} />}>
         <ServiceStatus services={services} loading={loading} onRefresh={refresh} />
         <SettingsDialog />
-        <UserMenu user={user} onLogout={logout} />
       </Header>
       <MobileNav current={tab} />
       <div className="lg:flex">

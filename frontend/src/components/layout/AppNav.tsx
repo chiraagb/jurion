@@ -31,13 +31,13 @@ export function Sidebar({ current }: { current: string }) {
   return (
     <aside
       aria-label="Sections"
-      className={`sticky top-[var(--header-h)] hidden h-[calc(100dvh-var(--header-h))] shrink-0 flex-col border-r border-line bg-canvas/60 py-4 transition-[width] duration-200 motion-reduce:transition-none lg:flex ${collapsed ? "w-[4.25rem]" : "w-60"}`}
+      className={`sticky top-[var(--header-h)] hidden h-[calc(100dvh-var(--header-h))] shrink-0 flex-col border-r border-line bg-canvas/60 py-4 overflow-x-hidden transition-[width] duration-300 ease-out motion-reduce:transition-none lg:flex ${collapsed ? "w-[4.25rem]" : "w-60"}`}
     >
-      <nav className="flex-1 space-y-5 overflow-y-auto px-3">
+      <nav className="flex-1 space-y-5 overflow-y-auto overflow-x-hidden px-3">
         {NAV.map((g, gi) => (
           <Fragment key={g.group}>
           <div>
-            <p className={`caption mb-2 px-3 ${collapsed ? "sr-only" : ""}`}>{g.group}</p>
+            <p aria-hidden={collapsed} className={`caption overflow-hidden whitespace-nowrap px-3 transition-[max-height,margin,opacity] duration-300 ease-out motion-reduce:transition-none ${collapsed ? "mb-0 max-h-0 opacity-0" : "mb-2 max-h-6 opacity-100"}`}>{g.group}</p>
             <ul className="space-y-1">
               {g.items.map(({ id, label, Icon }) => {
                 const on = current === id;
@@ -48,33 +48,31 @@ export function Sidebar({ current }: { current: string }) {
                       aria-current={on ? "page" : undefined}
                       aria-label={collapsed ? label : undefined}
                       title={collapsed ? label : undefined}
-                      className={`relative flex h-11 items-center gap-3 rounded-lg px-3 text-[0.95rem] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-accent ${collapsed ? "justify-center" : ""} ${
+                      className={`relative flex h-11 items-center rounded-lg px-3 text-[0.95rem] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-accent ${
                         on ? "bg-accent/10 font-semibold text-fg before:absolute before:inset-y-2 before:left-0 before:w-[3px] before:rounded-full before:bg-accent" : "text-muted hover:bg-raised hover:text-fg"
                       }`}
                     >
                       <Icon className={`h-[1.15rem] w-[1.15rem] shrink-0 ${on ? "text-accent" : ""}`} aria-hidden />
-                      {!collapsed && <span className="truncate">{label}</span>}
+                      <span aria-hidden={collapsed} className={`overflow-hidden whitespace-nowrap transition-[max-width,margin,opacity] duration-300 ease-out motion-reduce:transition-none ${collapsed ? "ml-0 max-w-0 opacity-0" : "ml-3 max-w-44 opacity-100"}`}>{label}</span>
                     </Link>
                   </li>
                 );
               })}
             </ul>
           </div>
-          {gi === 0 && !collapsed && <SessionList />}
+          {gi === 0 && <SessionList collapsed={collapsed} />}
           </Fragment>
         ))}
-        {collapsed && (
-          <Link to="/sessions" aria-label="Sessions" title="Sessions" className="flex h-11 items-center justify-center rounded-lg text-muted hover:bg-raised hover:text-fg focus-visible:outline-2 focus-visible:outline-accent"><History className="h-[1.15rem] w-[1.15rem]" aria-hidden /></Link>
-        )}
       </nav>
       <div className="px-3">
         <button
           onClick={toggle}
           aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
           aria-expanded={!collapsed}
-          className={`flex h-10 w-full cursor-pointer items-center gap-3 rounded-lg px-3 text-sm text-muted transition-colors hover:bg-raised hover:text-fg focus-visible:outline-2 focus-visible:outline-accent ${collapsed ? "justify-center" : ""}`}
+          className={`flex h-10 w-full cursor-pointer items-center gap-3 overflow-hidden rounded-lg px-3 text-sm text-muted transition-colors hover:bg-raised hover:text-fg focus-visible:outline-2 focus-visible:outline-accent`}
         >
-          {collapsed ? <PanelLeftOpen className="h-4 w-4" aria-hidden /> : <><PanelLeftClose className="h-4 w-4" aria-hidden /> Collapse</>}
+          {collapsed ? <PanelLeftOpen className="h-[1.15rem] w-[1.15rem] shrink-0" aria-hidden /> : <PanelLeftClose className="h-[1.15rem] w-[1.15rem] shrink-0" aria-hidden />}
+          <span aria-hidden className={`overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-300 ease-out motion-reduce:transition-none ${collapsed ? "max-w-0 opacity-0" : "max-w-32 opacity-100"}`}>Collapse</span>
         </button>
       </div>
     </aside>

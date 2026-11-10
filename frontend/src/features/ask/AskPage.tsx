@@ -6,20 +6,14 @@ import { navigate } from "@/lib/router";
 import { sessionsChanged } from "@/components/layout/SessionList";
 import { AnswerCard, Trace, type Attempt } from "./AnswerCard";
 import Composer from "./Composer";
+import Thinking, { type Stage } from "./Thinking";
 import GettingStarted from "@/features/onboarding/GettingStarted";
 import { useSetup } from "@/features/onboarding/useSetup";
 import { ask, type AskEvent, type AskExtra, type Brief } from "./api";
 import { getSession, type StoredTurn } from "@/features/sessions/api";
 
-type Stage = "search" | "grade" | "rewrite" | "write";
 interface Turn { id: number; question: string; attempts: Attempt[]; sources: Brief[]; answer: string; facts?: string; followups?: string[]; clarify?: { id: string; filename: string; summary: string }[]; stage: Stage | null; error: string | null; saved: string | null; stopped?: boolean }
 
-const STAGE: Record<Stage, string> = {
-  search: "Finding the right contract and clauses…",
-  grade: "Checking which clauses really answer it…",
-  rewrite: "Nothing fit yet, rewording the question…",
-  write: "Writing the answer from the references…",
-};
 const EXAMPLES = ["Who can terminate, and with how much notice?", "What are the payment terms?", "Which law governs the agreement?", "What does the bank owe if it ends the contract early?"];
 const FRAC_KEY = "jurion.pane.frac"; // how much of the screen the reference pane takes
 const MIN_FRAC = 0.3, MAX_FRAC = 0.82;
@@ -55,6 +49,7 @@ export default function AskPage({ q: urlQuestion, session: urlSession, active }:
 
   const patch = useCallback((id: number, f: (t: Turn) => Turn) => setTurns((all) => all.map((t) => (t.id === id ? f(t) : t))), []);
 
+  const [fresher, setFresher] = useState(0); // counts new sessions: each one puts the cursor in the message box
   const session = useRef<string | null>(null); // this chat's id once its first answer is saved: the server remembers the chat under it
   const [usage, setUsage] = useState<{ used: number; limit: number; full: boolean } | null>(null); // how much of the session's context budget is used
   const recent = useRef<string[]>([]); // the last questions, sent along so "these two contracts" can be resolved
@@ -134,7 +129,7 @@ export default function AskPage({ q: urlQuestion, session: urlSession, active }:
   }, [active, urlSession]);
 
   const stop = () => ctl.current?.abort();
-  const fresh = () => { ctl.current?.abort(); session.current = null; recent.current = []; setUsage(null); setTurns([]); setOpen(null); if (location.pathname === "/ask") navigate("/ask", true); };
+  const fresh = () => { setFresher((n) => n + 1); ctl.current?.abort(); session.current = null; recent.current = []; setUsage(null); setTurns([]); setOpen(null); if (location.pathname === "/ask") navigate("/ask", true); };
   useEffect(() => { // "New session" in the sidebar
     addEventListener("jurion:new-session", fresh);
     return () => removeEventListener("jurion:new-session", fresh);
@@ -206,15 +201,10 @@ export default function AskPage({ q: urlQuestion, session: urlSession, active }:
                   </header>
 
                   <div className="mt-6 space-y-4">
-                    {t.stage && (
-                      <p role="status" className="flex items-center gap-3 text-sm text-muted">
-                        <span className="flex gap-1" aria-hidden>{[0, 1, 2].map((d) => <span key={d} style={{ animationDelay: `${d * 160}ms` }} className="h-1.5 w-1.5 rounded-full bg-accent motion-safe:animate-[dot_1.2s_ease-in-out_infinite]" />)}</span>
-                        {STAGE[t.stage]}
-                      </p>
-                    )}
+                    {t.stage && !t.answer && <Thinking stage={t.stage} />}
                     {t.error && <p role="alert" className="rounded-xl border border-danger/40 bg-danger/10 p-3 text-sm text-danger">{t.error}</p>}
                     {t.stopped && <p className="text-sm text-muted">Stopped.</p>}
-                    {(t.answer || t.sources.length > 0) && (
+                    {(t.answer || (!t.stage && t.sources.length > 0)) && (
                       <AnswerCard
                         answer={t.answer}
                         sources={t.sources}
@@ -270,7 +260,7 @@ export default function AskPage({ q: urlQuestion, session: urlSession, active }:
             <button onClick={fresh} className="h-10 cursor-pointer rounded-lg bg-accent px-4 font-medium text-canvas hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">New session</button>
           </p>
         )}
-        <Composer usage={turns.length > 0 ? usage : null} busy={busy} onSend={send} onStop={stop} focusKey={active} disabledReason={notReady ? "Finish the steps above to start asking" : usage?.full ? "This session is full. Start a new session to keep asking." : undefined} />
+        <Composer usage={turns.length > 0 ? usage : null} busy={busy} onSend={send} onStop={stop} focusKey={`${active}-${fresher}`} disabledReason={notReady ? "Finish the steps above to start asking" : usage?.full ? "This session is full. Start a new session to keep asking." : undefined} />
       </div>
 
       {current && open && !wide && (
