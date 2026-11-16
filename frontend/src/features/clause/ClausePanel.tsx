@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AlignLeft,
   ChevronLeft,
@@ -136,7 +136,7 @@ export function ClauseViewer({
               className="min-w-10 text-center font-mono text-xs tabular-nums text-muted"
               aria-live="polite"
             >
-              {nav.index + 1} / {nav.total}
+              <span title={`Reference ${nav.index + 1} of ${nav.total}`}>Ref {nav.index + 1}/{nav.total}</span>
             </span>
             <button
               onClick={nav.onNext}
@@ -250,15 +250,17 @@ export function ClauseViewer({
 
 /** The clause's page with the clause shaded. Remounts per clause, so the page and the highlight reset with it. */
 function PanelPdf({ c }: { c: ClauseRef }) {
-  const [page, setPage] = useState(c.page_number ?? 1);
+  const [page, setPage] = useState(Math.max(1, c.page_number ?? 1));
   const [boxes, setBoxes] = useState<Box[]>([]);
+  const moved = useRef(false); // the reader turned the page themselves: stop moving it for them
+  const turn = (n: number) => { moved.current = true; setPage(n); };
   useEffect(() => {
     let stale = false;
     clauseBoxes(c.document_id, c.position)
       .then((b) => {
         if (stale) return;
         setBoxes(b);
-        if (b.length && !b.some((x) => x.page === page)) setPage(b[0].page); // the clause starts on a different page than the result said
+        if (b.length && !moved.current) setPage((b.find((x) => x.page === c.page_number) ?? b[0]).page); // land on the clause's page, even if the result named another
       })
       .catch(() => {}); // no highlight is fine: the page still shows
     return () => {
@@ -270,7 +272,7 @@ function PanelPdf({ c }: { c: ClauseRef }) {
       docKey={c.document_id}
       getData={() => fetchPdf(c.document_id)}
       page={page}
-      onPage={setPage}
+      onPage={turn}
       boxes={boxes}
     />
   );
