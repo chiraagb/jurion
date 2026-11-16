@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { KeyRound, X } from "lucide-react";
 import {
-  fetchKeyHints, loadProvider, removeKey, saveKey, saveProvider, type Provider,
+  fetchKeyHints, loadProvider, removeKey, saveKey, saveProvider, type KeyProvider, type Provider,
 } from "./llmConfig";
 
 const PROVIDERS: { id: Provider; label: string; hint: string }[] = [
@@ -9,14 +9,18 @@ const PROVIDERS: { id: Provider; label: string; hint: string }[] = [
   { id: "openai", label: "OpenAI (ChatGPT)", hint: "sk-…" },
 ];
 
+// Keys can also be saved for the Ask agent's model; Anthropic is not a PDF-reading fallback, so it is not in PROVIDERS above.
+const KEY_PROVIDERS: { id: KeyProvider; label: string; hint: string }[] = [...PROVIDERS, { id: "anthropic", label: "Anthropic (Claude)", hint: "sk-ant-…" }];
+const NO_DRAFTS: Record<KeyProvider, string> = { gemini: "", openai: "", anthropic: "" };
+
 const errorText = (e: any) => e.response?.data?.detail ?? e.message ?? "Something went wrong.";
 
 /** Gear button + native <dialog> (focus trap, Esc and backdrop handled by the browser). */
 export default function SettingsDialog() {
   const ref = useRef<HTMLDialogElement>(null);
   const [provider, setProvider] = useState<Provider>(loadProvider);
-  const [saved, setSaved] = useState<Partial<Record<Provider, string>>>({}); // masked hints from the server
-  const [drafts, setDrafts] = useState<Record<Provider, string>>({ gemini: "", openai: "" });
+  const [saved, setSaved] = useState<Partial<Record<KeyProvider, string>>>({}); // masked hints from the server
+  const [drafts, setDrafts] = useState<Record<KeyProvider, string>>(NO_DRAFTS);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -28,7 +32,7 @@ export default function SettingsDialog() {
 
   const open = async () => {
     setProvider(loadProvider());
-    setDrafts({ gemini: "", openai: "" });
+    setDrafts(NO_DRAFTS);
     setError(null);
     ref.current?.showModal();
     try {
@@ -43,7 +47,7 @@ export default function SettingsDialog() {
     setError(null);
     try {
       saveProvider(provider);
-      for (const p of PROVIDERS) if (drafts[p.id].trim()) await saveKey(p.id, drafts[p.id].trim());
+      for (const p of KEY_PROVIDERS) if (drafts[p.id].trim()) await saveKey(p.id, drafts[p.id].trim());
       dispatchEvent(new Event("jurion:keys-changed"));
       ref.current?.close();
     } catch (e) {
@@ -53,7 +57,7 @@ export default function SettingsDialog() {
     }
   };
 
-  const remove = async (p: Provider) => {
+  const remove = async (p: KeyProvider) => {
     try {
       await removeKey(p);
       dispatchEvent(new Event("jurion:keys-changed"));
@@ -119,7 +123,7 @@ export default function SettingsDialog() {
             ))}
           </fieldset>
 
-          {PROVIDERS.map((p) => (
+          {KEY_PROVIDERS.map((p) => (
             <div key={p.id}>
               <div className="flex items-center justify-between">
                 <label htmlFor={`key-${p.id}`} className="caption">

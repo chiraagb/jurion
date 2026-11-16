@@ -18,6 +18,7 @@ from app.config import settings
 from app.documents import router as documents_router
 from app.embeddings import router as search_router
 from app.ask import router as ask_router
+from app.agent import router as agent_router
 from app.graph import ensure_schema, router as graph_router
 from app.reconcile import reconcile_graph
 from app.sessions import router as sessions_router
@@ -58,6 +59,7 @@ app.include_router(auth_router)
 app.include_router(documents_router)
 app.include_router(search_router)
 app.include_router(ask_router)
+app.include_router(agent_router)
 app.include_router(sessions_router)
 app.include_router(graph_router)
 app.include_router(evaluation_router)
@@ -116,9 +118,12 @@ class KeyIn(BaseModel):
     api_key: str = Field(min_length=8, max_length=512)
 
 
+KEY_PROVIDERS = (*PROVIDERS, "anthropic")  # a key may also be saved for the Ask agent's model; Anthropic is not a PDF-reading fallback, so it stays out of PROVIDERS
+
+
 def _provider(name: str) -> str:
-    if name not in PROVIDERS:
-        raise HTTPException(404, f"Unknown provider. Use one of: {', '.join(PROVIDERS)}")
+    if name not in KEY_PROVIDERS:
+        raise HTTPException(404, f"Unknown provider. Use one of: {', '.join(KEY_PROVIDERS)}")
     return name
 
 

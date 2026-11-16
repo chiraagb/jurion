@@ -5,7 +5,7 @@ import subprocess
 import sys
 import time
 
-TESTS = ["test_parse", "test_limits", "test_corpus", "test_documents", "test_search", "test_ask", "test_ask_graph", "test_graph", "test_reconcile", "test_party_names", "test_migrations"]
+TESTS = ["test_parse", "test_limits", "test_corpus", "test_documents", "test_search", "test_ask", "test_ask_graph", "test_agent", "test_graph", "test_reconcile", "test_party_names", "test_migrations"]
 
 failed = []
 for name in TESTS:

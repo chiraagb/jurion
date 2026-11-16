@@ -1,6 +1,7 @@
 import { api } from "@/lib/api";
 
-export type Provider = "gemini" | "openai";
+export type Provider = "gemini" | "openai"; // the PDF-reading fallback choices
+export type KeyProvider = Provider | "anthropic"; // a key can also be saved for the Ask agent's model (Anthropic)
 
 const PROVIDER_KEY = "jurion.provider";
 
@@ -24,6 +25,6 @@ export function saveProvider(provider: Provider) {
 export const llmHeaders = () => ({ "X-LLM-Provider": loadProvider() });
 
 /** Masked hints of saved keys, e.g. { openai: "sk-…a1b2" }. The real keys are never sent back. */
-export const fetchKeyHints = async () => (await api.get<{ keys: Partial<Record<Provider, string>> }>("/settings/llm")).data.keys;
-export const saveKey = (provider: Provider, apiKey: string) => api.put(`/settings/llm/${provider}`, { api_key: apiKey });
-export const removeKey = (provider: Provider) => api.delete(`/settings/llm/${provider}`);
+export const fetchKeyHints = async () => (await api.get<{ keys: Partial<Record<KeyProvider, string>> }>("/settings/llm")).data.keys;
+export const saveKey = (provider: KeyProvider, apiKey: string) => api.put(`/settings/llm/${provider}`, { api_key: apiKey });
+export const removeKey = (provider: KeyProvider) => api.delete(`/settings/llm/${provider}`);

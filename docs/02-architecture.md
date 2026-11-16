@@ -9,7 +9,7 @@ Jurion has four layers.
   [ Backend: FastAPI ] ← the API; also kicks off background jobs
      |          |
      v          v
- [ Workers ]  [ AI agent (query engine) ]
+ [ Workers ]  [ RAG pipeline (query) ]
      |          |
      v          v
  [ Neo4j ]  [ Postgres + pgvector ]  [ Redis ]

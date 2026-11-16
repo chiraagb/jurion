@@ -41,4 +41,4 @@ In short, Jurion uses **two kinds of search together**:
 - A **graph** (Neo4j) that stores *how clauses and documents relate*.
 - A **vector database** (Postgres + pgvector) that finds clauses by *meaning*.
 
-An **AI agent** decides which to use, checks the results, and writes a cited answer.
+A fixed **RAG workflow** (not an autonomous agent) runs both searches, grades the results, retries if they're poor, and writes a cited answer.

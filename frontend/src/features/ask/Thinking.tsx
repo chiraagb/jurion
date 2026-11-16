@@ -1,11 +1,12 @@
 import { Scale } from "lucide-react";
 
-export type Stage = "search" | "grade" | "rewrite" | "write";
+export type Stage = "search" | "grade" | "rewrite" | "act" | "write";
 
 const WORDS: Record<Stage, string> = {
   search: "Finding the right contract and clauses",
   grade: "Checking which clauses really answer it",
   rewrite: "Nothing fit yet, rewording the question",
+  act: "Investigating your contracts",
   write: "Writing the answer",
 };
 

@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowUp, Square } from "lucide-react";
 import { ContextRing } from "./SessionMeter";
+import ModeBar, { type Controls } from "./ModeBar";
+
+export type { Controls };
 
 /** The message box, pinned under the thread like a chat app: Enter sends, Shift+Enter adds a line, and it grows up to six lines. */
-export default function Composer({ busy, onSend, onStop, focusKey, disabledReason, usage }: { busy: boolean; onSend: (q: string) => void; onStop: () => void; focusKey: unknown; disabledReason?: string; usage?: { used: number; limit: number } | null }) {
+export default function Composer({ busy, onSend, onStop, focusKey, disabledReason, usage, controls }: { busy: boolean; onSend: (q: string) => void; onStop: () => void; focusKey: unknown; disabledReason?: string; usage?: { used: number; limit: number } | null; controls?: Controls }) {
   const [text, setText] = useState("");
   const box = useRef<HTMLTextAreaElement>(null);
   const q = text.trim();
@@ -30,6 +33,7 @@ export default function Composer({ busy, onSend, onStop, focusKey, disabledReaso
       className="shrink-0 border-t border-line bg-canvas/90 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur"
     >
       <div className="mx-auto max-w-3xl">
+        {controls && <ModeBar {...controls} busy={busy} />}
         <div className="paper flex items-end gap-2 rounded-2xl border border-line-strong p-2 transition-[border-color,box-shadow] duration-200 focus-within:border-accent focus-within:shadow-[inset_0_0_0_1px_var(--accent)]">
           <label htmlFor="ask-box" className="sr-only">Ask a question about your contracts</label>
           <textarea

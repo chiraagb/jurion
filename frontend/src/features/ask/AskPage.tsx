@@ -5,18 +5,39 @@ import { ClauseViewer, type ClauseRef } from "@/features/clause/ClausePanel";
 import { navigate } from "@/lib/router";
 import { sessionsChanged } from "@/components/layout/SessionList";
 import { AnswerCard, Trace, type Attempt } from "./AnswerCard";
+import AgentTrace from "./AgentTrace";
+import CompareCard, { StatsBadge, emptySide, type Cmp, type Side } from "./CompareCard";
 import Composer from "./Composer";
 import Thinking, { type Stage } from "./Thinking";
 import GettingStarted from "@/features/onboarding/GettingStarted";
 import { useSetup } from "@/features/onboarding/useSetup";
-import { ask, type AskEvent, type AskExtra, type Brief } from "./api";
+import { ask, askCompare, getModels, type AgentStep, type AskEvent, type AskExtra, type AskMode, type Brief, type CompareEvent, type Models, type Stats } from "./api";
 import { getSession, type StoredTurn } from "@/features/sessions/api";
 
-interface Turn { id: number; question: string; attempts: Attempt[]; sources: Brief[]; answer: string; facts?: string; followups?: string[]; clarify?: { id: string; filename: string; summary: string }[]; stage: Stage | null; error: string | null; saved: string | null; stopped?: boolean }
+interface Turn { id: number; question: string; attempts: Attempt[]; sources: Brief[]; answer: string; facts?: string; followups?: string[]; clarify?: { id: string; filename: string; summary: string }[]; stage: Stage | null; error: string | null; saved: string | null; stopped?: boolean; mode?: AskMode; steps?: AgentStep[]; stats?: Stats; fallback?: string; budget?: { hit: string } | null; cmp?: Cmp }
 
 const EXAMPLES = ["Who can terminate, and with how much notice?", "What are the payment terms?", "Which law governs the agreement?", "What does the bank owe if it ends the contract early?"];
 const FRAC_KEY = "jurion.pane.frac"; // how much of the screen the reference pane takes
 const MIN_FRAC = 0.3, MAX_FRAC = 0.82;
+const MODE_KEY = "jurion.ask.mode", MODEL_KEY = "jurion.ask.model";
+const readPref = (k: string) => { try { return localStorage.getItem(k); } catch { return null; } }; // storage can be blocked: never required
+const writePref = (k: string, v: string) => { try { localStorage.setItem(k, v); } catch { /* ignore */ } };
+
+/** Folds one event into one side of a comparison (the same events as a normal answer). */
+function sideOf(s: Side, e: AskEvent): Side {
+  switch (e.event) {
+    case "step": return { ...s, stage: "act", steps: [...s.steps, e] };
+    case "retrieved": return { ...s, stage: "grade" };
+    case "sources": return { ...s, sources: e.sources };
+    case "token": return { ...s, stage: "write", answer: s.answer + e.text };
+    case "stats": return { ...s, stats: e, stage: null }; // a comparison side sends no `done`: its stats are the last thing it sends
+    case "fallback": return { ...s, fallback: e.reason };
+    case "budget": return { ...s, budget: { hit: e.hit } };
+    case "done": return { ...s, stage: null };
+    case "error": return { ...s, stage: null, error: e.detail };
+    default: return s;
+  }
+}
 const readFrac = () => { try { const f = Number(localStorage.getItem(FRAC_KEY)); return f >= MIN_FRAC && f <= MAX_FRAC ? f : 0.6; } catch { return 0.6; } }; // storage can be blocked: never required
 const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -26,7 +47,12 @@ export default function AskPage({ q: urlQuestion, session: urlSession, active }:
   const setup = useSetup(active); // re-checked whenever the Ask tab is shown again
   const notReady = !setup.loading && !setup.failed && (setup.contracts === 0 || !setup.hasKey);
   const [turns, setTurns] = useState<Turn[]>([]);
-  const [open, setOpen] = useState<{ turn: number; index: number } | null>(null); // the reference shown beside the answer
+  const [open, setOpen] = useState<{ turn: number; index: number; side?: AskMode } | null>(null); // the reference shown beside the answer (side: which answer of a comparison)
+  const [models, setModels] = useState<Models | null>(null);
+  const [mode, setMode] = useState<AskMode>(() => (readPref(MODE_KEY) === "workflow" ? "workflow" : "agent"));
+  const [compare, setCompare] = useState(false);
+  const [model, setModel] = useState(() => readPref(MODEL_KEY) ?? "");
+  useEffect(() => { getModels().then((m) => { setModels(m); setModel((cur) => (m.models.some((x) => x.id === cur && x.available) ? cur : m.models.find((x) => x.id === m.default && x.available)?.id ?? m.default)); if (!readPref(MODE_KEY)) setMode(m.default_mode); }).catch(() => {}); }, []);
   const [vh, setVh] = useState(0);
   const [frac, setFrac] = useState(readFrac);
   const [wide, setWide] = useState(false);
@@ -60,7 +86,16 @@ export default function AskPage({ q: urlQuestion, session: urlSession, active }:
     const c = new AbortController();
     ctl.current = c;
     setOpen(null);
-    setTurns((all) => [...all, { id, question, attempts: [], sources: [], answer: "", stage: "search", error: null, saved: null }]);
+    setTurns((all) => [...all, { id, question, attempts: [], sources: [], answer: "", stage: "search", error: null, saved: null, mode: compare ? undefined : mode, ...(compare ? { cmp: { workflow: emptySide(), agent: emptySide() } } : {}) }]);
+    if (compare) { // both at once; shown side by side, not saved to the chat
+      const onCmp = (e: CompareEvent) => patch(id, (t) => {
+        if (!t.cmp) return t;
+        if (e.event === "compared") { if (e.session_id) queueMicrotask(sessionsChanged); return { ...t, stage: null, cmp: { workflow: { ...t.cmp.workflow, stage: null }, agent: { ...t.cmp.agent, stage: null }, compared: e } }; } // saved as a Compare session: refresh the list
+        return e.system ? { ...t, cmp: { ...t.cmp, [e.system]: sideOf(t.cmp[e.system], e as AskEvent) } } : t;
+      });
+      askCompare(question, { model }, onCmp, c.signal).catch((err) => patch(id, (t) => (c.signal.aborted ? { ...t, stage: null, stopped: true } : { ...t, stage: null, error: err.message })));
+      return;
+    }
     const on = (e: AskEvent) => {
       if (e.event === "context") setUsage((u) => ({ used: e.used, limit: e.limit, full: u?.full ?? false })); // while it answers: what is being sent
       else if (e.event === "full") setUsage({ used: e.used, limit: e.limit, full: true });
@@ -79,6 +114,10 @@ export default function AskPage({ q: urlQuestion, session: urlSession, active }:
         case "retrieved": return { ...t, stage: "grade", attempts: [...t.attempts, { query: e.query, mode: e.mode, note: e.note, scope: e.scope, contracts: e.contracts, scope_reason: e.scope_reason, hits: e.hits, relevant: null }] };
         case "graded": return { ...t, attempts: t.attempts.map((a, i) => (i === t.attempts.length - 1 ? { ...a, relevant: e.relevant, reasons: e.reasons } : a)) };
         case "rewritten": return { ...t, stage: "rewrite" };
+        case "step": return { ...t, stage: "act", steps: [...(t.steps ?? []), e] };
+        case "fallback": return { ...t, fallback: e.reason, mode: "workflow" };
+        case "budget": return { ...t, budget: { hit: e.hit } };
+        case "stats": return { ...t, stats: e };
         case "clarify": return { ...t, clarify: e.options };
         case "context": return t;
         case "full": return { ...t, stage: null };
@@ -90,10 +129,10 @@ export default function AskPage({ q: urlQuestion, session: urlSession, active }:
         case "error": return { ...t, stage: null, error: e.detail };
       }
     };
-    ask(question, before, { sessionId: session.current, ...extra }, on, c.signal).catch((err) => {
+    ask(question, before, { sessionId: session.current, mode, model: mode === "agent" ? model || undefined : undefined, ...extra }, on, c.signal).catch((err) => {
       patch(id, (t) => (c.signal.aborted ? { ...t, stage: null, stopped: true } : { ...t, stage: null, error: err.message }));
     });
-  }, [patch]);
+  }, [patch, mode, model, compare]);
 
   // A new question scrolls to the TOP of the thread, so attention is on it and the answer fills in below.
   useEffect(() => {
@@ -121,7 +160,7 @@ export default function AskPage({ q: urlQuestion, session: urlSession, active }:
     session.current = urlSession;
     getSession(urlSession).then((s) => {
       const stored = (s.data as { turns: StoredTurn[] }).turns;
-      setTurns(stored.map((t, i) => ({ id: next.current++, question: t.question, attempts: t.attempts, sources: t.sources, answer: t.answer, facts: t.facts, followups: i === stored.length - 1 ? t.followups : undefined, clarify: t.clarify && i === stored.length - 1 ? t.clarify_options ?? undefined : undefined, stage: null, error: null, saved: s.id })));
+      setTurns(stored.map((t, i) => ({ id: next.current++, question: t.question, attempts: t.attempts, sources: t.sources, answer: t.answer, facts: t.facts, mode: t.mode ?? "workflow", steps: t.steps, stats: t.stats, fallback: t.fallback, budget: t.budget, followups: i === stored.length - 1 ? t.followups : undefined, clarify: t.clarify && i === stored.length - 1 ? t.clarify_options ?? undefined : undefined, stage: null, error: null, saved: s.id })));
       recent.current = stored.map((t) => t.question);
       setUsage({ used: s.used ?? 0, limit: s.limit ?? 0, full: !!(s as { full?: boolean }).full });
       setOpen(null);
@@ -137,8 +176,9 @@ export default function AskPage({ q: urlQuestion, session: urlSession, active }:
   // The Ask tab was reopened without ?s: the chat in progress keeps its address.
   useEffect(() => { if (active && !urlSession && !urlQuestion && session.current) navigate(`/ask?s=${session.current}`, true); }, [active, urlSession, urlQuestion]);
 
-  const current = open ? turns.find((t) => t.id === open.turn)?.sources[open.index] : undefined;
-  const sources = open ? turns.find((t) => t.id === open.turn)?.sources ?? [] : [];
+  const sourcesOf = (t?: Turn, side?: AskMode) => (side && t?.cmp ? t.cmp[side].sources : t?.sources) ?? [];
+  const sources = open ? sourcesOf(turns.find((t) => t.id === open.turn), open.side) : [];
+  const current = open ? sources[open.index] : undefined;
   const step = (d: number) => open && setOpen({ ...open, index: (open.index + d + sources.length) % sources.length });
   const share = wide ? 1 : frac; // wide: the reference fills the whole area and the chat steps aside (a reading mode)
   const save = (f: number) => { try { localStorage.setItem(FRAC_KEY, String(f)); } catch { /* ignore */ } };
@@ -156,6 +196,7 @@ export default function AskPage({ q: urlQuestion, session: urlSession, active }:
     setWide(false); setFrac(f); save(f);
   };
   const pick = (turn: number) => (_: ClauseRef, index: number) => setOpen({ turn, index });
+  const pickSide = (turn: number) => (side: AskMode, _: ClauseRef, index: number) => setOpen({ turn, index, side });
 
   return (
     <section ref={row} aria-label="Ask your contracts" className="flex h-[calc(100dvh-var(--header-h)-var(--mnav-h))] min-h-0">
@@ -201,10 +242,11 @@ export default function AskPage({ q: urlQuestion, session: urlSession, active }:
                   </header>
 
                   <div className="mt-6 space-y-4">
-                    {t.stage && !t.answer && <Thinking stage={t.stage} />}
+                    {t.cmp && <CompareCard cmp={t.cmp} onPick={pickSide(t.id)} />}
+                    {!t.cmp && t.stage && !t.answer && <Thinking stage={t.stage} />}
                     {t.error && <p role="alert" className="rounded-xl border border-danger/40 bg-danger/10 p-3 text-sm text-danger">{t.error}</p>}
                     {t.stopped && <p className="text-sm text-muted">Stopped.</p>}
-                    {(t.answer || (!t.stage && t.sources.length > 0)) && (
+                    {!t.cmp && (t.answer || (!t.stage && t.sources.length > 0)) && (
                       <AnswerCard
                         answer={t.answer}
                         sources={t.sources}
@@ -214,6 +256,7 @@ export default function AskPage({ q: urlQuestion, session: urlSession, active }:
                         onPick={pick(t.id)}
                       />
                     )}
+                    {!t.cmp && t.stats && !t.stage && <StatsBadge stats={t.stats} fallback={t.fallback} />}
                     {t.facts && (
                       <details className="mt-3 rounded-md border border-line bg-surface text-sm">
                         <summary className="cursor-pointer px-4 py-2 font-semibold focus-visible:outline-2 focus-visible:outline-accent">Used the contract graph <span className="font-normal text-muted">· what it knew about the companies named</span></summary>
@@ -246,6 +289,7 @@ export default function AskPage({ q: urlQuestion, session: urlSession, active }:
                         </div>
                       </div>
                     )}
+                    {t.steps && t.steps.length > 0 && <AgentTrace steps={t.steps} budget={t.budget} live={!!t.stage} onPick={(c) => { const x = t.sources.findIndex((s) => s.document_id === c.document_id && s.position === c.position); x >= 0 && setOpen({ turn: t.id, index: x }); }} />}
                     {t.attempts.length > 0 && <Trace attempts={t.attempts} sources={t.sources} onPick={(c) => { const x = t.sources.findIndex((s) => s.document_id === c.document_id && s.position === c.position); x >= 0 && setOpen({ turn: t.id, index: x }); }} />}
                   </div>
                 </article>
@@ -260,7 +304,7 @@ export default function AskPage({ q: urlQuestion, session: urlSession, active }:
             <button onClick={fresh} className="h-10 cursor-pointer rounded-lg bg-accent px-4 font-medium text-canvas hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">New session</button>
           </p>
         )}
-        <Composer usage={turns.length > 0 ? usage : null} busy={busy} onSend={send} onStop={stop} focusKey={`${active}-${fresher}`} disabledReason={notReady ? "Finish the steps above to start asking" : usage?.full ? "This session is full. Start a new session to keep asking." : undefined} />
+        <Composer usage={turns.length > 0 ? usage : null} busy={busy} onSend={send} onStop={stop} focusKey={`${active}-${fresher}`} controls={{ mode, onMode: (m) => { setMode(m); writePref(MODE_KEY, m); }, compare, onCompare: setCompare, models, model, onModel: (m) => { setModel(m); writePref(MODEL_KEY, m); } }} disabledReason={notReady ? "Finish the steps above to start asking" : usage?.full ? "This session is full. Start a new session to keep asking." : undefined} />
       </div>
 
       {current && open && !wide && (

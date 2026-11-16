@@ -46,3 +46,16 @@ async def delete_key(db: AsyncSession, user_id: uuid.UUID, provider: str) -> Non
 
 async def key_hints(db: AsyncSession, user_id: uuid.UUID) -> Dict[str, str]:
     return {r.provider: r.hint for r in (await db.execute(select(LlmApiKey).where(LlmApiKey.user_id == user_id))).scalars()}
+
+
+ENV_KEYS = {"openai": "OPENAI_API_KEY", "google_genai": "GEMINI_API_KEY"}  # provider -> the .env setting that is the fallback key
+
+
+async def provider_key(db: AsyncSession, user_id: uuid.UUID, provider: str) -> Optional[str]:
+    """The user's saved key for a provider, else that provider's .env key. Agent models can come from any provider; the saved-key table is already per provider."""
+    saved_as = "gemini" if provider == "google_genai" else provider  # the key store calls Google's provider "gemini"
+    try:
+        stored = await load_key(db, user_id, saved_as)
+    except Exception:  # ENCRYPTION_KEY missing: fall back to the .env key
+        stored = None
+    return stored or getattr(settings, ENV_KEYS.get(provider, ""), "") or None

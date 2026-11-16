@@ -1,0 +1,246 @@
+[
+ {
+  "id": 201,
+  "question": "What notice must Northwind give to end the Brightpath services agreement for convenience, taking the amendment into account?",
+  "kind": "multihop",
+  "doc": "01-northwind-brightpath-master",
+  "phrase": "ninety (90) days' prior written notice",
+  "gold_all": [
+   {
+    "doc": "01-northwind-brightpath-master",
+    "phrase": "ninety (90) days' prior written notice"
+   },
+   {
+    "doc": "02-northwind-brightpath-amendment",
+    "phrase": "sixty (60) days' prior"
+   }
+  ]
+ },
+ {
+  "id": 202,
+  "question": "How many days does Northwind have to pay Brightpath's invoices now?",
+  "kind": "multihop",
+  "doc": "01-northwind-brightpath-master",
+  "phrase": "will pay each undisputed invoice within",
+  "gold_all": [
+   {
+    "doc": "01-northwind-brightpath-master",
+    "phrase": "will pay each undisputed invoice within"
+   },
+   {
+    "doc": "02-northwind-brightpath-amendment",
+    "phrase": "thirty (30) days"
+   }
+  ]
+ },
+ {
+  "id": 203,
+  "question": "What hourly rate does Brightpath charge for a senior engineer?",
+  "kind": "multihop",
+  "doc": "02-northwind-brightpath-amendment",
+  "phrase": "$195 per hour",
+  "gold_all": [
+   {
+    "doc": "02-northwind-brightpath-amendment",
+    "phrase": "$195 per hour"
+   }
+  ]
+ },
+ {
+  "id": 204,
+  "question": "What does Northwind owe Brightpath when it terminates, and by when must it be paid?",
+  "kind": "multihop",
+  "doc": "01-northwind-brightpath-master",
+  "phrase": "will pay for Services performed through the termination date",
+  "gold_all": [
+   {
+    "doc": "01-northwind-brightpath-master",
+    "phrase": "will pay for Services performed through the termination date"
+   },
+   {
+    "doc": "01-northwind-brightpath-master",
+    "phrase": "will pay each undisputed invoice within"
+   }
+  ]
+ },
+ {
+  "id": 205,
+  "question": "Is there any way for Northwind to terminate the Brightpath agreement immediately without a breach by Brightpath?",
+  "kind": "multihop",
+  "doc": "01-northwind-brightpath-master",
+  "phrase": "Northwind may terminate this Agreement immediately on",
+  "gold_all": [
+   {
+    "doc": "01-northwind-brightpath-master",
+    "phrase": "Northwind may terminate this Agreement immediately on"
+   }
+  ]
+ },
+ {
+  "id": 206,
+  "question": "How long do Brightpath's confidentiality obligations last after the services agreement ends?",
+  "kind": "multihop",
+  "doc": "01-northwind-brightpath-master",
+  "phrase": "continue for",
+  "gold_all": [
+   {
+    "doc": "01-northwind-brightpath-master",
+    "phrase": "continue for"
+   },
+   {
+    "doc": "01-northwind-brightpath-master",
+    "phrase": "years after termination"
+   }
+  ]
+ },
+ {
+  "id": 207,
+  "question": "What is the governing law of the contract where Brightpath is the tenant?",
+  "kind": "party_then_clause",
+  "doc": "04-harborpoint",
+  "phrase": "laws of the State of Texas, and venue lies in Travis County",
+  "gold_all": [
+   {
+    "doc": "04-harborpoint",
+    "phrase": "laws of the State of Texas, and venue lies in Travis County"
+   }
+  ]
+ },
+ {
+  "id": 208,
+  "question": "How much severance does Brightpath owe Rachel Tan if it ends her employment without cause?",
+  "kind": "party_then_clause",
+  "doc": "06-brightpath-rachel",
+  "phrase": "six (6) months of base salary as severance",
+  "gold_all": [
+   {
+    "doc": "06-brightpath-rachel",
+    "phrase": "six (6) months of base salary as severance"
+   }
+  ]
+ },
+ {
+  "id": 209,
+  "question": "How long is the initial term of the licence where Cobalt is the licensor?",
+  "kind": "party_then_clause",
+  "doc": "03-northwind-cobalt",
+  "phrase": "initial term of two",
+  "gold_all": [
+   {
+    "doc": "03-northwind-cobalt",
+    "phrase": "initial term of two"
+   }
+  ]
+ },
+ {
+  "id": 210,
+  "question": "What annual licence fee does Northwind pay Cobalt?",
+  "kind": "party_then_clause",
+  "doc": "03-northwind-cobalt",
+  "phrase": "annual license fee of $480,000",
+  "gold_all": [
+   {
+    "doc": "03-northwind-cobalt",
+    "phrase": "annual license fee of $480,000"
+   }
+  ]
+ },
+ {
+  "id": 211,
+  "question": "When may the tenant end the Harbor Point office lease early?",
+  "kind": "party_then_clause",
+  "doc": "04-harborpoint",
+  "phrase": "Tenant may terminate this Lease",
+  "gold_all": [
+   {
+    "doc": "04-harborpoint",
+    "phrase": "Tenant may terminate this Lease"
+   }
+  ]
+ },
+ {
+  "id": 212,
+  "question": "Compare the governing law of the Northwind-Brightpath services agreement and the Northwind-Cobalt software licence.",
+  "kind": "compare",
+  "doc": "01-northwind-brightpath-master",
+  "phrase": "laws of the State of New York",
+  "gold_all": [
+   {
+    "doc": "01-northwind-brightpath-master",
+    "phrase": "laws of the State of New York"
+   },
+   {
+    "doc": "03-northwind-cobalt",
+    "phrase": "laws of England and Wales"
+   }
+  ]
+ },
+ {
+  "id": 213,
+  "question": "Which has the longer payment period: the Brightpath services agreement or the Cobalt licence?",
+  "kind": "compare",
+  "doc": "01-northwind-brightpath-master",
+  "phrase": "will pay each undisputed invoice within",
+  "gold_all": [
+   {
+    "doc": "01-northwind-brightpath-master",
+    "phrase": "will pay each undisputed invoice within"
+   },
+   {
+    "doc": "03-northwind-cobalt",
+    "phrase": "payable within sixty (60) days after receipt"
+   }
+  ]
+ },
+ {
+  "id": 214,
+  "question": "How does late-payment interest differ between the Brightpath services agreement and the Cobalt licence?",
+  "kind": "compare",
+  "doc": "01-northwind-brightpath-master",
+  "phrase": "accrue interest at one percent",
+  "gold_all": [
+   {
+    "doc": "01-northwind-brightpath-master",
+    "phrase": "accrue interest at one percent"
+   },
+   {
+    "doc": "03-northwind-cobalt",
+    "phrase": "accrue interest at one-half percent"
+   }
+  ]
+ },
+ {
+  "id": 215,
+  "question": "How do the termination-for-convenience notice periods differ between the Cobalt licence and the Brightpath services agreement?",
+  "kind": "compare",
+  "doc": "03-northwind-cobalt",
+  "phrase": "sixty (60) days' written notice",
+  "gold_all": [
+   {
+    "doc": "03-northwind-cobalt",
+    "phrase": "sixty (60) days' written notice"
+   },
+   {
+    "doc": "01-northwind-brightpath-master",
+    "phrase": "ninety (90) days' prior written notice"
+   }
+  ]
+ },
+ {
+  "id": 216,
+  "question": "Which laws govern Brightpath's office lease and its NDA with Cobalt?",
+  "kind": "compare",
+  "doc": "04-harborpoint",
+  "phrase": "laws of the State of Texas",
+  "gold_all": [
+   {
+    "doc": "04-harborpoint",
+    "phrase": "laws of the State of Texas"
+   },
+   {
+    "doc": "05-cobalt-brightpath",
+    "phrase": "laws of the State of Delaware"
+   }
+  ]
+ }
+]

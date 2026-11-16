@@ -17,6 +17,14 @@ class Settings(BaseSettings):
     ASK_SESSION_TOKENS: int = 16_000  # one chat session's context budget (the model's window is 128k, but answers get worse long before that); a full session asks you to start a new one
     ASK_MODEL: str = "gpt-4o-mini"  # grades retrieved clauses, rewrites questions, writes answers on the Ask tab
 
+    ASK_DEFAULT_MODE: str = "workflow"  # "agent" or "workflow": what Ask uses when the request does not say. Flipped to agent only after tests.eval_answers shows it holds up (docs/specs/agentic-ask.md)
+    AGENT_MODEL: str = "openai:gpt-4o-mini"  # "provider:model" for the agent (LangChain init_chat_model); any allow-listed provider works with no code change
+    AGENT_ANSWER_MODEL: str = ""  # empty = same as AGENT_MODEL
+    AGENT_ALLOWED_MODELS: list[str] = ["openai:gpt-4o-mini", "openai:gpt-4o", "anthropic:claude-sonnet-5-5", "anthropic:claude-haiku-5-5", "google_genai:gemini-3.5-flash-lite"]
+    AGENT_MAX_STEPS: int = 6  # model turns in one investigation
+    AGENT_MAX_TOOL_CALLS: int = 10
+    AGENT_MAX_TOKENS: int = 20_000  # tokens (estimated) the investigation may use before it must answer
+
     ENCRYPTION_KEY: str = ""  # Fernet key encrypting API keys stored in Postgres; generate: python -c "from cryptography.fernet import Fernet;print(Fernet.generate_key().decode())"
 
     GOOGLE_CLIENT_ID: str = ""

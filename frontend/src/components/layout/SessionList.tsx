@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronDown, MessagesSquare, Pencil, Plus, Trash2 } from "lucide-react";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import RenameDialog from "@/components/RenameDialog";
-import { deleteSession, listSessions, renameSession, type SessionItem } from "@/features/sessions/api";
+import { deleteSession, listSessions, renameSession, sessionHref, type SessionItem } from "@/features/sessions/api";
 import { Link, navigate, useRoute } from "@/lib/router";
 
 /** Tell the sidebar the list of sessions changed (a chat was saved or deleted), and tell the Ask page to start a fresh chat. */
@@ -19,7 +19,7 @@ interface Tip { text: string; meta: string; top: number; left: number }
 export default function SessionList({ collapsed }: { collapsed: boolean }) {
   const [items, setItems] = useState<SessionItem[]>([]);
   const { segments, params } = useRoute();
-  const active = segments[0] === "ask" ? params.get("s") : null;
+  const active = segments[0] === "ask" ? params.get("s") : segments[0] === "sessions" ? segments[1] ?? null : null; // a chat opens in Ask, a comparison on its own page
   const load = useCallback(() => { listSessions().then(setItems).catch(() => {}); }, []);
   useEffect(() => {
     load();
@@ -73,7 +73,7 @@ export default function SessionList({ collapsed }: { collapsed: boolean }) {
 
   const showTip = (s: SessionItem, el: HTMLElement) => {
     const r = el.getBoundingClientRect();
-    setTip({ text: s.query, meta: `${s.turns} ${s.turns === 1 ? "question" : "questions"}`, top: r.top + r.height / 2, left: r.right + 12 });
+    setTip({ text: s.query, meta: s.kind === "compare" ? "Workflow vs agent" : `${s.turns} ${s.turns === 1 ? "question" : "questions"}`, top: r.top + r.height / 2, left: r.right + 12 });
   };
 
   const rows = (inFlyout: boolean) => items.length === 0 ? (
@@ -85,7 +85,7 @@ export default function SessionList({ collapsed }: { collapsed: boolean }) {
         return (
           <li key={s.id} className="group relative motion-safe:animate-[rise_0.25s_ease-out]">
             <Link
-              to={`/ask?s=${s.id}`}
+              to={sessionHref(s)}
               aria-current={on ? "page" : undefined}
               onMouseEnter={inFlyout ? undefined : (e) => showTip(s, e.currentTarget)}
               onMouseLeave={() => setTip(null)}
@@ -93,6 +93,7 @@ export default function SessionList({ collapsed }: { collapsed: boolean }) {
               onBlur={() => setTip(null)}
               className={`block rounded-lg py-2 pl-3 pr-16 text-sm transition-colors duration-150 ${ring} ${inFlyout ? "line-clamp-2" : "truncate"} ${on ? "bg-accent/10 font-semibold text-fg" : "text-muted hover:bg-raised hover:text-fg"}`}
             >
+              {s.kind === "compare" && <span className="mr-1.5 rounded bg-accent/10 px-1.5 py-0.5 align-middle text-[10px] font-semibold uppercase tracking-wide text-accent-fg">Compare</span>}
               {s.query}
             </Link>
             <span className="absolute right-1 top-1/2 flex -translate-y-1/2 gap-0.5 opacity-0 transition-opacity duration-150 focus-within:opacity-100 group-hover:opacity-100">

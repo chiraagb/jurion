@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import WorkflowVsAgent from "./WorkflowVsAgent";
 
 type Mode = "vector" | "keyword" | "hybrid" | "context" | "scope" | "soft" | "graph";
 type Kind = "direct" | "paraphrase" | "broad" | "graph" | "multi" | "none";
@@ -58,6 +59,10 @@ export default function EvaluationPage() {
           Run on {new Date(data.ran_at).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}.
         </p>
       </div>
+
+      <WorkflowVsAgent data={data as unknown as Record<string, unknown>} />
+
+      <h2 className="border-t border-line pt-8 font-display text-3xl font-semibold tracking-tight">Retrieval: does the right clause come back?</h2>
 
       {before && broad(before) && broad(now, "context") && (
         <div className="rounded-md border border-accent/40 bg-accent/5 p-5">

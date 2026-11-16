@@ -64,6 +64,8 @@ def _item(s: QuerySession, full: bool = False) -> dict:
     d = s.data
     if s.kind == "chat":
         summary = {"turns": len(d["turns"]), "used": used(d["turns"]), "limit": settings.ASK_SESSION_TOKENS, "full": is_full(used(d["turns"]))}
+    elif s.kind == "compare":
+        summary = {"compared": True}  # the workflow's and the agent's answers to one question; never chat memory
     else:
         summary = {"results": len(d.get("results", []))}
     return {"id": str(s.id), "kind": s.kind, "query": s.query, "created_at": s.created_at.isoformat(), **summary, **({"data": d} if full else {})}
@@ -79,7 +81,7 @@ async def _owned(db: AsyncSession, user: User, session_id: uuid.UUID) -> QuerySe
 @router.get("")
 async def list_sessions(user: User = Depends(current_user), db: AsyncSession = Depends(get_db)):
     # ponytail: loads each row's JSON to build the summary; store the summary in columns if history gets long
-    rows = (await db.execute(select(QuerySession).where(QuerySession.user_id == user.id, QuerySession.kind == "chat").order_by(QuerySession.created_at.desc()).limit(100))).scalars()
+    rows = (await db.execute(select(QuerySession).where(QuerySession.user_id == user.id, QuerySession.kind.in_(["chat", "compare"])).order_by(QuerySession.created_at.desc()).limit(100))).scalars()
     return [_item(s) for s in rows]
 
 

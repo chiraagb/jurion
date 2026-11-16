@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
-import { MessageSquareText, Plus, Trash2 } from "lucide-react";
+import { Columns2, MessageSquareText, Plus, Trash2 } from "lucide-react";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { useReference } from "@/features/clause/Reference";
 import SessionMeter from "@/features/ask/SessionMeter";
+import CompareCard, { type Cmp, type Side } from "@/features/ask/CompareCard";
 import HitList from "@/features/search/HitList";
 import type { SearchResponse } from "@/features/search/api";
 import { Link, navigate } from "@/lib/router";
-import { deleteSession, getSession, listSessions, type SessionFull, type SessionItem } from "./api";
+import { deleteSession, getSession, listSessions, sessionHref, type SessionFull, type SessionItem, type StoredCompare, type StoredSide } from "./api";
 
 const errorText = (e: any) => e.response?.data?.detail ?? e.message ?? "Something went wrong.";
 const when = (iso: string) => new Date(iso).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
@@ -61,14 +62,15 @@ function List() {
         <ul className="space-y-3">
           {items.map((s) => (
             <li key={s.id} className="flex items-center gap-3 rounded-md border border-line bg-surface p-4">
-              <Link to={`/ask?s=${s.id}`} className="min-w-0 flex-1 focus-visible:outline-2 focus-visible:outline-accent">
+              <Link to={sessionHref(s)} className="min-w-0 flex-1 focus-visible:outline-2 focus-visible:outline-accent">
                 <span className="flex items-center gap-2">
-                  <MessageSquareText className="h-4 w-4 shrink-0 text-accent" aria-hidden />
+                  {s.kind === "compare" ? <Columns2 className="h-4 w-4 shrink-0 text-accent" aria-hidden /> : <MessageSquareText className="h-4 w-4 shrink-0 text-accent" aria-hidden />}
                   <span className="truncate font-display text-lg font-semibold">{s.query}</span>
+                  {s.kind === "compare" && <span className="shrink-0 rounded bg-accent/10 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-accent-fg">Compare</span>}
                 </span>
                 <span className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
                   <span>{when(s.created_at)}</span>
-                  <span>{s.turns} {s.turns === 1 ? "question" : "questions"}</span>
+                  {s.kind === "compare" ? <span>Workflow vs agent, side by side</span> : <span>{s.turns} {s.turns === 1 ? "question" : "questions"}</span>}
                   {s.limit ? <SessionMeter used={s.used ?? 0} limit={s.limit} /> : null}
                 </span>
               </Link>
@@ -89,7 +91,7 @@ function List() {
         onCancel={() => setPending(null)}
         subject={pending && <p className="font-display text-lg font-semibold leading-snug [overflow-wrap:anywhere]">{pending.query}</p>}
       >
-        This removes the chat. The contracts are not affected.
+        This removes the session. The contracts are not affected.
       </ConfirmDialog>
     </section>
   );
@@ -103,12 +105,21 @@ function One({ id }: { id: string }) {
     getSession(id).then((x) => { if (stale) return; if (x.kind === "chat") navigate(`/ask?s=${id}`, true); else setS(x); }).catch((e) => !stale && setS(errorText(e)));
     return () => { stale = true; };
   }, [id]);
-  const d = s && typeof s !== "string" ? (s.data as SearchResponse) : null;
+  const compare = s && typeof s !== "string" && s.kind === "compare" ? (s.data as StoredCompare) : null;
+  const d = s && typeof s !== "string" && s.kind === "search" ? (s.data as SearchResponse) : null;
   return (
     <section className="space-y-6">
       <Link to="/sessions" className="text-sm text-muted underline">← Sessions</Link>
       {s === null ? <p className="text-muted" aria-busy>Loading…</p> : typeof s === "string" ? (
         <p role="alert" className="rounded-md border border-danger/40 bg-danger/10 p-3 text-sm text-danger">{s}</p>
+      ) : compare ? (
+        <>
+          <div>
+            <p className="font-display text-xl font-semibold [overflow-wrap:anywhere]">{compare.question}</p>
+            <p className="mt-1 text-sm text-muted"><span className="mr-2 rounded bg-accent/10 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-accent-fg">Compare</span>Workflow vs agent · {when((s as SessionFull).created_at)} · kept as a record; it is not chat memory</p>
+          </div>
+          <CompareCard cmp={toCmp(compare)} onPick={(_side, c) => open(c)} />
+        </>
       ) : d && (
         <>
           <div>
@@ -123,3 +134,7 @@ function One({ id }: { id: string }) {
     </section>
   );
 }
+
+const side = (x: StoredSide): Side => ({ answer: x.answer, sources: x.sources, steps: x.steps ?? [], stats: x.stats, stage: null, error: x.error ?? null, fallback: x.fallback, budget: x.budget ?? null });
+/** A saved comparison, shaped like a live one so the same card shows it. */
+const toCmp = (c: StoredCompare): Cmp => ({ workflow: side(c.workflow), agent: side(c.agent), compared: c.compared });
