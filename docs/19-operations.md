@@ -9,7 +9,7 @@ Schema changes are versioned migrations in `backend/migrations/versions/`, appli
 | `0001` baseline | The whole schema as it was when migrations began. Every statement is `IF NOT EXISTS`, so it runs cleanly on a database the old start-up code already created, and its `ALTER`s bring older databases up to the baseline. |
 | `0002` unique document hash | `UNIQUE (user_id, sha256) WHERE sha256 IS NOT NULL` on `documents`. |
 
-Add a change: copy `0002`, set `down_revision` to the previous revision, write plain SQL in `upgrade()` and `downgrade()`. Run by hand with `uv run alembic upgrade head`, and see the current version with `uv run alembic current`. The Neo4j indexes and constraints are separate and created at start-up (`ensure_schema` in `app/graph.py`).
+Add a change: copy `0002`, set `down_revision` to the previous revision, write plain SQL in `upgrade()` and `downgrade()`. Run by hand with `uv run alembic upgrade head`, and see the current version with `uv run alembic current`. The Neo4j indexes and constraints are separate and created at start-up (`ensure_schema` in `app/search/graph.py`).
 
 Checked by `tests/integration/test_migrations.py`: it migrates an empty scratch database to the latest revision and compares its columns and indexes with the real database's, runs the migrations twice, and downgrades and re-applies the newest one.
 
@@ -19,7 +19,7 @@ The save endpoint first looks for the same file and offers "replace". That check
 
 ## Postgres and Neo4j can drift
 
-Contract text lives in Postgres and the links live in Neo4j; there is no transaction across the two. `app/reconcile.py` compares them:
+Contract text lives in Postgres and the links live in Neo4j; there is no transaction across the two. `app/search/reconcile.py` compares them:
 
 - It **removes** graph data for contracts that are not in Postgres (safe: the graph can be rebuilt).
 - It **reports** contracts Postgres says have a graph that Neo4j lacks (`graph_missing`) and contracts with no graph, but does not guess: rebuild those from the contract page (parties need an AI key).

@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from pgvector.sqlalchemy import Vector
 from neo4j import AsyncGraphDatabase, AsyncDriver
 import redis.asyncio as aioredis
-from app.config import settings
+from app.core.config import settings
 
 
 # 1. Base ORM Model

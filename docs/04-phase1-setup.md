@@ -52,8 +52,8 @@ docker compose up -d postgres neo4j redis
 
 ## Step 4 – Config and database connections
 
-- `app/config.py` – reads settings (database URLs, passwords) from `.env`, with local defaults.
-- `app/database.py` – creates the connections to Postgres, Neo4j and Redis, and defines the `contract_chunks` table:
+- `app/core/config.py` – reads settings (database URLs, passwords) from `.env`, with local defaults.
+- `app/core/database.py` – creates the connections to Postgres, Neo4j and Redis, and defines the `contract_chunks` table:
 
 | Column | Meaning |
 |---|---|

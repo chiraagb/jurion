@@ -9,12 +9,12 @@ from pgvector.sqlalchemy import Vector
 from sqlalchemy import delete, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.auth import current_user
-from app.database import Clause, Document, User, get_db
-from app.embeddings import embed_document, openai_key
-from app.graph import build_graph, drop_document, read_graph
-from app.ratelimit import limit
-from app.hybrid_parser import MAX_PDF_BYTES, _read_lines, clause_boxes, count_pages, run_pdf, stored_lines
+from app.core.auth import current_user
+from app.core.database import Clause, Document, User, get_db
+from app.search.embeddings import embed_document, openai_key
+from app.search.graph import build_graph, drop_document, read_graph
+from app.core.ratelimit import limit
+from app.ingestion.parser import MAX_PDF_BYTES, _read_lines, clause_boxes, count_pages, run_pdf, stored_lines
 
 router = APIRouter(prefix="/documents")
 log = logging.getLogger("jurion")

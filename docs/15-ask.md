@@ -2,7 +2,7 @@
 
 The **Ask** tab (`/ask?q=...`) answers a question from your saved contracts and cites the clauses it used.
 
-## The pipeline (`backend/app/ask.py`)
+## The pipeline (`backend/app/ask/workflow.py`)
 
 0. **Narrow with the graph (when 2+ contracts have graphs):** one cheap AI call reads the question and each contract's parties and roles, and returns the contracts the question names by company, role or kind of document ("the bank", "the clinical trial agreement"). It must not guess from the topic, and if a name fits several contracts it returns all of them. Those contracts are searched first (8 results), and the best 4 results from **every** contract are added after them (**soft narrowing**), so a wrong guess cannot hide the right clause; the retry (step 3) also searches every contract. Soft narrowing was added after growing the library to 15 contracts showed hard narrowing losing the right clause when a question named a document type several contracts share ("the technology development agreement").
 1. **Retrieve:** the same hybrid search as the Search tab (vector + keyword, merged), top 8 clauses.
@@ -61,11 +61,11 @@ Check: `uv run python -W ignore -m tests.integration.test_ask` (fake OpenAI call
 
 ## Questions about the library itself
 
-"How many contracts do we have?", "list my contracts", "how many companies?" and "which companies are in more than one contract?" are not written in any clause, so searching clauses can only fail (it used to answer "I couldn't find this"). `library_kind()` in `app/ask.py` recognises these by shape, short and anchored at both ends so "how many contracts mention indemnity?" still goes to search, and `library_answer()` answers from Postgres and Neo4j with no OpenAI call. Anything else about the library (for example "which contracts have no termination clause?") is still a search question and may be answered badly: that needs an aggregate step, not built.
+"How many contracts do we have?", "list my contracts", "how many companies?" and "which companies are in more than one contract?" are not written in any clause, so searching clauses can only fail (it used to answer "I couldn't find this"). `library_kind()` in `app/ask/workflow.py` recognises these by shape, short and anchored at both ends so "how many contracts mention indemnity?" still goes to search, and `library_answer()` answers from Postgres and Neo4j with no OpenAI call. Anything else about the library (for example "which contracts have no termination clause?") is still a search question and may be answered badly: that needs an aggregate step, not built.
 
 ## Companies, relationships and follow-ups
 
-- **Company facts:** clause search cannot answer "what is Ingram Micro?" or "how are these two contracts related?". `company_facts()` in `app/ask.py` looks for company names (and aliases) in the question and in the last two questions of the chat (sent as `before`, so "these two contracts" works), and gives the answer model what the graph knows: each company's role in each contract, the contract summaries, and which companies the contracts share. The user sees it under "Used the contract graph". If no clause is relevant but the graph has facts, the answer is written from the facts.
+- **Company facts:** clause search cannot answer "what is Ingram Micro?" or "how are these two contracts related?". `company_facts()` in `app/ask/workflow.py` looks for company names (and aliases) in the question and in the last two questions of the chat (sent as `before`, so "these two contracts" works), and gives the answer model what the graph knows: each company's role in each contract, the contract summaries, and which companies the contracts share. The user sees it under "Used the contract graph". If no clause is relevant but the graph has facts, the answer is written from the facts.
 - **Follow-ups:** after an answer the model suggests three next questions (`followups()`), shown as "Ask next" chips; library answers and "not found" use fixed suggestions with no model call. `tests/eval_answers.py` turns them off so the evaluation does not pay for them.
 - "List my contracts" now shows every contract, not the first 25.
 

@@ -3,13 +3,15 @@ import json
 import uuid
 import redis
 from fastapi.testclient import TestClient
-from app import ask, documents, embeddings
-from app.auth import current_user
-from app.config import settings
-from app.database import AsyncSessionLocal, User
-from app.graph import drop_user as drop_user_graph
+from app.ask import workflow as ask
+from app.ingestion import documents
+from app.search import embeddings
+from app.core.auth import current_user
+from app.core.config import settings
+from app.core.database import AsyncSessionLocal, User
+from app.search.graph import drop_user as drop_user_graph
 from app.main import app
-from app.sessions import CLAUSE_RESERVE
+from app.ask.sessions import CLAUSE_RESERVE
 from tests.integration.test_parse import make_sample_pdf
 from tests.integration.test_search import RESULT, fake_embed
 

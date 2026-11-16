@@ -48,3 +48,32 @@ Built so far:
 - React dashboard showing database health
 
 Not built yet: upload endpoint, embeddings, graph writes, query engine, chat UI, evaluation.
+
+## Where things are
+
+Grouped by what they are for, most important first.
+
+```
+backend/app/
+  ask/         the question-answering feature
+    workflow.py   the fixed pipeline (the baseline) and POST /ask
+    agent.py      the LangGraph agent, /ask/models, /ask/compare
+    sessions.py   chats, their memory and context limit
+  search/      finding things
+    embeddings.py clause embeddings, hybrid (meaning + keyword) search
+    graph.py      the Neo4j contract graph
+    reconcile.py  keeps the graph consistent with the database
+  ingestion/   getting contracts in
+    parser.py     PDF -> clauses
+    documents.py  saving, listing and opening contracts
+  core/        shared plumbing
+    config.py database.py auth.py llm_keys.py ratelimit.py
+  main.py      app wiring, health, key settings   evaluation.py   serves the evaluation results
+
+frontend/src/
+  features/ask/            the chat; ask/agent/ holds the agent trace, mode chip and Compare view
+  features/sessions/       the sessions list, sidebar list and context meter
+  features/evaluation/     Workflow vs Agent, the criteria guide, retrieval scores
+  features/{documents,search,graph,parser,clause,pdf,...}   one folder per screen or topic
+  components/  shared dialogs and layout     lib/   API client, router, helpers
+```

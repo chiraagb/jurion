@@ -3,7 +3,7 @@ PDFs live in tests/corpus/ (gitignored: real contracts); expectations.json is co
 To add a case: drop the PDF in tests/corpus/, add an entry, run this."""
 import json
 from pathlib import Path
-from app.hybrid_parser import local_fast_parse
+from app.ingestion.parser import local_fast_parse
 
 CORPUS = Path(__file__).parent.parent / "corpus"
 

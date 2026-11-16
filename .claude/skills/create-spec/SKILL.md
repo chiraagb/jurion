@@ -19,18 +19,18 @@ Write a spec for: $ARGUMENTS
 
 | Concern | Path |
 |---|---|
-| Q&A pipeline (rewrite → retrieve → grade → scope → widen → answer → followups) | `backend/app/ask.py` |
-| Embeddings, hybrid search | `backend/app/embeddings.py` |
-| Neo4j graph | `backend/app/graph.py` |
-| Ingestion, parsing, extractors | `backend/app/documents.py`, `hybrid_parser.py`, `ingestion/` |
-| Chat sessions + context limit | `backend/app/sessions.py` |
-| Auth, LLM keys, rate limits | `auth.py`, `llm_keys.py`, `ratelimit.py` |
-| Reconciliation, evaluation | `reconcile.py`, `evaluation.py` |
-| Routes | `backend/app/api/v1/endpoints/`, `backend/main.py` |
-| DB models, migrations | `backend/app/db/`, `backend/migrations/versions/` (Alembic) |
-| Backend tests | `backend/tests/unit`, `tests/integration`, `tests/run_all.py` |
-| QA / answer evals | `tests/eval_qa.py`, `tests/eval_answers.py` |
-| Frontend features | `frontend/src/features/<ask,documents,graph,search,sessions,...>` |
+| Q&A workflow (scope → retrieve → grade → rewrite → widen → answer → followups), `POST /ask` | `backend/app/ask/workflow.py` |
+| Agent (LangGraph tools loop), `/ask/models`, `/ask/compare` | `backend/app/ask/agent.py` |
+| Chat sessions + context limit | `backend/app/ask/sessions.py` |
+| Embeddings, hybrid search | `backend/app/search/embeddings.py` |
+| Neo4j graph | `backend/app/search/graph.py`, `reconcile.py` |
+| Ingestion: saved contracts, PDF parsing | `backend/app/ingestion/documents.py`, `parser.py` |
+| Settings, DB models and clients, auth, LLM keys, rate limits | `backend/app/core/` (`config.py`, `database.py`, `auth.py`, `llm_keys.py`, `ratelimit.py`) |
+| App wiring, health, key settings; evaluation results route | `backend/app/main.py`, `backend/app/evaluation.py` |
+| DB migrations | `backend/migrations/versions/` (Alembic) |
+| Backend tests | `backend/tests/integration`, `tests/run_all.py` |
+| QA / answer evals and question sets | `tests/eval_qa.py`, `tests/eval_answers.py`, `tests/qa/*.json` |
+| Frontend features | `frontend/src/features/<ask,ask/agent,documents,graph,search,sessions,evaluation,...>` |
 | Frontend API client, routing | `frontend/src/lib/api.ts`, `router.tsx` |
 
 ## Step 3 — Spec structure (exact)

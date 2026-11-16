@@ -10,8 +10,8 @@ import json
 import re
 from pathlib import Path
 
-from app.config import settings
-from app.hybrid_parser import _llm_headings, _local_from_lines, _read_lines
+from app.core.config import settings
+from app.ingestion.parser import _llm_headings, _local_from_lines, _read_lines
 
 BIG = Path(__file__).parent / "corpus_big"
 LABELS, CACHE = BIG / "labels", BIG / "drafts"

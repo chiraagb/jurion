@@ -6,9 +6,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.auth import current_user
-from app.config import settings
-from app.database import QuerySession, User, get_db
+from app.core.auth import current_user
+from app.core.config import settings
+from app.core.database import QuerySession, User, get_db
 
 router = APIRouter(prefix="/sessions")
 SAME_RUN_MIN = 10  # the same question again within this many minutes updates its session instead of adding a copy

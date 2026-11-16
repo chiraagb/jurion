@@ -6,7 +6,7 @@ from alembic.config import Config
 from sqlalchemy import text
 from sqlalchemy.engine import make_url
 from sqlalchemy.ext.asyncio import create_async_engine
-from app.config import settings
+from app.core.config import settings
 from app.main import BACKEND
 
 SCRATCH = "jurion_migrate_scratch"

@@ -2,7 +2,7 @@
 import asyncio
 from alembic import context
 from sqlalchemy.ext.asyncio import create_async_engine
-from app.config import settings
+from app.core.config import settings
 
 config = context.config
 URL = config.get_main_option("sqlalchemy.url") or settings.DATABASE_URL  # tests point this at a scratch database

@@ -15,7 +15,11 @@ import ProblemsPage from "@/features/problems/ProblemsPage";
 import EvaluationPage from "@/features/evaluation/EvaluationPage";
 import SessionsPage from "@/features/sessions/SessionsPage";
 import SearchPage from "@/features/search/SearchPage";
-import { ReferenceDock, ReferenceProvider, useReference } from "@/features/clause/Reference";
+import {
+  ReferenceDock,
+  ReferenceProvider,
+  useReference,
+} from "@/features/clause/Reference";
 import { navigate, useRoute } from "@/lib/router";
 import SettingsDialog from "@/features/settings/SettingsDialog";
 
@@ -44,7 +48,11 @@ function Shell() {
   useEffect(() => {
     const h = document.getElementById("app-header");
     if (!h) return;
-    const set = () => document.documentElement.style.setProperty("--header-h", `${h.offsetHeight}px`);
+    const set = () =>
+      document.documentElement.style.setProperty(
+        "--header-h",
+        `${h.offsetHeight}px`,
+      );
     set();
     const ro = new ResizeObserver(set);
     ro.observe(h);
@@ -56,24 +64,58 @@ function Shell() {
 
   return (
     <div className="min-h-dvh">
-      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-surface focus:px-4 focus:py-2 focus:shadow-lg">Skip to content</a>
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-surface focus:px-4 focus:py-2 focus:shadow-lg"
+      >
+        Skip to content
+      </a>
       <Header account={<UserMenu user={user} onLogout={logout} />}>
-        <ServiceStatus services={services} loading={loading} onRefresh={refresh} />
+        <ServiceStatus
+          services={services}
+          loading={loading}
+          onRefresh={refresh}
+        />
         <SettingsDialog />
       </Header>
       <MobileNav current={tab} />
       <div className="lg:flex">
         <Sidebar current={tab} />
-        <main id="main" className={`min-w-0 flex-1 ${tab === "ask" ? "" : "mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-10"}`}>
+        <main
+          id="main"
+          className={`min-w-0 flex-1 ${tab === "ask" ? "" : "mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-10"}`}
+        >
           {/* Ask and the Parser Lab stay mounted, so a running answer or an unsaved parse survives a visit to another tab */}
           <div hidden={tab !== "ask"}>
-            <AskPage q={params.get("q") ?? ""} session={params.get("s") ?? ""} active={tab === "ask"} />
+            <AskPage
+              q={params.get("q") ?? ""}
+              session={params.get("s") ?? ""}
+              active={tab === "ask"}
+            />
           </div>
           <div hidden={tab !== "parser"}>
             <ParserLab apiDown={apiDown} />
           </div>
-          {tab === "contracts" && <ContractsPage id={segments[1]} page={Number(params.get("page")) || undefined} clause={params.has("clause") ? Number(params.get("clause")) : undefined} />}
-          {tab === "graph" && <Suspense fallback={<p className="text-muted" aria-busy>Loading…</p>}><GraphPage /></Suspense>}
+          {tab === "contracts" && (
+            <ContractsPage
+              id={segments[1]}
+              page={Number(params.get("page")) || undefined}
+              clause={
+                params.has("clause") ? Number(params.get("clause")) : undefined
+              }
+            />
+          )}
+          {tab === "graph" && (
+            <Suspense
+              fallback={
+                <p className="text-muted" aria-busy>
+                  Loading…
+                </p>
+              }
+            >
+              <GraphPage />
+            </Suspense>
+          )}
           {tab === "search" && <SearchPage q={params.get("q") ?? ""} />}
           {tab === "sessions" && <SessionsPage id={segments[1]} />}
           {tab === "problems" && <ProblemsPage />}

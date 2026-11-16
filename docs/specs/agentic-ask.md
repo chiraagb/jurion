@@ -2,7 +2,7 @@
 
 ## Overview
 
-Today Ask is a **fixed workflow** (`pipeline()` in `backend/app/ask.py`): scope → hybrid search → grade → (rewrite once) → widen → answer. The code decides every step; the model only fills fixed roles. This feature makes Ask **agent-first**: a model-driven loop that chooses which read-only tool to call next (search clauses, read a clause, follow a cross-reference, look up a company, list contracts, ask the user which contract), looks at what came back, and decides when it has enough evidence. It acts on the _descriptions_ it is given: each tool's description and each contract's summary/parties. The existing workflow stays as the **baseline** so the two can be compared honestly, and as the fallback when the agent fails.
+Today Ask is a **fixed workflow** (`pipeline()` in `backend/app/ask/workflow.py`): scope → hybrid search → grade → (rewrite once) → widen → answer. The code decides every step; the model only fills fixed roles. This feature makes Ask **agent-first**: a model-driven loop that chooses which read-only tool to call next (search clauses, read a clause, follow a cross-reference, look up a company, list contracts, ask the user which contract), looks at what came back, and decides when it has enough evidence. It acts on the _descriptions_ it is given: each tool's description and each contract's summary/parties. The existing workflow stays as the **baseline** so the two can be compared honestly, and as the fallback when the agent fails.
 
 The frontend shows the difference three ways: (1) a mode switch plus a step-by-step **agent trace** in Ask, (2) a **Compare both** view that answers one question with both systems side by side, (3) a **Workflow vs Agent** section on the Evaluation page that explains every criterion in plain language before showing any number.
 
@@ -112,7 +112,7 @@ Agent mode still emits `facts`, `sources`, `context`, `token`, `followups`, `cla
 
 ### Business logic changes
 
-- New `backend/app/agent.py`: the tool definitions (pydantic args, each with a description), the LangGraph `StateGraph` above, `get_chat_model()`, and `async def agent_pipeline(...)` with the same signature and event vocabulary as `pipeline()` (plus an optional `model` argument), so `/ask` and `tests/eval_answers.py` can swap one for the other. Tools are plain async functions wrapped with `StructuredTool`, so they are testable without a model.
+- New `backend/app/ask/agent.py`: the tool definitions (pydantic args, each with a description), the LangGraph `StateGraph` above, `get_chat_model()`, and `async def agent_pipeline(...)` with the same signature and event vocabulary as `pipeline()` (plus an optional `model` argument), so `/ask` and `tests/eval_answers.py` can swap one for the other. Tools are plain async functions wrapped with `StructuredTool`, so they are testable without a model.
 - `ask.py`: `ask()` picks `agent_pipeline` or `pipeline` by `body.mode`; the turn-persistence block stores the new fields (including the `model` used). Add a small `Meter` so **both** modes report `llm_calls`, `tokens`, `ms`: for the workflow a `ContextVar` incremented in `_client()`; for the agent LangChain's `UsageMetadataCallbackHandler`, which reports tokens uniformly across providers. This is the only change to workflow code and it does not alter its behavior.
 - `answer_stream` (workflow): add `stream_options={"include_usage": True}` so its answer call's tokens are counted.
 - `llm_keys.py`: add `provider_key(db, uid, provider)` (the generalization of `openai_key`: saved key, then the provider's `.env` key). `openai_key` becomes a one-line call to it.
@@ -181,7 +181,7 @@ Agent becomes the default (`ASK_DEFAULT_MODE=agent`) **only if 1, 2 and 4 hold**
 
 ## Files to create
 
-- `backend/app/agent.py`: tool schemas, the investigate loop, `agent_pipeline`
+- `backend/app/ask/agent.py`: tool schemas, the investigate loop, `agent_pipeline`
 - `backend/tests/unit/test_agent_tools.py`: tool/cap/scoping/model-allow-list unit checks
 - `backend/tests/integration/test_agent.py`: scripted-model integration suite
 - `frontend/src/features/ask/AgentTrace.tsx`: step timeline for agent turns
@@ -193,9 +193,9 @@ Agent becomes the default (`ASK_DEFAULT_MODE=agent`) **only if 1, 2 and 4 hold**
 
 ## Files to modify
 
-- `backend/app/ask.py`: `AskIn.mode`; `ask()` chooses the pipeline; `Meter` in `_client()`; persist `mode/steps/stats/fallback/budget_hit` in the turn; `answer_stream` requests usage; add `POST /ask/compare`
-- `backend/app/config.py`: `ASK_DEFAULT_MODE`, `AGENT_MODEL`, `AGENT_ANSWER_MODEL`, `AGENT_ALLOWED_MODELS`, `AGENT_MAX_STEPS`, `AGENT_MAX_TOOL_CALLS`, `AGENT_MAX_TOKENS`
-- `backend/app/llm_keys.py`, `backend/app/embeddings.py`: `provider_key()`; `openai_key()` delegates to it
+- `backend/app/ask/workflow.py`: `AskIn.mode`; `ask()` chooses the pipeline; `Meter` in `_client()`; persist `mode/steps/stats/fallback/budget_hit` in the turn; `answer_stream` requests usage; add `POST /ask/compare`
+- `backend/app/core/config.py`: `ASK_DEFAULT_MODE`, `AGENT_MODEL`, `AGENT_ANSWER_MODEL`, `AGENT_ALLOWED_MODELS`, `AGENT_MAX_STEPS`, `AGENT_MAX_TOOL_CALLS`, `AGENT_MAX_TOKENS`
+- `backend/app/core/llm_keys.py`, `backend/app/search/embeddings.py`: `provider_key()`; `openai_key()` delegates to it
 - `backend/app/main.py`, `frontend/src/features/settings/SettingsDialog.tsx`, `llmConfig.ts`: accept and show an `anthropic` key (separate from the PDF-parser provider choice)
 - `backend/pyproject.toml` / `uv.lock`: new dependencies (below)
 - `.env.example` (if present) and `docs/04-phase1-setup.md`: the new settings and the tracing-off warning

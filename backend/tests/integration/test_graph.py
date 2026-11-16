@@ -3,10 +3,11 @@ import json
 import uuid
 from types import SimpleNamespace as NS
 from fastapi.testclient import TestClient
-from app import documents, graph
-from app.auth import current_user
-from app.database import AsyncSessionLocal, Document, User, neo4j_driver
-from app.graph import drop_user as drop_user_graph
+from app.ingestion import documents
+from app.search import graph
+from app.core.auth import current_user
+from app.core.database import AsyncSessionLocal, Document, User, neo4j_driver
+from app.search.graph import drop_user as drop_user_graph
 from app.main import app
 from tests.integration.test_parse import make_number_column_pdf, make_sample_pdf
 

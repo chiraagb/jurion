@@ -14,7 +14,7 @@ import {
   Search,
 } from "lucide-react";
 import { Link } from "@/lib/router";
-import SessionList from "./SessionList";
+import SessionList from "@/features/sessions/SessionList";
 
 interface Item {
   id: string;

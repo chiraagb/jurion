@@ -1,8 +1,8 @@
 import { Link } from "@/lib/router";
-import { AnswerCard } from "./AnswerCard";
+import { AnswerCard } from "../AnswerCard";
 import AgentTrace from "./AgentTrace";
-import Thinking, { type Stage } from "./Thinking";
-import type { AgentStep, AskMode, Brief, Stats } from "./api";
+import Thinking, { type Stage } from "../Thinking";
+import type { AgentStep, AskMode, Brief, Stats } from "../api";
 import type { ClauseRef } from "@/features/clause/ClausePanel";
 
 export interface Side { answer: string; sources: Brief[]; steps: AgentStep[]; stats?: Stats; stage: Stage | null; error: string | null; fallback?: string; budget?: { hit: string } | null }

@@ -13,9 +13,9 @@ from openai import AsyncOpenAI
 from pydantic import BaseModel
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.config import settings
-from app.auth import current_user
-from app.database import Clause, Document, User, neo4j_driver
+from app.core.config import settings
+from app.core.auth import current_user
+from app.core.database import Clause, Document, User, neo4j_driver
 
 log = logging.getLogger("jurion")
 router = APIRouter()

@@ -10,9 +10,9 @@ from google.oauth2 import id_token
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.config import settings
-from app.ratelimit import limit
-from app.database import User, get_db, redis_client
+from app.core.config import settings
+from app.core.ratelimit import limit
+from app.core.database import User, get_db, redis_client
 
 COOKIE, TTL = "jurion_session", 7 * 24 * 3600
 router = APIRouter(prefix="/auth")

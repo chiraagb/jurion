@@ -5,10 +5,11 @@ import math
 import uuid
 import zlib
 from fastapi.testclient import TestClient
-from app import documents, embeddings
-from app.auth import current_user
-from app.database import AsyncSessionLocal, User
-from app.graph import drop_user as drop_user_graph
+from app.ingestion import documents
+from app.search import embeddings
+from app.core.auth import current_user
+from app.core.database import AsyncSessionLocal, User
+from app.search.graph import drop_user as drop_user_graph
 from app.main import app
 from tests.integration.test_parse import make_sample_pdf
 

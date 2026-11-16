@@ -9,10 +9,10 @@ import hashlib
 import sys
 from pathlib import Path
 from sqlalchemy import select
-from app.database import AsyncSessionLocal, Clause, Document, neo4j_driver
-from app.embeddings import embed_document, openai_key
-from app.graph import build_graph
-from app.hybrid_parser import _read_lines, count_pages, local_fast_parse, stored_lines
+from app.core.database import AsyncSessionLocal, Clause, Document, neo4j_driver
+from app.search.embeddings import embed_document, openai_key
+from app.search.graph import build_graph
+from app.ingestion.parser import _read_lines, count_pages, local_fast_parse, stored_lines
 
 CUAD = Path(__file__).resolve().parent.parent / "corpus_big" / "CUAD_v1"
 # File-name starts of well-parsed contracts of different kinds (cooperation, sponsorship, development, endorsement, outsourcing, hosting...).

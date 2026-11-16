@@ -3,8 +3,8 @@ import sys
 import pymupdf
 from fastapi.testclient import TestClient
 import uuid
-from app.auth import current_user
-from app.database import User
+from app.core.auth import current_user
+from app.core.database import User
 from app.main import app
 
 SECTIONS = [
@@ -187,7 +187,7 @@ def make_table_pdf() -> bytes:
 
 
 if __name__ == "__main__":
-    from app.hybrid_parser import _ocr_ready, local_fast_parse
+    from app.ingestion.parser import _ocr_ready, local_fast_parse
     if _ocr_ready():
         scan = make_scanned_pdf()
         assert not pymupdf.open(stream=scan, filetype="pdf")[0].get_text().strip(), "the fixture must have no text layer"
@@ -204,13 +204,13 @@ if __name__ == "__main__":
     ids = [c["clause_identifier"] for c in local_fast_parse(make_early_signature_pdf())[0]]
     assert {"1", "2", "3", "4"} <= set(ids) and "SIGNATURES" in ids, ids  # the terms after an early signature page are not swallowed
 
-    from app.hybrid_parser import _confidence, local_fast_parse
+    from app.ingestion.parser import _confidence, local_fast_parse
 
     import redis
-    from app.config import settings
+    from app.core.config import settings
     redis.Redis.from_url(settings.REDIS_URL).delete("rl:parse:testclient")  # the per-minute limit would trip on back-to-back runs
 
-    from app.hybrid_parser import _rows_from_words, _usable
+    from app.ingestion.parser import _rows_from_words, _usable
     page = pymupdf.open(stream=make_underline_table_pdf(), filetype="pdf")[0]
     grid = _rows_from_words(page, page.rect)
     assert grid and len(grid[0]) == 2 and _usable(grid), grid  # two columns found although nothing is ruled
@@ -232,14 +232,14 @@ if __name__ == "__main__":
     def cl(i, t, pg): return {"clause_identifier": i, "title": t, "content": "x" * 50, "page_number": pg}
     dup = _confidence([cl("1", "A", 1), cl("2", "B", 1), cl("3", "COMPENSATION", 3), cl("3.1", "x", 3), cl("3", "SUPPLY", 4), cl("3.1", "y", 4)], 300)
     assert dup["unique"] < 1 and dup["score"] < 1 and "Number 3 is used twice" in dup["issues"][0], dup
-    from app.hybrid_parser import _numbering_score
+    from app.ingestion.parser import _numbering_score
     assert _numbering_score(["2000"]) == 1.0 and _numbering_score([]) == 1.0  # a lone stray number: no crash
     assert _numbering_score(["1", "2", "3", "4", "22314"]) == 1.0  # the outlier is ignored, not counted as a gap
     assert _confidence([cl("1", "A", 1), cl("2", "B", 1), cl("3", "C", 2)], 150)["issues"] == []
 
     # LLM heading picker, with the model stubbed: picks come from line numbers, text still comes from the PDF.
     import asyncio
-    import app.hybrid_parser as hp
+    import app.ingestion.parser as hp
     read = hp._read_lines(make_table_pdf())
     picks = {i: hp.Heading(line=i, clause_identifier=l["text"][0], title=l["text"][3:]) for i, l in enumerate(read[0]) if l["text"][:3] in ("1. ", "2. ", "3. ")}
     built, conf = hp._from_headings(read, picks)

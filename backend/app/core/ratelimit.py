@@ -2,7 +2,7 @@
 (per client IP when nobody is signed in). If Redis is down the limit is skipped, not the request."""
 import logging
 from fastapi import HTTPException, Request
-from app.database import redis_client
+from app.core.database import redis_client
 
 log = logging.getLogger("jurion.ratelimit")
 

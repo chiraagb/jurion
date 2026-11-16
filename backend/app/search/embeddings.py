@@ -7,12 +7,12 @@ from openai import AsyncOpenAI
 from pydantic import BaseModel, Field
 from sqlalchemy import desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app import llm_keys
-from app.auth import current_user
-from app.config import settings
-from app.database import Clause, Document, User, get_db
-from app.ratelimit import limit
-from app.sessions import save_session
+from app.core import llm_keys
+from app.core.auth import current_user
+from app.core.config import settings
+from app.core.database import Clause, Document, User, get_db
+from app.core.ratelimit import limit
+from app.ask.sessions import save_session
 
 log = logging.getLogger("jurion")
 MODEL, DIMS = "text-embedding-3-small", 1536

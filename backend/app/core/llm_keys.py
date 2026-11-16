@@ -5,8 +5,8 @@ from typing import Dict, Optional
 from cryptography.fernet import Fernet, InvalidToken
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.config import settings
-from app.database import LlmApiKey
+from app.core.config import settings
+from app.core.database import LlmApiKey
 
 
 def _fernet() -> Fernet:

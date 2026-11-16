@@ -28,7 +28,7 @@ Jurion cuts at **real contract headings** – "ARTICLE IV", "Section 14.2", etc.
 
 We have two versions in the code:
 - `app/parser.py` – simple: uses a regex to find headings.
-- `app/hybrid_parser.py` – smarter:
+- `app/ingestion/parser.py` – smarter:
   1. **Fast path (local, < 50ms):** looks at headings using regex *plus* font size and bold text.
   2. **Confidence check:** after the fast path, the parser scores itself from 0 to 1 (see below).
   3. **Fallback (Gemini or OpenAI):** if it finds fewer than 3 clauses, or the confidence is below 0.6, the AI is asked **which lines are headings**. It gets a short list (about 150 candidate lines, not the whole contract) and answers with line numbers. The clause text still comes from the PDF itself, so nothing is reworded and page numbers stay exact. If the AI's result scores no better than the local one, the local one is kept. A scanned PDF with no text is the exception: the whole file goes to the AI.

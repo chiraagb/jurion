@@ -11,20 +11,27 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import llm_keys
-from app.auth import current_user, router as auth_router
-from app.database import User, neo4j_driver, redis_client, get_db
-from app.config import settings
-from app.documents import router as documents_router
-from app.embeddings import router as search_router
-from app.ask import router as ask_router
-from app.agent import router as agent_router
-from app.graph import ensure_schema, router as graph_router
-from app.reconcile import reconcile_graph
-from app.sessions import router as sessions_router
+from app.core import llm_keys
+from app.core.auth import current_user, router as auth_router
+from app.core.database import User, neo4j_driver, redis_client, get_db
+from app.core.config import settings
+from app.ingestion.documents import router as documents_router
+from app.search.embeddings import router as search_router
+from app.ask.workflow import router as ask_router
+from app.ask.agent import router as agent_router
+from app.search.graph import ensure_schema, router as graph_router
+from app.search.reconcile import reconcile_graph
+from app.ask.sessions import router as sessions_router
 from app.evaluation import router as evaluation_router
-from app.hybrid_parser import MAX_PDF_BYTES, PROVIDERS, NoApiKey, count_pages, parse_contract_fast, run_pdf
-from app.ratelimit import limit
+from app.ingestion.parser import (
+    MAX_PDF_BYTES,
+    PROVIDERS,
+    NoApiKey,
+    count_pages,
+    parse_contract_fast,
+    run_pdf,
+)
+from app.core.ratelimit import limit
 
 
 def run_migrations() -> None:
@@ -50,9 +57,13 @@ async def lifespan(_: FastAPI):
 
 
 BACKEND = Path(__file__).resolve().parent.parent
-logging.basicConfig(level=logging.WARNING, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+logging.basicConfig(
+    level=logging.WARNING, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
+)
 log = logging.getLogger("jurion")
-log.setLevel(logging.INFO)  # our own lines at INFO; libraries only when something is wrong
+log.setLevel(
+    logging.INFO
+)  # our own lines at INFO; libraries only when something is wrong
 
 app = FastAPI(title="Jurion Legal Intelligence API", lifespan=lifespan)
 app.include_router(auth_router)
@@ -118,36 +129,58 @@ class KeyIn(BaseModel):
     api_key: str = Field(min_length=8, max_length=512)
 
 
-KEY_PROVIDERS = (*PROVIDERS, "anthropic")  # a key may also be saved for the Ask agent's model; Anthropic is not a PDF-reading fallback, so it stays out of PROVIDERS
+KEY_PROVIDERS = (
+    *PROVIDERS,
+    "anthropic",
+)  # a key may also be saved for the Ask agent's model; Anthropic is not a PDF-reading fallback, so it stays out of PROVIDERS
 
 
 def _provider(name: str) -> str:
     if name not in KEY_PROVIDERS:
-        raise HTTPException(404, f"Unknown provider. Use one of: {', '.join(KEY_PROVIDERS)}")
+        raise HTTPException(
+            404, f"Unknown provider. Use one of: {', '.join(KEY_PROVIDERS)}"
+        )
     return name
 
 
 @app.get("/settings/llm")
-async def list_llm_keys(user: User = Depends(current_user), db: AsyncSession = Depends(get_db)):
+async def list_llm_keys(
+    user: User = Depends(current_user), db: AsyncSession = Depends(get_db)
+):
     """Which providers have a saved key, as masked hints only."""
     try:
-        return {"keys": await llm_keys.key_hints(db, user.id), "server_openai": bool(settings.OPENAI_API_KEY)}
+        return {
+            "keys": await llm_keys.key_hints(db, user.id),
+            "server_openai": bool(settings.OPENAI_API_KEY),
+        }
     except Exception as e:
         raise HTTPException(503, f"Database unavailable: {e}")
 
 
 @app.put("/settings/llm/{provider}")
 async def save_llm_key(
-    provider: str, body: KeyIn, user: User = Depends(current_user), db: AsyncSession = Depends(get_db)
+    provider: str,
+    body: KeyIn,
+    user: User = Depends(current_user),
+    db: AsyncSession = Depends(get_db),
 ):
     try:
-        return {"provider": _provider(provider), "hint": await llm_keys.save_key(db, user.id, provider, body.api_key.strip())}
+        return {
+            "provider": _provider(provider),
+            "hint": await llm_keys.save_key(
+                db, user.id, provider, body.api_key.strip()
+            ),
+        }
     except RuntimeError as e:  # ENCRYPTION_KEY missing
         raise HTTPException(503, str(e))
 
 
 @app.delete("/settings/llm/{provider}", status_code=204)
-async def delete_llm_key(provider: str, user: User = Depends(current_user), db: AsyncSession = Depends(get_db)):
+async def delete_llm_key(
+    provider: str,
+    user: User = Depends(current_user),
+    db: AsyncSession = Depends(get_db),
+):
     await llm_keys.delete_key(db, user.id, _provider(provider))
 
 
@@ -161,7 +194,8 @@ async def parse_pdf(
     _: None = Depends(limit("parse", 10, 60, by_user=True)),
 ):
     """Parses an uploaded contract PDF into clauses. Nothing is persisted yet.
-    The fallback provider comes from X-LLM-Provider; the signed-in user's key is read (decrypted) from Postgres, else the server .env."""
+    The fallback provider comes from X-LLM-Provider; the signed-in user's key is read (decrypted) from Postgres, else the server .env.
+    """
     started = time.perf_counter()
     pdf_bytes = await file.read(MAX_PDF_BYTES + 1)
 
@@ -176,24 +210,38 @@ async def parse_pdf(
         raise HTTPException(422, f"Could not open PDF: {e}")
 
     try:
-        stored_key = await llm_keys.load_key(db, user.id, x_llm_provider) if x_llm_provider in PROVIDERS else None
+        stored_key = (
+            await llm_keys.load_key(db, user.id, x_llm_provider)
+            if x_llm_provider in PROVIDERS
+            else None
+        )
     except Exception:  # DB down or ENCRYPTION_KEY missing: fall back to the .env key
         stored_key = None
 
     try:
-        result = await parse_contract_fast(pdf_bytes, x_llm_provider, stored_key, force_llm)
+        result = await parse_contract_fast(
+            pdf_bytes, x_llm_provider, stored_key, force_llm
+        )
     except NoApiKey as e:
         raise HTTPException(400, str(e))
     except Exception as e:
-        log.warning("parse failed: user=%s pages=%s %s", user.id, pages, type(e).__name__)
+        log.warning(
+            "parse failed: user=%s pages=%s %s", user.id, pages, type(e).__name__
+        )
         raise HTTPException(
-            422, f"Layout too ambiguous for the local parser and the LLM fallback failed: {e}"
+            422,
+            f"Layout too ambiguous for the local parser and the LLM fallback failed: {e}",
         )
 
     conf = result["confidence"]
     log.info(
-        "parsed user=%s pages=%s clauses=%s method=%s score=%s steps=%s ms=%s", user.id, pages, len(result["clauses"]),
-        result["method"], conf and conf["score"], [(s["name"], s["status"]) for s in result["steps"]],
+        "parsed user=%s pages=%s clauses=%s method=%s score=%s steps=%s ms=%s",
+        user.id,
+        pages,
+        len(result["clauses"]),
+        result["method"],
+        conf and conf["score"],
+        [(s["name"], s["status"]) for s in result["steps"]],
         round((time.perf_counter() - started) * 1000),
     )
     return {

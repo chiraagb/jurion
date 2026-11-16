@@ -3,8 +3,8 @@ a Neo4j that was down when a contract was saved). This compares them. Run on eve
 import asyncio
 import logging
 from sqlalchemy import select
-from app.database import AsyncSessionLocal, Document, neo4j_driver
-from app.graph import party_key
+from app.core.database import AsyncSessionLocal, Document, neo4j_driver
+from app.search.graph import party_key
 
 log = logging.getLogger("jurion")
 

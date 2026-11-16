@@ -6,7 +6,7 @@ reviewer did not add is invisible here, so skim the "=" lines and add misses as 
 import re
 from pathlib import Path
 
-from app.hybrid_parser import MIN_CONFIDENCE, _local_from_lines, _read_lines
+from app.ingestion.parser import MIN_CONFIDENCE, _local_from_lines, _read_lines
 
 LABELS = Path(__file__).parent / "corpus_big" / "labels"
 

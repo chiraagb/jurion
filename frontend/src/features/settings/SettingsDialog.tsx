@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { KeyRound, X } from "lucide-react";
 import {
-  fetchKeyHints, loadProvider, removeKey, saveKey, saveProvider, type KeyProvider, type Provider,
+  fetchKeyHints,
+  loadProvider,
+  removeKey,
+  saveKey,
+  saveProvider,
+  type KeyProvider,
+  type Provider,
 } from "./llmConfig";
 
 const PROVIDERS: { id: Provider; label: string; hint: string }[] = [
@@ -10,10 +16,18 @@ const PROVIDERS: { id: Provider; label: string; hint: string }[] = [
 ];
 
 // Keys can also be saved for the Ask agent's model; Anthropic is not a PDF-reading fallback, so it is not in PROVIDERS above.
-const KEY_PROVIDERS: { id: KeyProvider; label: string; hint: string }[] = [...PROVIDERS, { id: "anthropic", label: "Anthropic (Claude)", hint: "sk-ant-…" }];
-const NO_DRAFTS: Record<KeyProvider, string> = { gemini: "", openai: "", anthropic: "" };
+const KEY_PROVIDERS: { id: KeyProvider; label: string; hint: string }[] = [
+  ...PROVIDERS,
+  { id: "anthropic", label: "Anthropic (Claude)", hint: "sk-ant-…" },
+];
+const NO_DRAFTS: Record<KeyProvider, string> = {
+  gemini: "",
+  openai: "",
+  anthropic: "",
+};
 
-const errorText = (e: any) => e.response?.data?.detail ?? e.message ?? "Something went wrong.";
+const errorText = (e: any) =>
+  e.response?.data?.detail ?? e.message ?? "Something went wrong.";
 
 /** Gear button + native <dialog> (focus trap, Esc and backdrop handled by the browser). */
 export default function SettingsDialog() {
@@ -24,7 +38,8 @@ export default function SettingsDialog() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => {  // the first-run checklist opens this dialog from the Ask screen
+  useEffect(() => {
+    // the first-run checklist opens this dialog from the Ask screen
     const h = () => open();
     addEventListener("jurion:open-settings", h);
     return () => removeEventListener("jurion:open-settings", h);
@@ -47,7 +62,8 @@ export default function SettingsDialog() {
     setError(null);
     try {
       saveProvider(provider);
-      for (const p of KEY_PROVIDERS) if (drafts[p.id].trim()) await saveKey(p.id, drafts[p.id].trim());
+      for (const p of KEY_PROVIDERS)
+        if (drafts[p.id].trim()) await saveKey(p.id, drafts[p.id].trim());
       dispatchEvent(new Event("jurion:keys-changed"));
       ref.current?.close();
     } catch (e) {
@@ -93,8 +109,10 @@ export default function SettingsDialog() {
             <div>
               <h2 className="font-display text-2xl font-semibold">API keys</h2>
               <p className="mt-1 text-sm text-muted">
-                Used only when a contract is too messy for the local parser. Keys are encrypted and stored in the
-                database; they are never shown again, only a masked hint. Leave blank to use the server's own key.
+                Used only when a contract is too messy for the local parser.
+                Keys are encrypted and stored in the database; they are never
+                shown again, only a masked hint. Leave blank to use the server's
+                own key.
               </p>
             </div>
             <button
@@ -110,7 +128,10 @@ export default function SettingsDialog() {
           <fieldset className="space-y-2">
             <legend className="caption mb-2">Fallback provider</legend>
             {PROVIDERS.map((p) => (
-              <label key={p.id} className="flex cursor-pointer items-center gap-2 text-base">
+              <label
+                key={p.id}
+                className="flex cursor-pointer items-center gap-2 text-base"
+              >
                 <input
                   type="radio"
                   name="provider"
@@ -132,7 +153,11 @@ export default function SettingsDialog() {
                 {saved[p.id] && (
                   <span className="flex items-center gap-2 text-sm text-muted">
                     Saved <code className="font-mono">{saved[p.id]}</code>
-                    <button type="button" onClick={() => remove(p.id)} className="cursor-pointer text-danger hover:underline">
+                    <button
+                      type="button"
+                      onClick={() => remove(p.id)}
+                      className="cursor-pointer text-danger hover:underline"
+                    >
                       Remove
                     </button>
                   </span>
@@ -144,14 +169,22 @@ export default function SettingsDialog() {
                 autoComplete="off"
                 spellCheck={false}
                 value={drafts[p.id]}
-                onChange={(e) => setDrafts((d) => ({ ...d, [p.id]: e.target.value }))}
-                placeholder={saved[p.id] ? "Paste a new key to replace it" : p.hint}
+                onChange={(e) =>
+                  setDrafts((d) => ({ ...d, [p.id]: e.target.value }))
+                }
+                placeholder={
+                  saved[p.id] ? "Paste a new key to replace it" : p.hint
+                }
                 className="mt-1 h-11 w-full rounded-lg border border-line-strong bg-canvas px-3 font-mono text-sm text-fg placeholder:text-subtle focus:border-accent focus:outline-none"
               />
             </div>
           ))}
 
-          {error && <p role="alert" className="text-sm text-danger">{error}</p>}
+          {error && (
+            <p role="alert" className="text-sm text-danger">
+              {error}
+            </p>
+          )}
 
           <div className="flex justify-end gap-2">
             <button

@@ -113,6 +113,21 @@ npm run dev
 - *Ask answers "I couldn't find this"*: no key saved (key icon), or the contract has no embeddings yet (My contracts, the sparkle button).
 - *Reset everything*: `docker compose down -v`, then start again from step 1.
 
+### Workflow vs agent (Ask has both modes)
+
+`gpt-4o-mini` for both, 3 repeated runs each (lowest to highest), 16 multi-step questions added to the 83 above. The agent stays **opt-in** (`ASK_DEFAULT_MODE=workflow`): it did not meet the bar set beforehand, see [`docs/22-agentic-ask.md`](docs/22-agentic-ask.md).
+
+| | Workflow | Agent |
+|---|---|---|
+| 83 original questions: cite the right clause | 79% to 80% | 73% (all 3 runs) |
+| 83 original questions: confidently wrong | 13% to 16% | 13% to 17% |
+| 16 multi-step questions: cite every needed clause | 63% to 69% | 75% to 88% |
+| Compare two contracts / name a company first (n=5 each): found | 40% to 60% / 80% | 100% / 100% |
+| Median model calls / tokens per answer | 3 / about 5,900 | 4 / about 8,100 |
+| Median / slowest-1-in-10 time | 11 s / 14 s | 8 s / 12 s |
+
+The agent is clearly better when an answer needs clauses from two places and worse on plain lookups (paraphrased questions, whole-section questions, questions that name a contract). Small sets: 16 questions is about 6 points each.
+
 ## Tests
 
 ```bash

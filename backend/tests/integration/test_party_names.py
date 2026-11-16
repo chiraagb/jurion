@@ -1,9 +1,9 @@
 """One company, however its name is written. Run: uv run python -W ignore -m tests.integration.test_party_names"""
 import asyncio
 import uuid
-from app.database import neo4j_driver
-from app.graph import party_key
-from app.reconcile import rekey_parties
+from app.core.database import neo4j_driver
+from app.search.graph import party_key
+from app.search.reconcile import rekey_parties
 
 SAME = ["Acme Corp.", "ACME Corporation Inc.", "The Acme Company", "acme", "Acme, Inc"]
 assert len({party_key(n) for n in SAME}) == 1, {n: party_key(n) for n in SAME}

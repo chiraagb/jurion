@@ -1,6 +1,6 @@
 # 12. The contract graph (Neo4j)
 
-Neo4j holds the *links*: who the parties are, and which clause points at which. Text, vectors and the PDF stay in Postgres; the graph holds only ids, names and relationships, and can be rebuilt from Postgres at any time (`backend/app/graph.py`).
+Neo4j holds the *links*: who the parties are, and which clause points at which. Text, vectors and the PDF stay in Postgres; the graph holds only ids, names and relationships, and can be rebuilt from Postgres at any time (`backend/app/search/graph.py`).
 
 ```
 (Party)-[:PARTY_TO {role, aliases}]->(Document)-[:CONTAINS]->(Clause)-[:REFERENCES]->(Clause)
@@ -52,6 +52,6 @@ A three-pane explorer: **list** (search; Contracts and Companies tabs) → **pic
 - **No dead canvas:** a contract with no numbered references shows its clauses as a list instead, with the same inspector.
 - **Same clause in your other contracts:** `GET /documents/{id}/clauses/{n}/similar` returns the closest clauses (pgvector cosine distance) from the user's *other* contracts, with a similarity %, so you can see how different contracts word the same thing. Tested in `tests/integration/test_search.py`.
 - **Compare strip:** under the picture, the selected clause beside each clause it links to, in full.
-- `GET /graph` returns the library (contracts with their clause-link counts, companies, links). `rebuild_references(db, doc)` in `app/graph.py` recomputes only a contract's clause links, with no AI.
+- `GET /graph` returns the library (contracts with their clause-link counts, companies, links). `rebuild_references(db, doc)` in `app/search/graph.py` recomputes only a contract's clause links, with no AI.
 
 Not done: a force-directed layout (rings are fine up to a few dozen nodes), and finding similar clauses by exact wording (it is meaning-based).

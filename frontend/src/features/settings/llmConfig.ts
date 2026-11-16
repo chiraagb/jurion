@@ -8,7 +8,9 @@ const PROVIDER_KEY = "jurion.provider";
 /** The chosen fallback provider is not a secret, so it lives in the browser; the keys live in Postgres. */
 export function loadProvider(): Provider {
   try {
-    return localStorage.getItem(PROVIDER_KEY) === "openai" ? "openai" : "gemini";
+    return localStorage.getItem(PROVIDER_KEY) === "openai"
+      ? "openai"
+      : "gemini";
   } catch {
     return "gemini";
   }
@@ -25,6 +27,13 @@ export function saveProvider(provider: Provider) {
 export const llmHeaders = () => ({ "X-LLM-Provider": loadProvider() });
 
 /** Masked hints of saved keys, e.g. { openai: "sk-…a1b2" }. The real keys are never sent back. */
-export const fetchKeyHints = async () => (await api.get<{ keys: Partial<Record<KeyProvider, string>> }>("/settings/llm")).data.keys;
-export const saveKey = (provider: KeyProvider, apiKey: string) => api.put(`/settings/llm/${provider}`, { api_key: apiKey });
-export const removeKey = (provider: KeyProvider) => api.delete(`/settings/llm/${provider}`);
+export const fetchKeyHints = async () =>
+  (
+    await api.get<{ keys: Partial<Record<KeyProvider, string>> }>(
+      "/settings/llm",
+    )
+  ).data.keys;
+export const saveKey = (provider: KeyProvider, apiKey: string) =>
+  api.put(`/settings/llm/${provider}`, { api_key: apiKey });
+export const removeKey = (provider: KeyProvider) =>
+  api.delete(`/settings/llm/${provider}`);

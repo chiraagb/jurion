@@ -1,8 +1,8 @@
 """Drift between Postgres and Neo4j is found and cleaned. Run: uv run python -W ignore -m tests.integration.test_reconcile"""
 import asyncio
 import uuid
-from app.database import neo4j_driver
-from app.reconcile import reconcile_graph
+from app.core.database import neo4j_driver
+from app.search.reconcile import reconcile_graph
 
 
 async def main():

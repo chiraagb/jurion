@@ -2,9 +2,9 @@
 import json
 import uuid
 from fastapi.testclient import TestClient
-from app.auth import current_user
-from app.database import AsyncSessionLocal, User
-from app.graph import drop_user as drop_user_graph
+from app.core.auth import current_user
+from app.core.database import AsyncSessionLocal, User
+from app.search.graph import drop_user as drop_user_graph
 from app.main import app
 from tests.integration.test_parse import make_number_column_pdf, make_sample_pdf
 
@@ -45,8 +45,8 @@ if __name__ == "__main__":
             assert c.get(f"/documents/{doc_id}/pdf").content == pdf
 
             # full text + line ranges: save a real parse, then each clause's range must point at its own lines
-            from app.database import Document
-            from app.hybrid_parser import local_fast_parse
+            from app.core.database import Document
+            from app.ingestion.parser import local_fast_parse
             pdf2 = pdf + b"\n%variant"  # a different file (different hash): saving the same bytes twice is a duplicate
             clauses, conf = local_fast_parse(pdf2)
             real = c.post("/documents", files={"file": ("m.pdf", pdf2, "application/pdf")},
@@ -80,7 +80,7 @@ if __name__ == "__main__":
 
             # two saves of the same new file at the same moment: both pass the check, the unique index lets only one in
             import asyncio, threading
-            from app import documents
+            from app.ingestion import documents
             real_run_pdf = documents.run_pdf
             async def slow_run_pdf(fn, *args):  # both requests pass the "already saved?" check before either one inserts
                 await asyncio.sleep(0.7)

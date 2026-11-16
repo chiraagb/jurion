@@ -11,11 +11,11 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from sqlalchemy import select
-from app import embeddings
-from app.database import AsyncSessionLocal, Document
-from app import ask
-from app.embeddings import MODEL, expand_thin, hybrid, openai_key
-from app.graph import contract_cards
+from app.search import embeddings
+from app.core.database import AsyncSessionLocal, Document
+from app.ask import workflow as ask
+from app.search.embeddings import MODEL, expand_thin, hybrid, openai_key
+from app.search.graph import contract_cards
 
 QA = Path(__file__).parent / "qa"
 MODES = {"vector": dict(use_keyword=False), "keyword": dict(use_vector=False), "hybrid": {}}

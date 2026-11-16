@@ -14,7 +14,7 @@ from pydantic import BaseModel
 import base64
 from google import genai
 from google.genai import types
-from app.config import settings
+from app.core.config import settings
 
 log = logging.getLogger("jurion.parser")
 

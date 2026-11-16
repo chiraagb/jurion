@@ -239,7 +239,7 @@ Real-life example: you want the page about "photosynthesis" in a 500-page book.
 
 A database is the same. If you ask `MATCH (c:Clause {id: 'abc'})` with no index, Neo4j reads **every Clause node** (a *label scan*). With an index it jumps straight to the node (an *index seek*).
 
-Two kinds, both of which Jurion creates when the API starts (`INDEXES` in `backend/app/graph.py`):
+Two kinds, both of which Jurion creates when the API starts (`INDEXES` in `backend/app/search/graph.py`):
 - **Constraint (unique):** "no two Documents may have the same id", and it also builds an index. Used for `Document.id` and `Clause.id`.
 - **Index (plain):** only speeds up lookups. Used for `Clause.document_id` and `Party(user_id, key)`.
 
@@ -269,7 +269,7 @@ Using your outsourcing contract (Oriental Financial and Metavante) as the exampl
 
 1. **Postgres stores** the PDF, all the clause texts and their line positions.
 2. **Embeddings are made** (the numbers that capture meaning) and stored in Postgres. Not Neo4j.
-3. **The graph is built** (`build_graph` in `backend/app/graph.py`):
+3. **The graph is built** (`build_graph` in `backend/app/search/graph.py`):
    1. **Find the parties, with AI.** The first ~6,000 characters of the contract (the top, where companies are named) go to an AI model with the instruction "list the parties, their role, and the short names the text uses." Real-life example: *asking an assistant to read page 1 and write down who signed.* It returns, for example: Metavante Corporation, Service Provider, short name "Metavante". **One call per contract**, not one per clause, to keep it cheap.
    2. **Find cross-references, with a pattern (no AI).** A small search rule (a *regex*) finds text like "Section 5.3", "Clauses 4.1 and 4.2", "Article 18". Real-life example: *a highlighter pen that only marks the words "Section" followed by a number.* If that number matches the number of another clause in the same contract, we record a link. It deliberately **ignores** "Section 5.3 of the Securities Act" (that is outside this contract).
    3. **Write to Neo4j in one transaction:** delete this contract's old graph (if any), create the Document, all its Clauses (using `UNWIND`), the Parties, and the links. The "one transaction" means you never see a half-finished graph.
