@@ -11,7 +11,9 @@ import re
 from pathlib import Path
 
 from app.core.config import settings
-from app.ingestion.parser import _llm_headings, _local_from_lines, _read_lines
+from app.ingestion.llm_parse import llm_headings
+from app.ingestion.pdf_text import read_lines
+from app.ingestion.rules import _local_from_lines
 
 BIG = Path(__file__).parent / "corpus_big"
 LABELS, CACHE = BIG / "labels", BIG / "drafts"
@@ -32,7 +34,7 @@ async def ai_starts(read, name: str, sem: asyncio.Semaphore):
     async with sem:
         await asyncio.sleep(2)  # stay under the per-minute request limit
         try:
-            res = await asyncio.wait_for(_llm_headings(read, "gemini", settings.GEMINI_API_KEY), 90)
+            res = await asyncio.wait_for(llm_headings(read, "gemini", settings.GEMINI_API_KEY), 90)
         except Exception as e:
             print(f"  AI failed for {name}: {type(e).__name__} {str(e)[:90]}")
             return None
@@ -43,7 +45,7 @@ async def ai_starts(read, name: str, sem: asyncio.Semaphore):
 
 async def draft(path: str, sem: asyncio.Semaphore) -> str:
     name = slug(path)
-    read = _read_lines(Path(path).read_bytes())
+    read = read_lines(Path(path).read_bytes())
     if not read:
         return f"{name}: no text layer, skipped"
     lines = read[0]

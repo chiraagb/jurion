@@ -25,7 +25,7 @@ Write a spec for: $ARGUMENTS
 | Chat sessions + context limit | `backend/app/ask/sessions.py` |
 | Embeddings, hybrid search | `backend/app/search/embeddings.py` |
 | Neo4j graph | `backend/app/search/graph.py`, `reconcile.py` |
-| Ingestion: saved contracts, PDF reading, clause splitting | `backend/app/ingestion/documents.py`, `pdf_text.py`, `parser.py` |
+| Ingestion: saved contracts, PDF reading, clause splitting | `backend/app/ingestion/documents.py`, `parser.py` (entry), `pdf_text.py`, `rules.py`, `llm_parse.py` |
 | Settings, DB models and clients, auth, LLM keys, rate limits | `backend/app/core/` (`config.py`, `database.py`, `auth.py`, `llm_keys.py`, `ratelimit.py`) |
 | App wiring, health, key settings; evaluation results route | `backend/app/main.py`, `backend/app/evaluation.py` |
 | DB migrations | `backend/migrations/versions/` (Alembic) |

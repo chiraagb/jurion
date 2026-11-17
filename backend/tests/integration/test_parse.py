@@ -187,7 +187,7 @@ def make_table_pdf() -> bytes:
 
 
 if __name__ == "__main__":
-    from app.ingestion.parser import local_fast_parse
+    from app.ingestion.rules import local_fast_parse
     from app.ingestion.pdf_text import _ocr_ready
     if _ocr_ready():
         scan = make_scanned_pdf()
@@ -205,7 +205,7 @@ if __name__ == "__main__":
     ids = [c["clause_identifier"] for c in local_fast_parse(make_early_signature_pdf())[0]]
     assert {"1", "2", "3", "4"} <= set(ids) and "SIGNATURES" in ids, ids  # the terms after an early signature page are not swallowed
 
-    from app.ingestion.parser import _confidence, local_fast_parse
+    from app.ingestion.rules import _confidence, local_fast_parse
 
     import redis
     from app.core.config import settings
@@ -233,7 +233,7 @@ if __name__ == "__main__":
     def cl(i, t, pg): return {"clause_identifier": i, "title": t, "content": "x" * 50, "page_number": pg}
     dup = _confidence([cl("1", "A", 1), cl("2", "B", 1), cl("3", "COMPENSATION", 3), cl("3.1", "x", 3), cl("3", "SUPPLY", 4), cl("3.1", "y", 4)], 300)
     assert dup["unique"] < 1 and dup["score"] < 1 and "Number 3 is used twice" in dup["issues"][0], dup
-    from app.ingestion.parser import _numbering_score
+    from app.ingestion.rules import _numbering_score
     assert _numbering_score(["2000"]) == 1.0 and _numbering_score([]) == 1.0  # a lone stray number: no crash
     assert _numbering_score(["1", "2", "3", "4", "22314"]) == 1.0  # the outlier is ignored, not counted as a gap
     assert _confidence([cl("1", "A", 1), cl("2", "B", 1), cl("3", "C", 2)], 150)["issues"] == []
@@ -241,23 +241,24 @@ if __name__ == "__main__":
     # LLM heading picker, with the model stubbed: picks come from line numbers, text still comes from the PDF.
     import asyncio
     import app.ingestion.parser as hp
-    read = hp._read_lines(make_table_pdf())
-    picks = {i: hp.Heading(line=i, clause_identifier=l["text"][0], title=l["text"][3:]) for i, l in enumerate(read[0]) if l["text"][:3] in ("1. ", "2. ", "3. ")}
-    built, conf = hp._from_headings(read, picks)
+    from app.ingestion import llm_parse, pdf_text
+    read = pdf_text.read_lines(make_table_pdf())
+    picks = {i: llm_parse.Heading(line=i, clause_identifier=l["text"][0], title=l["text"][3:]) for i, l in enumerate(read[0]) if l["text"][:3] in ("1. ", "2. ", "3. ")}
+    built, conf = llm_parse._from_headings(read, picks)
     assert [c["clause_identifier"] for c in built] == ["1", "2", "3"] and "| Visit | Fee |" in built[0]["content"], built
-    assert hp._from_headings(read, {}) is None  # no headings picked: caller keeps the local result
+    assert llm_parse._from_headings(read, {}) is None  # no headings picked: caller keeps the local result
 
-    async def fake_headings(read, provider, key): return hp._from_headings(read, dict(picks))
-    real_local, real_llm = hp._local_from_lines, hp._llm_headings
+    async def fake_headings(read, provider, key): return llm_parse._from_headings(read, dict(picks))
+    real_local, real_llm = hp._local_from_lines, hp.llm_headings
     hp._local_from_lines = lambda r: ([{"clause_identifier": "X", "title": "t", "content": "c", "page_number": 1, "parent_identifier": None}], {"score": 0.1})
-    hp._llm_headings = fake_headings
+    hp.llm_headings = fake_headings
     out = asyncio.run(hp.parse_contract_fast(make_table_pdf(), "gemini", "k"))
     assert out["method"] == "gemini" and [c["clause_identifier"] for c in out["clauses"]] == ["1", "2", "3"], out  # low local score -> LLM headings used
     async def boom(*a): raise RuntimeError("503")
-    hp._llm_headings = boom
+    hp.llm_headings = boom
     out = asyncio.run(hp.parse_contract_fast(make_table_pdf(), "gemini", "k"))
     assert out["method"] == "local" and out["steps"][1]["status"] == "failed", out  # LLM down -> local result, no retry loop
-    hp._local_from_lines, hp._llm_headings = real_local, fake_headings
+    hp._local_from_lines, hp.llm_headings = real_local, fake_headings
     good = asyncio.run(hp.parse_contract_fast(make_table_pdf(), "gemini", "k"))
     assert good["method"] == "local" and good["steps"][1]["status"] == "skipped", good  # a good local parse: AI not called
     forced = asyncio.run(hp.parse_contract_fast(make_table_pdf(), "gemini", "k", force_llm=True))
@@ -268,14 +269,14 @@ if __name__ == "__main__":
         raise SystemExit("forcing the AI with no key should fail")
     except hp.NoApiKey:
         pass
-    hp._local_from_lines, hp._llm_headings = real_local, real_llm
+    hp._local_from_lines, hp.llm_headings = real_local, real_llm
 
     # A document with no sections (a power of attorney): kept as one clause, not an error.
     async def none_found(*a): raise hp.NoStructure("LLM found no structure")
-    hp._local_from_lines, hp._llm_headings = (lambda r, relaxed=False: None), none_found
+    hp._local_from_lines, hp.llm_headings = (lambda r, relaxed=False: None), none_found
     one = asyncio.run(hp.parse_contract_fast(make_table_pdf(), "gemini", "k"))
     assert len(one["clauses"]) == 1 and one["clauses"][0]["clause_identifier"] == "DOC" and one["confidence"]["score"] <= 0.5, one
-    hp._local_from_lines, hp._llm_headings = real_local, real_llm
+    hp._local_from_lines, hp.llm_headings = real_local, real_llm
 
     pdf0 = make_sample_pdf()
     assert TestClient(app).post("/parse", files={"file": ("a.pdf", pdf0, "application/pdf")}).status_code == 401  # signed out

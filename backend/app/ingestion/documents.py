@@ -17,7 +17,7 @@ from app.search.graph import build_graph, drop_document, read_graph
 from app.core.ratelimit import limit
 from app.ingestion.parser import MAX_PDF_BYTES
 from app.ingestion.pdf_text import (
-    _read_lines,
+    read_lines,
     clause_boxes,
     count_pages,
     run_pdf,
@@ -129,7 +129,7 @@ async def save_document(
     try:
         pages = await run_pdf(count_pages, pdf)
         # ponytail: the PDF is read a second time here (about 2s with many tables); cache the lines from /parse if it hurts
-        read = await run_pdf(_read_lines, pdf)
+        read = await run_pdf(read_lines, pdf)
     except Exception as e:
         raise HTTPException(422, f"Could not open PDF: {e}")
     lines = stored_lines(read) if read else None  # null for a scan with no text layer

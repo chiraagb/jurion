@@ -127,7 +127,7 @@ def _strip_page_noise(
     return [l for l in lines_meta if not is_noise(l)]
 
 
-def _layout(lines: List[Dict[str, Any]], pitch: float) -> str:
+def layout(lines: List[Dict[str, Any]], pitch: float) -> str:
     """Rebuilds a block as a character grid: x0 -> column, vertical gaps -> blank lines.
     Meant for a monospace <pre>; used for signature blocks where position carries meaning.
     """
@@ -166,7 +166,7 @@ def _layout(lines: List[Dict[str, Any]], pitch: float) -> str:
     return "\n".join(out)
 
 
-def _reflow(lines: List[Dict[str, Any]], pitch: float) -> str:
+def reflow(lines: List[Dict[str, Any]], pitch: float) -> str:
     """Joins PDF visual lines into paragraphs. A paragraph break is a vertical gap bigger than
     the document's normal line pitch (so double-spaced contracts don't break on every line); block boundaries are ignored because hanging-indent numbering
     ("2.6.   The Services…") splits one paragraph into several PyMuPDF blocks."""
@@ -388,7 +388,7 @@ def _scanned_pages(doc) -> set:
     )
 
 
-def _read_lines(pdf_bytes: bytes) -> Optional[Read]:
+def read_lines(pdf_bytes: bytes) -> Optional[Read]:
     """Visual lines of the PDF (tables folded into single lines, page noise removed), or None if there is no text."""
     doc = _open(pdf_bytes)
     lines_meta = []

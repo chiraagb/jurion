@@ -57,8 +57,10 @@ backend/app/
     graph.py      the Neo4j contract graph
     reconcile.py  keeps the graph consistent with the database
   ingestion/   getting contracts in
-    parser.py     lines -> clauses (rules, confidence, LLM fallback)
+    parser.py     the entry point: read, split with the rules, LLM only if unsure
     pdf_text.py   PDF -> lines (worker pool, tables, OCR)
+    rules.py      lines -> clauses with local rules, plus the confidence score
+    llm_parse.py  the LLM fallback (picks heading lines, or reads a scan)
     documents.py  saving, listing and opening contracts
   core/        shared plumbing
     config.py database.py auth.py llm_keys.py ratelimit.py

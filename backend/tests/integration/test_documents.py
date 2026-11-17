@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
             # full text + line ranges: save a real parse, then each clause's range must point at its own lines
             from app.core.database import Document
-            from app.ingestion.parser import local_fast_parse
+            from app.ingestion.rules import local_fast_parse
             pdf2 = pdf + b"\n%variant"  # a different file (different hash): saving the same bytes twice is a duplicate
             clauses, conf = local_fast_parse(pdf2)
             real = c.post("/documents", files={"file": ("m.pdf", pdf2, "application/pdf")},

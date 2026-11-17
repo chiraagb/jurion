@@ -6,7 +6,8 @@ reviewer did not add is invisible here, so skim the "=" lines and add misses as 
 import re
 from pathlib import Path
 
-from app.ingestion.parser import MIN_CONFIDENCE, _local_from_lines, _read_lines
+from app.ingestion.pdf_text import read_lines
+from app.ingestion.rules import MIN_CONFIDENCE, _local_from_lines
 
 LABELS = Path(__file__).parent / "corpus_big" / "labels"
 
@@ -32,7 +33,7 @@ def main():
     fallback = 0
     for f in sorted(LABELS.glob("*.txt")):
         pdf, labeled, undecided = load(f)
-        read = _read_lines(Path(pdf).read_bytes())
+        read = read_lines(Path(pdf).read_bytes())
         local = _local_from_lines(read) if read else None
         pred = {(l["page_number"], l["text"][:80]) for l in (read[0][c["start_line"]] for c in local[0])} if local else set()
         needs_ai = local is None or local[1]["score"] < MIN_CONFIDENCE
