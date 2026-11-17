@@ -15,13 +15,14 @@ import {
 } from "lucide-react";
 import { Link } from "@/lib/router";
 import SessionList from "@/features/sessions/SessionList";
+import { readPref, writePref } from "@/lib/store";
 
 interface Item {
   id: string;
   label: string;
   Icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
 }
-export const NAV: { group: string; items: Item[] }[] = [
+const NAV: { group: string; items: Item[] }[] = [
   {
     group: "Work",
     items: [
@@ -49,13 +50,7 @@ export const NAV_LABEL: Record<string, string> = {
 }; // sessions have no row of their own: they are listed in the sidebar
 
 const KEY = "jurion.nav.collapsed";
-const read = () => {
-  try {
-    return localStorage.getItem(KEY) === "1";
-  } catch {
-    return false;
-  }
-}; // storage can be blocked: never required
+const read = () => readPref(KEY) === "1";
 
 /** Large screens: a grouped sidebar (icon + label, collapsible). */
 export function Sidebar({ current }: { current: string }) {
@@ -80,11 +75,7 @@ export function Sidebar({ current }: { current: string }) {
   };
   const toggle = () =>
     setCollapsed((c) => {
-      try {
-        localStorage.setItem(KEY, c ? "0" : "1");
-      } catch {
-        /* ignore */
-      }
+      writePref(KEY, c ? "0" : "1");
       return !c;
     });
   return (

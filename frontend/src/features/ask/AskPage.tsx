@@ -5,62 +5,33 @@ import {
   useRef,
   useState,
 } from "react";
-import type {
-  CSSProperties,
-  KeyboardEvent as KbEvent,
-  PointerEvent as PtrEvent,
-} from "react";
+import type { CSSProperties } from "react";
 import { SquarePen } from "lucide-react";
 import { ClauseViewer, type ClauseRef } from "@/features/clause/ClausePanel";
 import { navigate } from "@/lib/router";
 import { sessionsChanged } from "@/features/sessions/SessionList";
-import { AnswerCard, Trace, type Attempt } from "./AnswerCard";
+import { AnswerCard, Trace } from "./AnswerCard";
 import AgentTrace from "./agent/AgentTrace";
-import CompareCard, {
-  StatsBadge,
-  emptySide,
-  type Cmp,
-  type Side,
-} from "./agent/CompareCard";
+import CompareCard, { StatsBadge, emptySide } from "./agent/CompareCard";
 import Composer from "./Composer";
-import Thinking, { type Stage } from "./Thinking";
+import Thinking from "./Thinking";
 import GettingStarted from "@/features/onboarding/GettingStarted";
 import { useSetup } from "@/features/onboarding/useSetup";
 import {
   ask,
   askCompare,
   getModels,
-  type AgentStep,
   type AskEvent,
   type AskExtra,
   type AskMode,
-  type Brief,
   type CompareEvent,
   type Models,
-  type Stats,
 } from "./api";
 import { getSession, type StoredTurn } from "@/features/sessions/api";
-
-interface Turn {
-  id: number;
-  question: string;
-  attempts: Attempt[];
-  sources: Brief[];
-  answer: string;
-  facts?: string;
-  followups?: string[];
-  clarify?: { id: string; filename: string; summary: string }[];
-  stage: Stage | null;
-  error: string | null;
-  saved: string | null;
-  stopped?: boolean;
-  mode?: AskMode;
-  steps?: AgentStep[];
-  stats?: Stats;
-  fallback?: string;
-  budget?: { hit: string } | null;
-  cmp?: Cmp;
-}
+import { readPref, writePref } from "@/lib/store";
+import { sideOf, storedTurns, turnOf, type Turn } from "./events";
+import { Clarify, Followups } from "./Suggestions";
+import { useResizablePane } from "./useResizablePane";
 
 const EXAMPLES = [
   "Who can terminate, and with how much notice?",
@@ -68,59 +39,8 @@ const EXAMPLES = [
   "Which law governs the agreement?",
   "What does the bank owe if it ends the contract early?",
 ];
-const FRAC_KEY = "jurion.pane.frac"; // how much of the screen the reference pane takes
-const MIN_FRAC = 0.3,
-  MAX_FRAC = 0.82;
 const MODE_KEY = "jurion.ask.mode",
   MODEL_KEY = "jurion.ask.model";
-const readPref = (k: string) => {
-  try {
-    return localStorage.getItem(k);
-  } catch {
-    return null;
-  }
-}; // storage can be blocked: never required
-const writePref = (k: string, v: string) => {
-  try {
-    localStorage.setItem(k, v);
-  } catch {
-    /* ignore */
-  }
-};
-
-/** Folds one event into one side of a comparison (the same events as a normal answer). */
-function sideOf(s: Side, e: AskEvent): Side {
-  switch (e.event) {
-    case "step":
-      return { ...s, stage: "act", steps: [...s.steps, e] };
-    case "retrieved":
-      return { ...s, stage: "grade" };
-    case "sources":
-      return { ...s, sources: e.sources };
-    case "token":
-      return { ...s, stage: "write", answer: s.answer + e.text };
-    case "stats":
-      return { ...s, stats: e, stage: null }; // a comparison side sends no `done`: its stats are the last thing it sends
-    case "fallback":
-      return { ...s, fallback: e.reason };
-    case "budget":
-      return { ...s, budget: { hit: e.hit } };
-    case "done":
-      return { ...s, stage: null };
-    case "error":
-      return { ...s, stage: null, error: e.detail };
-    default:
-      return s;
-  }
-}
-const readFrac = () => {
-  try {
-    const f = Number(localStorage.getItem(FRAC_KEY));
-    return f >= MIN_FRAC && f <= MAX_FRAC ? f : 0.6;
-  } catch {
-    return 0.6;
-  }
-}; // storage can be blocked: never required
 const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /** A chat with your contracts. The newest question sits at the top of the view with its answer growing beneath it;
@@ -164,10 +84,7 @@ export default function AskPage({
       .catch(() => {});
   }, []);
   const [vh, setVh] = useState(0);
-  const [frac, setFrac] = useState(readFrac);
-  const [wide, setWide] = useState(false);
-  const row = useRef<HTMLElement>(null);
-  const dragging = useRef(false);
+  const { row, share, wide, toggleWide, separator } = useResizablePane<HTMLElement>();
   const scroller = useRef<HTMLDivElement>(null);
   const questions = useRef(new Map<number, HTMLElement>());
   const ctl = useRef<AbortController | null>(null);
@@ -277,66 +194,7 @@ export default function AskPage({
             sessionsChanged();
           }
         }
-        patch(id, (t) => turn(t, e));
-      };
-      const turn = (t: Turn, e: AskEvent): Turn => {
-        switch (e.event) {
-          case "retrieved":
-            return {
-              ...t,
-              stage: "grade",
-              attempts: [
-                ...t.attempts,
-                {
-                  query: e.query,
-                  mode: e.mode,
-                  note: e.note,
-                  scope: e.scope,
-                  contracts: e.contracts,
-                  scope_reason: e.scope_reason,
-                  hits: e.hits,
-                  relevant: null,
-                },
-              ],
-            };
-          case "graded":
-            return {
-              ...t,
-              attempts: t.attempts.map((a, i) =>
-                i === t.attempts.length - 1
-                  ? { ...a, relevant: e.relevant, reasons: e.reasons }
-                  : a,
-              ),
-            };
-          case "rewritten":
-            return { ...t, stage: "rewrite" };
-          case "step":
-            return { ...t, stage: "act", steps: [...(t.steps ?? []), e] };
-          case "fallback":
-            return { ...t, fallback: e.reason, mode: "workflow" };
-          case "budget":
-            return { ...t, budget: { hit: e.hit } };
-          case "stats":
-            return { ...t, stats: e };
-          case "clarify":
-            return { ...t, clarify: e.options };
-          case "context":
-            return t;
-          case "full":
-            return { ...t, stage: null };
-          case "followups":
-            return { ...t, followups: e.questions };
-          case "facts":
-            return { ...t, facts: e.text };
-          case "sources":
-            return { ...t, sources: e.sources };
-          case "token":
-            return { ...t, stage: "write", answer: t.answer + e.text };
-          case "done":
-            return { ...t, stage: null, saved: e.session_id };
-          case "error":
-            return { ...t, stage: null, error: e.detail };
-        }
+        patch(id, (t) => turnOf(t, e));
       };
       ask(
         question,
@@ -398,29 +256,7 @@ export default function AskPage({
     getSession(urlSession)
       .then((s) => {
         const stored = (s.data as { turns: StoredTurn[] }).turns;
-        setTurns(
-          stored.map((t, i) => ({
-            id: next.current++,
-            question: t.question,
-            attempts: t.attempts,
-            sources: t.sources,
-            answer: t.answer,
-            facts: t.facts,
-            mode: t.mode ?? "workflow",
-            steps: t.steps,
-            stats: t.stats,
-            fallback: t.fallback,
-            budget: t.budget,
-            followups: i === stored.length - 1 ? t.followups : undefined,
-            clarify:
-              t.clarify && i === stored.length - 1
-                ? (t.clarify_options ?? undefined)
-                : undefined,
-            stage: null,
-            error: null,
-            saved: s.id,
-          })),
-        );
+        setTurns(storedTurns(stored, s.id, () => next.current++));
         recent.current = stored.map((t) => t.question);
         setUsage({
           used: s.used ?? 0,
@@ -472,36 +308,12 @@ export default function AskPage({
       ...open,
       index: (open.index + d + sources.length) % sources.length,
     });
-  const share = wide ? 1 : frac; // wide: the reference fills the whole area and the chat steps aside (a reading mode)
-  const save = (f: number) => {
-    try {
-      localStorage.setItem(FRAC_KEY, String(f));
-    } catch {
-      /* ignore */
-    }
-  };
-  const drag = (e: PtrEvent<HTMLDivElement>) => {
-    if (!dragging.current || !row.current) return;
-    const box = row.current.getBoundingClientRect();
-    setWide(false);
-    setFrac(
-      Math.min(
-        MAX_FRAC,
-        Math.max(MIN_FRAC, (box.right - e.clientX) / box.width),
-      ),
-    );
-  };
-  const nudge = (e: KbEvent<HTMLDivElement>) => {
-    const d = e.key === "ArrowLeft" ? 0.03 : e.key === "ArrowRight" ? -0.03 : 0;
-    if (!d) return;
-    e.preventDefault();
-    const f = Math.min(MAX_FRAC, Math.max(MIN_FRAC, share + d));
-    setWide(false);
-    setFrac(f);
-    save(f);
-  };
   const pick = (turn: number) => (_: ClauseRef, index: number) =>
     setOpen({ turn, index });
+  const pickSource = (t: Turn) => (c: ClauseRef) => {
+    const x = t.sources.findIndex((s) => s.document_id === c.document_id && s.position === c.position);
+    if (x >= 0) setOpen({ turn: t.id, index: x });
+  };
   const pickSide =
     (turn: number) => (side: AskMode, _: ClauseRef, index: number) =>
       setOpen({ turn, index, side });
@@ -644,92 +456,24 @@ export default function AskPage({
                       </details>
                     )}
                     {t.clarify && t.id === last?.id && !busy && (
-                      <div
-                        className="mt-3"
-                        role="group"
-                        aria-label="Which contract do you mean?"
-                      >
-                        <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted">
-                          Which contract?
-                        </p>
-                        <ul className="grid gap-2 sm:grid-cols-2">
-                          {t.clarify.map((o) => (
-                            <li key={o.id}>
-                              <button
-                                onClick={() =>
-                                  send(t.question, { only: [o.id] })
-                                }
-                                className="h-full w-full cursor-pointer rounded-md border border-line-strong bg-surface px-4 py-3 text-left text-sm transition-colors hover:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                              >
-                                <span className="block font-semibold wrap-anywhere">
-                                  {o.filename.replace(/\.pdf$/i, "")}
-                                </span>
-                                {o.summary && (
-                                  <span className="mt-0.5 line-clamp-2 text-muted">
-                                    {o.summary}
-                                  </span>
-                                )}
-                              </button>
-                            </li>
-                          ))}
-                        </ul>
-                        <button
-                          onClick={() => send(t.question, { anywhere: true })}
-                          className="mt-2 h-10 cursor-pointer rounded-full border border-line-strong px-4 text-sm text-fg-soft hover:border-accent hover:text-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                        >
-                          Search all contracts
-                        </button>
-                      </div>
+                      <Clarify question={t.question} options={t.clarify} send={send} />
                     )}
                     {t.followups && t.id === last?.id && !busy && (
-                      <div
-                        className="mt-3"
-                        role="group"
-                        aria-label="Suggested follow-up questions"
-                      >
-                        <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted">
-                          Ask next
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          {t.followups.map((f) => (
-                            <button
-                              key={f}
-                              onClick={() => send(f)}
-                              className="min-h-10 cursor-pointer rounded-full border border-line-strong bg-surface px-4 py-2 text-left text-sm text-fg-soft transition-colors hover:border-accent hover:text-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                            >
-                              {f}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
+                      <Followups questions={t.followups} send={send} />
                     )}
                     {t.steps && t.steps.length > 0 && (
                       <AgentTrace
                         steps={t.steps}
                         budget={t.budget}
                         live={!!t.stage}
-                        onPick={(c) => {
-                          const x = t.sources.findIndex(
-                            (s) =>
-                              s.document_id === c.document_id &&
-                              s.position === c.position,
-                          );
-                          x >= 0 && setOpen({ turn: t.id, index: x });
-                        }}
+                        onPick={pickSource(t)}
                       />
                     )}
                     {t.attempts.length > 0 && (
                       <Trace
                         attempts={t.attempts}
                         sources={t.sources}
-                        onPick={(c) => {
-                          const x = t.sources.findIndex(
-                            (s) =>
-                              s.document_id === c.document_id &&
-                              s.position === c.position,
-                          );
-                          x >= 0 && setOpen({ turn: t.id, index: x });
-                        }}
+                        onPick={pickSource(t)}
                       />
                     )}
                   </div>
@@ -789,23 +533,7 @@ export default function AskPage({
 
       {current && open && !wide && (
         <div
-          role="separator"
-          aria-orientation="vertical"
-          aria-label="Resize the reference pane"
-          aria-valuemin={Math.round(MIN_FRAC * 100)}
-          aria-valuemax={Math.round(MAX_FRAC * 100)}
-          aria-valuenow={Math.round(share * 100)}
-          tabIndex={0}
-          onPointerDown={(e) => {
-            dragging.current = true;
-            e.currentTarget.setPointerCapture(e.pointerId);
-          }}
-          onPointerMove={drag}
-          onPointerUp={() => {
-            dragging.current = false;
-            save(frac);
-          }}
-          onKeyDown={nudge}
+          {...separator}
           className="group relative hidden w-2 shrink-0 cursor-col-resize touch-none select-none lg:block focus-visible:outline-2 focus-visible:outline-accent"
         >
           <span className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-line transition-colors group-hover:w-0.5 group-hover:bg-accent group-focus-visible:w-0.5 group-focus-visible:bg-accent" />
@@ -814,7 +542,7 @@ export default function AskPage({
       {current && open && (
         <aside
           aria-label={`Reference ${open.index + 1}: clause ${current.clause_identifier}`}
-          className="fixed inset-x-0 bottom-0 top-(--heasder-h) z-30 bg-surface shadow-2xl motion-safe:animate-[pane-in_0.22s_ease-out] lg:static lg:inset-auto lg:z-auto lg:w-(--pane) lg:max-w-(--pane-max) lg:shrink-0 lg:shadow-none"
+          className="fixed inset-x-0 bottom-0 top-(--header-h) z-30 bg-surface shadow-2xl motion-safe:animate-[pane-in_0.22s_ease-out] lg:static lg:inset-auto lg:z-auto lg:w-(--pane) lg:max-w-(--pane-max) lg:shrink-0 lg:shadow-none"
           style={
             {
               "--pane": `${share * 100}%`,
@@ -825,7 +553,7 @@ export default function AskPage({
           <ClauseViewer
             clause={current}
             expanded={wide}
-            onExpand={() => setWide((w) => !w)}
+            onExpand={toggleWide}
             onClose={() => setOpen(null)}
             nav={{
               index: open.index,

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Loader2, Minus, Plus } from "lucide-react";
 import { GlobalWorkerOptions, getDocument, type PDFDocumentProxy } from "pdfjs-dist";
 import workerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+import { readPref, writePref } from "@/lib/store";
 
 GlobalWorkerOptions.workerSrc = workerSrc;
 
@@ -23,7 +24,7 @@ function load(key: string, getData: () => Promise<ArrayBuffer>) {
 
 const ZOOM_KEY = "jurion.pdf.zoom";
 const STEPS = [0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3]; // 1 = the page fits the width
-const readZoom = () => { try { const z = Number(localStorage.getItem(ZOOM_KEY)); return STEPS.includes(z) ? z : 1; } catch { return 1; } }; // storage can be blocked: never required
+const readZoom = () => { const z = Number(readPref(ZOOM_KEY)); return STEPS.includes(z) ? z : 1; };
 
 interface Props {
   docKey: string; // what identifies this PDF (its contract id)
@@ -85,7 +86,7 @@ export default function PdfViewer({ docKey, getData, page, onPage, boxes = [] }:
   const pages = [...new Set(boxes.map((b) => b.page))];
   const step = (d: number) => setZoom((z) => {
     const next = STEPS[Math.min(STEPS.length - 1, Math.max(0, STEPS.indexOf(z) + d))];
-    try { localStorage.setItem(ZOOM_KEY, String(next)); } catch { /* ignore */ }
+    writePref(ZOOM_KEY, String(next));
     return next;
   });
   return (
@@ -96,7 +97,7 @@ export default function PdfViewer({ docKey, getData, page, onPage, boxes = [] }:
         <button onClick={() => onPage(page + 1)} disabled={!pdf || page >= pdf.numPages} aria-label="Next page" className="grid h-9 w-9 cursor-pointer place-items-center rounded hover:bg-raised disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-accent"><ChevronRight className="h-4 w-4" /></button>
         <div role="group" aria-label="Zoom" className="ml-2 flex items-center">
           <button onClick={() => step(-1)} disabled={zoom <= STEPS[0]} aria-label="Zoom out" className="grid h-9 w-9 cursor-pointer place-items-center rounded hover:bg-raised disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-accent"><Minus className="h-4 w-4" /></button>
-          <button onClick={() => { setZoom(1); try { localStorage.setItem(ZOOM_KEY, "1"); } catch { /* ignore */ } }} aria-label="Fit page to width" title="Fit to width" className="min-w-12 cursor-pointer rounded px-1 text-center font-mono text-xs tabular-nums text-muted hover:bg-raised hover:text-fg focus-visible:outline-2 focus-visible:outline-accent">{Math.round(zoom * 100)}%</button>
+          <button onClick={() => { setZoom(1); writePref(ZOOM_KEY, "1"); }} aria-label="Fit page to width" title="Fit to width" className="min-w-12 cursor-pointer rounded px-1 text-center font-mono text-xs tabular-nums text-muted hover:bg-raised hover:text-fg focus-visible:outline-2 focus-visible:outline-accent">{Math.round(zoom * 100)}%</button>
           <button onClick={() => step(1)} disabled={zoom >= STEPS[STEPS.length - 1]} aria-label="Zoom in" className="grid h-9 w-9 cursor-pointer place-items-center rounded hover:bg-raised disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-accent"><Plus className="h-4 w-4" /></button>
         </div>
         {pages.length > 0 && (

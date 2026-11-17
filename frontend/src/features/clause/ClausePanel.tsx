@@ -14,6 +14,7 @@ import { clauseBoxes, fetchPdf } from "@/features/documents/api";
 import LazyPdfViewer from "@/features/pdf/LazyPdfViewer";
 import type { Box } from "@/features/pdf/PdfViewer";
 import { Link } from "@/lib/router";
+import { readPref, writePref } from "@/lib/store";
 
 /** Enough to find one clause: which contract, which clause, which page (and the text, when the result carried it). */
 export interface ClauseRef {
@@ -53,12 +54,8 @@ type View = "both" | "pdf" | "text";
 const SIZES = ["text-base", "text-lg", "text-xl", "text-2xl"]; // clause text sizes
 const SIZE_KEY = "jurion.text.step";
 const readSize = () => {
-  try {
-    const n = Number(localStorage.getItem(SIZE_KEY));
-    return Number.isInteger(n) && n >= 0 && n < SIZES.length ? n : 1;
-  } catch {
-    return 1;
-  }
+  const n = Number(readPref(SIZE_KEY));
+  return Number.isInteger(n) && n >= 0 && n < SIZES.length ? n : 1;
 };
 
 /** The cited clause in its PDF page, plus its full text. Embeddable: the Ask page docks it beside the answer.
@@ -81,11 +78,7 @@ export function ClauseViewer({
   const bump = (d: number) =>
     setSize((n) => {
       const m = Math.min(SIZES.length - 1, Math.max(0, n + d));
-      try {
-        localStorage.setItem(SIZE_KEY, String(m));
-      } catch {
-        /* ignore */
-      }
+      writePref(SIZE_KEY, String(m));
       return m;
     });
   const iconBtn =

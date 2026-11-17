@@ -4,13 +4,14 @@ import ConfirmDialog from "@/components/ConfirmDialog";
 import RenameDialog from "@/components/RenameDialog";
 import { deleteSession, listSessions, renameSession, sessionHref, type SessionItem } from "@/features/sessions/api";
 import { Link, navigate, useRoute } from "@/lib/router";
+import { readPref, writePref } from "@/lib/store";
 
 /** Tell the sidebar the list of sessions changed (a chat was saved or deleted), and tell the Ask page to start a fresh chat. */
 export const sessionsChanged = () => dispatchEvent(new Event("jurion:sessions"));
-export const newSession = () => dispatchEvent(new Event("jurion:new-session"));
+const newSession = () => dispatchEvent(new Event("jurion:new-session"));
 
 const KEY = "jurion.sessions.open";
-const readOpen = () => { try { return localStorage.getItem(KEY) !== "0"; } catch { return true; } }; // storage can be blocked: never required
+const readOpen = () => readPref(KEY) !== "0";
 const ring = "focus-visible:outline-2 focus-visible:outline-accent";
 interface Tip { text: string; meta: string; top: number; left: number }
 
@@ -28,7 +29,7 @@ export default function SessionList({ collapsed }: { collapsed: boolean }) {
   }, [load]);
 
   const [open, setOpen] = useState(readOpen); // the section is unfolded
-  const toggle = () => setOpen((o) => { try { localStorage.setItem(KEY, o ? "0" : "1"); } catch { /* ignore */ } return !o; });
+  const toggle = () => setOpen((o) => { writePref(KEY, o ? "0" : "1"); return !o; });
   const [flyout, setFlyout] = useState<{ top: number; left: number } | null>(null); // the list beside a collapsed sidebar
   const [tip, setTip] = useState<Tip | null>(null);
   const flyBtn = useRef<HTMLButtonElement>(null);

@@ -10,7 +10,7 @@ from fastapi.testclient import TestClient
 
 os.environ["MAX_PAGES"] = "2"  # read by the worker processes, which are spawned later
 from app.core.config import settings  # noqa: E402
-from app.ingestion.parser import count_pages, run_pdf  # noqa: E402
+from app.ingestion.pdf_text import count_pages, run_pdf  # noqa: E402
 from app.core.ratelimit import limit  # noqa: E402
 
 

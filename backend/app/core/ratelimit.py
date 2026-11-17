@@ -23,6 +23,6 @@ def limit(name: str, calls: int, window_s: int, by_user: bool = False):
             log.warning("rate limit skipped: Redis unavailable")
             return
         if n > calls:
-            raise HTTPException(429, f"Too many requests. Try again in a minute.", headers={"Retry-After": str(window_s)})
+            raise HTTPException(429, "Too many requests. Try again in a minute.", headers={"Retry-After": str(window_s)})
 
     return check

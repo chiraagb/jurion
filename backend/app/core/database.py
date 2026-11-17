@@ -15,29 +15,6 @@ class Base(DeclarativeBase):
     pass
 
 
-# 2. PostgreSQL + pgvector Model for Contract Chunks
-class ContractChunk(Base):
-    __tablename__ = "contract_chunks"
-
-    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    document_id: Mapped[uuid.UUID] = mapped_column(index=True)
-    clause_identifier: Mapped[str] = mapped_column(String(64), index=True)
-    content: Mapped[str] = mapped_column(Text)
-    embedding = mapped_column(Vector(1536))
-    created_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
-
-    __table_args__ = (
-        Index(
-            "ix_contract_chunks_embedding_hnsw",
-            embedding,
-            postgresql_using="hnsw",
-            postgresql_ops={"embedding": "vector_cosine_ops"},
-        ),
-    )
-
-
 # 2a. Users, created on first Google sign-in
 class User(Base):
     __tablename__ = "users"

@@ -6,6 +6,7 @@ import redis
 from fastapi.testclient import TestClient
 from langchain_core.messages import AIMessage, AIMessageChunk
 from app.ask import agent
+from app.ask import facts, models
 from app.ask import workflow as ask
 from app.ingestion import documents
 from app.search import embeddings
@@ -76,11 +77,11 @@ if __name__ == "__main__":
                 await db.commit()
 
         user = c.portal.call(make_user)
-        saved = dict(ask=(ask.openai_key, ask.followups, ask.grade, ask.answer_stream, ask.contract_cards, ask.references_from), agent=(agent.provider_key, agent.build_model),
+        saved = dict(ask=(ask.openai_key, ask.followups, ask.grade, ask.answer_stream, ask.contract_cards, facts.references_from), agent=(models.provider_key, agent.build_model),
                      emb=(embeddings.embed_texts, embeddings.openai_key, documents.openai_key), tokens=(settings.AGENT_MAX_STEPS, settings.AGENT_MAX_TOOL_CALLS))
         try:
             embeddings.embed_texts = fake_embed
-            embeddings.openai_key = documents.openai_key = ask.openai_key = agent.provider_key = a_key
+            embeddings.openai_key = documents.openai_key = ask.openai_key = models.provider_key = a_key
             ask.followups = no_followups
             app.dependency_overrides[current_user] = lambda: user
             assert c.post("/documents", files={"file": ("a.pdf", make_sample_pdf(), "application/pdf")}, data={"result": json.dumps(RESULT)}).status_code == 201
@@ -88,7 +89,7 @@ if __name__ == "__main__":
 
             async def cards(_uid): return [{"id": doc["id"], "filename": doc["filename"], "summary": "A services agreement.", "parties": [{"name": "Brightpath", "role": "Supplier", "aliases": []}]}]
             async def no_refs(_ids): return {}
-            ask.contract_cards, ask.references_from = cards, no_refs
+            ask.contract_cards, facts.references_from = cards, no_refs
             model = {}
             agent.build_model = lambda spec, key: model["m"]
 
@@ -165,18 +166,25 @@ if __name__ == "__main__":
 
             # 9. models: the allow-list, the missing key, and the list endpoint
             assert post(c, model="openai:not-allowed").status_code == 400
-            agent.provider_key = no_key
+            models.provider_key = no_key
             res = post(c, model="anthropic:claude-sonnet-5-5")
             assert res.status_code == 400 and "anthropic" in res.json()["detail"], res.text
             ms = c.get("/ask/models").json()
             assert ms["default"] == settings.AGENT_MODEL and not any(m["available"] for m in ms["models"]), ms
-            agent.provider_key = a_key
+            models.provider_key = a_key
             assert any(m["available"] for m in c.get("/ask/models").json()["models"])
 
             # 10. compare: both sides stream tagged events, then the clause overlap; nothing is saved to a chat
             model["m"] = Scripted([call("search_clauses", query="terminate notice"), call("finish", use=[1])])
             before = len(c.get("/sessions").json())
+            asked = []
+
+            async def track_followups(*_):
+                asked.append(1)
+                return []
+            ask.followups = track_followups
             ev = events(post(c, "/ask/compare"))
+            assert not asked, "compare passes suggest=False: neither side may call the follow-ups model"
             sides = {(e.get("system"), e["event"]) for e in ev}
             assert {("workflow", "stats"), ("agent", "stats"), ("workflow", "token"), ("agent", "token")} <= sides and ev[-1]["event"] == "compared", sides
             assert ev[-1]["same_clauses"] == 1 and not ev[-1]["only_agent"] and not ev[-1]["only_workflow"], ev[-1]
@@ -193,8 +201,8 @@ if __name__ == "__main__":
             assert c.delete(f"/sessions/{sid}").status_code == 204
             print("ok: agent loop, finish/none/caps/errors, user scope, ask_user, fallback, models, compare")
         finally:
-            ask.openai_key, ask.followups, ask.grade, ask.answer_stream, ask.contract_cards, ask.references_from = saved["ask"]
-            agent.provider_key, agent.build_model = saved["agent"]
+            ask.openai_key, ask.followups, ask.grade, ask.answer_stream, ask.contract_cards, facts.references_from = saved["ask"]
+            models.provider_key, agent.build_model = saved["agent"]
             embeddings.embed_texts, embeddings.openai_key, documents.openai_key = saved["emb"]
             settings.AGENT_MAX_STEPS, settings.AGENT_MAX_TOOL_CALLS, settings.ASK_DEFAULT_MODE = saved["tokens"][0], saved["tokens"][1], "workflow"
             app.dependency_overrides.clear()

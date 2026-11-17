@@ -7,6 +7,7 @@ import { Link, navigate } from "@/lib/router";
 import { useReference } from "@/features/clause/Reference";
 import { getGraph, similarClauses, type GraphData, type Similar } from "@/features/documents/api";
 import { hubs, reach, sharedCompanies } from "./logic";
+import { middle, stem } from "@/lib/text";
 
 interface Lib {
   contracts: { id: string; filename: string; summary: string; links: number }[];
@@ -15,8 +16,8 @@ interface Lib {
 }
 type Pick = { kind: "contract" | "party"; id: string } | null;
 
-const short = (s: string, n = 30) => (s.length <= n ? s : `${s.slice(0, n - 12)}…${s.slice(-10)}`);
-const nice = (f: string) => f.replace(/\.pdf$/i, "").replace(/^[A-Za-z]+_\d{8}_[\w-]+?_EX-?[\d.]+_\d+_EX-?[\d.]+_?/i, "").replace(/_/g, " ");
+const short = (s: string, n = 30) => middle(s, n, 10);
+const nice = (f: string) => stem(f).replace(/^[A-Za-z]+_\d{8}_[\w-]+?_EX-?[\d.]+_\d+_EX-?[\d.]+_?/i, "").replace(/_/g, " ");
 
 /** Contracts on a ring; each company sits next to its contract (outside the ring), and a company in several contracts sits between them. */
 function layoutLibrary(lib: Lib, pick: Pick): { nodes: Node[]; edges: Edge[] } {

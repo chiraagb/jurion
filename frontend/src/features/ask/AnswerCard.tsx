@@ -2,6 +2,8 @@ import { Fragment, useId, useState } from "react";
 import { Check, ChevronDown, FileText, Loader2, Network, PanelRight, X } from "lucide-react";
 import { niceId, type ClauseRef } from "@/features/clause/ClausePanel";
 import type { Brief } from "./api";
+import { readPref, writePref } from "@/lib/store";
+import { middle } from "@/lib/text";
 
 export interface Attempt {
   query: string;
@@ -16,16 +18,16 @@ export interface Attempt {
 }
 
 /** Long file names keep their start and their ending ("…Supply Agreement.pdf"). */
-export const shortName = (n: string, max = 40) => (n.length <= max ? n : `${n.slice(0, max - 16)}…${n.slice(-14)}`);
+const shortName = (n: string, max = 40) => middle(n, max, 14);
 
 const MIN_KEY = "jurion.refs.minimized";
-const readMin = () => { try { return localStorage.getItem(MIN_KEY) === "1"; } catch { return false; } }; // storage can be blocked: never required
+const readMin = () => readPref(MIN_KEY) === "1";
 
 /** The references as cards, or minimized to one row of chips. A click opens that clause; `selected` is the one open beside the answer. */
-export function ReferenceCards({ sources, selected, onPick }: { sources: Brief[]; selected?: number | null; onPick: (c: ClauseRef, index: number) => void }) {
+function ReferenceCards({ sources, selected, onPick }: { sources: Brief[]; selected?: number | null; onPick: (c: ClauseRef, index: number) => void }) {
   const [min, setMin] = useState(readMin);
   const listId = useId();
-  const toggle = () => setMin((m) => { try { localStorage.setItem(MIN_KEY, m ? "0" : "1"); } catch { /* ignore */ } return !m; });
+  const toggle = () => setMin((m) => { writePref(MIN_KEY, m ? "0" : "1"); return !m; });
   return (
     <section aria-label="References" className={`border-t border-line px-5 pt-3 ${min ? "pb-3" : "pb-5"}`}>
       <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold">

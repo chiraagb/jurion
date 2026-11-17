@@ -38,33 +38,27 @@ Jurion has four layers.
 ### Testing quality
 - **Ragas** – a library that scores how good the answers are (more in [Phase 5](17-phase5-evaluation.md)).
 
-## Where we are today
-
-Built so far:
-- Docker Compose with Postgres (pgvector), Neo4j, Redis
-- FastAPI app with a `/health` endpoint that checks all three databases
-- `contract_chunks` table defined (not yet created automatically)
-- Two PDF parsers (`parser.py`, `hybrid_parser.py`) – not wired to any endpoint yet
-- React dashboard showing database health
-
-Not built yet: upload endpoint, embeddings, graph writes, query engine, chat UI, evaluation.
-
 ## Where things are
 
-Grouped by what they are for, most important first.
+Grouped by what they are for, most important first. A file is split when it mixes topics, not at a line count;
+in practice that keeps files under about 700 lines.
 
 ```
 backend/app/
   ask/         the question-answering feature
-    workflow.py   the fixed pipeline (the baseline) and POST /ask
-    agent.py      the LangGraph agent, /ask/models, /ask/compare
+    workflow.py   the fixed pipeline (the baseline), POST /ask, and the answer helpers both modes share
+    facts.py      graph widening, company facts, library questions ("how many contracts?")
+    agent.py      the LangGraph agent loop, /ask/compare
+    tools.py      the agent's tools and what each request has seen
+    models.py     which chat models the agent may use, /ask/models
     sessions.py   chats, their memory and context limit
   search/      finding things
     embeddings.py clause embeddings, hybrid (meaning + keyword) search
     graph.py      the Neo4j contract graph
     reconcile.py  keeps the graph consistent with the database
   ingestion/   getting contracts in
-    parser.py     PDF -> clauses
+    parser.py     lines -> clauses (rules, confidence, LLM fallback)
+    pdf_text.py   PDF -> lines (worker pool, tables, OCR)
     documents.py  saving, listing and opening contracts
   core/        shared plumbing
     config.py database.py auth.py llm_keys.py ratelimit.py
@@ -75,5 +69,5 @@ frontend/src/
   features/sessions/       the sessions list, sidebar list and context meter
   features/evaluation/     Workflow vs Agent, the criteria guide, retrieval scores
   features/{documents,search,graph,parser,clause,pdf,...}   one folder per screen or topic
-  components/  shared dialogs and layout     lib/   API client, router, helpers
+  components/  shared dialogs and layout     lib/   API client, router, store (browser prefs), text helpers
 ```

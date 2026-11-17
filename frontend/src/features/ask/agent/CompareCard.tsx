@@ -4,6 +4,7 @@ import AgentTrace from "./AgentTrace";
 import Thinking, { type Stage } from "../Thinking";
 import type { AgentStep, AskMode, Brief, Stats } from "../api";
 import type { ClauseRef } from "@/features/clause/ClausePanel";
+import { stem } from "@/lib/text";
 
 export interface Side { answer: string; sources: Brief[]; steps: AgentStep[]; stats?: Stats; stage: Stage | null; error: string | null; fallback?: string; budget?: { hit: string } | null }
 export interface Cmp { workflow: Side; agent: Side; compared?: { same_clauses: number; only_agent: [string, number][]; only_workflow: [string, number][] } }
@@ -23,7 +24,7 @@ export function StatsBadge({ stats, fallback }: { stats?: Stats; fallback?: stri
   );
 }
 
-const label = (h: Brief | undefined, key: [string, number]) => h ? `${h.clause_identifier} ${h.title} (${h.filename.replace(/\.pdf$/i, "").slice(0, 30)})` : `clause ${key[1]}`;
+const label = (h: Brief | undefined, key: [string, number]) => h ? `${h.clause_identifier} ${h.title} (${stem(h.filename).slice(0, 30)})` : `clause ${key[1]}`;
 
 /** One question, answered twice: the fixed workflow on the left, the agent on the right, with which clauses each one cited. */
 export default function CompareCard({ cmp, onPick }: { cmp: Cmp; onPick: (side: AskMode, c: ClauseRef, index: number) => void }) {

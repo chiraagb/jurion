@@ -187,7 +187,8 @@ def make_table_pdf() -> bytes:
 
 
 if __name__ == "__main__":
-    from app.ingestion.parser import _ocr_ready, local_fast_parse
+    from app.ingestion.parser import local_fast_parse
+    from app.ingestion.pdf_text import _ocr_ready
     if _ocr_ready():
         scan = make_scanned_pdf()
         assert not pymupdf.open(stream=scan, filetype="pdf")[0].get_text().strip(), "the fixture must have no text layer"
@@ -210,7 +211,7 @@ if __name__ == "__main__":
     from app.core.config import settings
     redis.Redis.from_url(settings.REDIS_URL).delete("rl:parse:testclient")  # the per-minute limit would trip on back-to-back runs
 
-    from app.ingestion.parser import _rows_from_words, _usable
+    from app.ingestion.pdf_text import _rows_from_words, _usable
     page = pymupdf.open(stream=make_underline_table_pdf(), filetype="pdf")[0]
     grid = _rows_from_words(page, page.rect)
     assert grid and len(grid[0]) == 2 and _usable(grid), grid  # two columns found although nothing is ruled

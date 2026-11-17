@@ -13,6 +13,7 @@ import {
 import type { ComponentType } from "react";
 import type { ClauseRef } from "@/features/clause/ClausePanel";
 import type { AgentStep, Brief } from "../api";
+import { stem } from "@/lib/text";
 
 const TOOL: Record<
   string,
@@ -119,7 +120,7 @@ export default function AgentTrace({
                           </span>
                           <span className="min-w-0 truncate">{h.title}</span>
                           <span className="ml-auto hidden shrink-0 text-xs text-muted sm:inline">
-                            {h.filename.replace(/\.pdf$/i, "").slice(0, 28)}
+                            {stem(h.filename).slice(0, 28)}
                           </span>
                         </button>
                       </li>

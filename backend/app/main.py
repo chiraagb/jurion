@@ -19,6 +19,7 @@ from app.ingestion.documents import router as documents_router
 from app.search.embeddings import router as search_router
 from app.ask.workflow import router as ask_router
 from app.ask.agent import router as agent_router
+from app.ask.models import router as models_router
 from app.search.graph import ensure_schema, router as graph_router
 from app.search.reconcile import reconcile_graph
 from app.ask.sessions import router as sessions_router
@@ -27,10 +28,9 @@ from app.ingestion.parser import (
     MAX_PDF_BYTES,
     PROVIDERS,
     NoApiKey,
-    count_pages,
     parse_contract_fast,
-    run_pdf,
 )
+from app.ingestion.pdf_text import count_pages, run_pdf
 from app.core.ratelimit import limit
 
 
@@ -71,6 +71,7 @@ app.include_router(documents_router)
 app.include_router(search_router)
 app.include_router(ask_router)
 app.include_router(agent_router)
+app.include_router(models_router)
 app.include_router(sessions_router)
 app.include_router(graph_router)
 app.include_router(evaluation_router)

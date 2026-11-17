@@ -1,4 +1,5 @@
 import { api } from "@/lib/api";
+import { readPref, writePref } from "@/lib/store";
 
 export type Provider = "gemini" | "openai"; // the PDF-reading fallback choices
 export type KeyProvider = Provider | "anthropic"; // a key can also be saved for the Ask agent's model (Anthropic)
@@ -7,21 +8,11 @@ const PROVIDER_KEY = "jurion.provider";
 
 /** The chosen fallback provider is not a secret, so it lives in the browser; the keys live in Postgres. */
 export function loadProvider(): Provider {
-  try {
-    return localStorage.getItem(PROVIDER_KEY) === "openai"
-      ? "openai"
-      : "gemini";
-  } catch {
-    return "gemini";
-  }
+  return readPref(PROVIDER_KEY) === "openai" ? "openai" : "gemini";
 }
 
 export function saveProvider(provider: Provider) {
-  try {
-    localStorage.setItem(PROVIDER_KEY, provider);
-  } catch {
-    /* blocked storage: falls back to Gemini */
-  }
+  writePref(PROVIDER_KEY, provider);
 }
 
 export const llmHeaders = () => ({ "X-LLM-Provider": loadProvider() });
