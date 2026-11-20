@@ -9,6 +9,13 @@ import {
   type KeyProvider,
   type Provider,
 } from "./llmConfig";
+import {
+  PREFERENCES,
+  getPreferences,
+  savePreferences,
+  type Preferences,
+  type PreferencesState,
+} from "./preferences";
 
 const PROVIDERS: { id: Provider; label: string; hint: string }[] = [
   { id: "gemini", label: "Google Gemini", hint: "AIza…" },
@@ -37,6 +44,8 @@ export default function SettingsDialog() {
   const [drafts, setDrafts] = useState<Record<KeyProvider, string>>(NO_DRAFTS);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [prefs, setPrefs] = useState<PreferencesState | null>(null); // as saved on the account
+  const [draftPrefs, setDraftPrefs] = useState<Preferences | null>(null); // as switched in this dialog
 
   useEffect(() => {
     // the first-run checklist opens this dialog from the Ask screen
@@ -51,7 +60,10 @@ export default function SettingsDialog() {
     setError(null);
     ref.current?.showModal();
     try {
-      setSaved(await fetchKeyHints());
+      const [hints, p] = await Promise.all([fetchKeyHints(), getPreferences()]);
+      setSaved(hints);
+      setPrefs(p);
+      setDraftPrefs(p.preferences);
     } catch (e) {
       setError(errorText(e));
     }
@@ -64,6 +76,12 @@ export default function SettingsDialog() {
       saveProvider(provider);
       for (const p of KEY_PROVIDERS)
         if (drafts[p.id].trim()) await saveKey(p.id, drafts[p.id].trim());
+      if (prefs && draftPrefs) {
+        const changed = Object.fromEntries(
+          PREFERENCES.filter((o) => draftPrefs[o.id] !== prefs.preferences[o.id]).map((o) => [o.id, draftPrefs[o.id]]),
+        );
+        if (Object.keys(changed).length) setPrefs(await savePreferences(changed));
+      }
       dispatchEvent(new Event("jurion:keys-changed"));
       ref.current?.close();
     } catch (e) {
@@ -87,7 +105,7 @@ export default function SettingsDialog() {
     <>
       <button
         onClick={open}
-        aria-label="API key settings"
+        aria-label="Settings and API keys"
         className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg text-muted transition-colors duration-200 hover:bg-raised hover:text-fg focus-visible:outline-2 focus-visible:outline-accent"
       >
         <KeyRound className="h-4 w-4" aria-hidden />
@@ -96,7 +114,7 @@ export default function SettingsDialog() {
       <dialog
         ref={ref}
         onClick={(e) => e.target === ref.current && ref.current?.close()}
-        className="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-md border border-line-strong bg-surface p-0 text-fg backdrop:bg-black/50"
+        className="m-auto max-h-[calc(100dvh-2rem)] w-[min(32rem,calc(100vw-2rem))] overflow-y-auto rounded-md border border-line-strong bg-surface p-0 text-fg backdrop:bg-black/50"
       >
         <form
           onSubmit={(e) => {
@@ -107,10 +125,10 @@ export default function SettingsDialog() {
         >
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h2 className="font-display text-2xl font-semibold">API keys</h2>
+              <h2 className="font-display text-2xl font-semibold">Settings</h2>
               <p className="mt-1 text-sm text-muted">
-                Used only when a contract is too messy for the local parser.
-                Keys are encrypted and stored in the database; they are never
+                API keys answer questions, and read contracts too messy for
+                the local parser. Keys are encrypted and stored in the database; they are never
                 shown again, only a masked hint. Leave blank to use the server's
                 own key.
               </p>
@@ -179,6 +197,36 @@ export default function SettingsDialog() {
               />
             </div>
           ))}
+
+          {draftPrefs && prefs && (
+            <fieldset className="space-y-3 border-t border-line pt-5">
+              <legend className="caption mb-1 pt-5">Search and answers</legend>
+              <p className="text-sm text-muted">Saved to your account. Switch a step off to make answers faster or cheaper; the Evaluation page shows what each one is worth.</p>
+              {PREFERENCES.map((o) => {
+                const blocked = o.id === "rerank" && !draftPrefs.rerank ? prefs.rerank_unavailable : null;
+                return (
+                  <label key={o.id} className={`flex items-start gap-3 ${blocked ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}>
+                    <input
+                      type="checkbox"
+                      role="switch"
+                      checked={draftPrefs[o.id]}
+                      disabled={!!blocked}
+                      onChange={(e) => setDraftPrefs((d) => d && { ...d, [o.id]: e.target.checked })}
+                      aria-describedby={`pref-${o.id}`}
+                      className="mt-1 h-4 w-4 shrink-0 accent-accent"
+                    />
+                    <span>
+                      <span className="block text-base font-medium">{o.label}</span>
+                      <span id={`pref-${o.id}`} className="block text-sm text-muted">
+                        {o.detail}
+                        {blocked && <span className="mt-0.5 block text-danger">Unavailable: {blocked}</span>}
+                      </span>
+                    </span>
+                  </label>
+                );
+              })}
+            </fieldset>
+          )}
 
           {error && (
             <p role="alert" className="text-sm text-danger">

@@ -20,6 +20,7 @@ from app.search.embeddings import router as search_router
 from app.ask.workflow import router as ask_router
 from app.ask.agent import router as agent_router
 from app.ask.models import router as models_router
+from app.core.preferences import router as preferences_router
 from app.search.graph import ensure_schema, router as graph_router
 from app.search.reconcile import reconcile_graph
 from app.ask.sessions import router as sessions_router
@@ -53,6 +54,10 @@ async def lifespan(_: FastAPI):
         await reconcile_graph()  # clears graph leftovers for contracts that no longer exist
     except Exception as e:
         log.warning("graph reconcile skipped: %s", type(e).__name__)
+    if settings.SEARCH_RERANK:  # load the reranker now, so the first search does not wait for it and a broken model shows here
+        from app.search.rerank import load
+
+        await asyncio.to_thread(load)
     yield
 
 
@@ -72,6 +77,7 @@ app.include_router(search_router)
 app.include_router(ask_router)
 app.include_router(agent_router)
 app.include_router(models_router)
+app.include_router(preferences_router)
 app.include_router(sessions_router)
 app.include_router(graph_router)
 app.include_router(evaluation_router)

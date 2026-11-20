@@ -18,6 +18,7 @@ from app.core.config import settings
 from app.core.database import AsyncSessionLocal, QuerySession, User, get_db
 from app.search.embeddings import expand_thin, hybrid, openai_key
 from app.search.graph import contract_cards
+from app.core.preferences import DEFAULT as DEFAULT_PREFS, Prefs, of as prefs_of
 from app.core.ratelimit import limit
 from app.ask.facts import (
     card_line,
@@ -399,6 +400,8 @@ async def pipeline(
     clarify: bool = True,
     last_scope: list[str] = (),
     mem: list[tuple[str, str]] = (),
+    *,
+    prefs: Prefs = DEFAULT_PREFS,
 ) -> AsyncIterator[tuple[str, dict]]:
     """The whole Ask flow as (event, data) pairs: retrieve, grade, rewrite once if nothing is relevant, then answer.
     The endpoint streams these to the browser; tests.eval_answers runs them to score the answers.
@@ -428,7 +431,7 @@ async def pipeline(
     try:
         cards = await contract_cards(uid)
         total = len(cards)
-        facts = company_facts(cards, " ".join([*before, question]))
+        facts = company_facts(cards, " ".join([*before, question])) if prefs.facts else ""
         if facts:
             yield "facts", {"text": facts}
         if only_ids:  # the user answered "which contract?"
@@ -472,14 +475,14 @@ async def pipeline(
             only if attempt == 0 else []
         )  # the retry searches every contract, so a wrong narrowing is recoverable
         hits, mode, note = await hybrid(
-            s, uid, q, key, K, doc_ids=[c["id"] for c in narrowed] or None
+            s, uid, q, key, K, doc_ids=[c["id"] for c in narrowed] or None, rerank=prefs.rerank
         )
         if (
             narrowed
         ):  # soft narrowing: the named contracts first, but a wrong guess must not hide the right clause, so add the best from every contract
             seen = {h["id"] for h in hits}
             hits += [
-                h for h in (await hybrid(s, uid, q, key, K))[0] if h["id"] not in seen
+                h for h in (await hybrid(s, uid, q, key, K, rerank=prefs.rerank))[0] if h["id"] not in seen
             ][:PAD]
         await expand_thin(
             s, hits
@@ -507,7 +510,8 @@ async def pipeline(
         q = await rewrite(key, q)
         yield "rewritten", {"query": q}
     sources = [hits[i] for i in good]
-    sources += await widen(s, sources)  # plus what they point at
+    if prefs.widen:
+        sources += await widen(s, sources)  # plus what they point at
     opening, prompt = answer_opening(question, sources, facts, mem)
     for ev in opening:
         yield ev
@@ -517,7 +521,7 @@ async def pipeline(
     async for t in answer_stream(key, question, sources, facts=facts, mem=mem):
         text += t
         yield "token", {"text": t}
-    if suggest and (ev := await followups_event(key, question, text, facts, sources)):
+    if suggest and prefs.followups and (ev := await followups_event(key, question, text, facts, sources)):
         yield ev
 
 
@@ -529,7 +533,7 @@ async def ask(
     _: None = Depends(limit("ask", 10, 60, by_user=True)),
 ):
     key = await require_openai_key(db, user.id)
-    uid, question = user.id, body.question.strip()
+    uid, question, prefs = user.id, body.question.strip(), prefs_of(user)
     mode = body.mode or settings.ASK_DEFAULT_MODE
     agent = None
     if mode == "agent":
@@ -579,6 +583,7 @@ async def ask(
                     anywhere=body.anywhere,
                     last_scope=last_scope,
                     mem=chat_memory(turns),
+                    prefs=prefs,
                 )
                 run = (
                     agent(s, **kw)

@@ -18,7 +18,8 @@ from app.search.embeddings import MODEL, expand_thin, hybrid, openai_key
 from app.search.graph import contract_cards
 
 QA = Path(__file__).parent / "qa"
-MODES = {"vector": dict(use_keyword=False), "keyword": dict(use_vector=False), "hybrid": {}}
+MODES = {"vector": dict(use_keyword=False, rerank=False), "keyword": dict(use_vector=False, rerank=False), "hybrid": dict(rerank=False),
+         "rerank": dict(rerank=True)}  # rerank = hybrid re-scored by the cross-encoder (app/search/rerank.py); compare it with hybrid
 COLUMNS = (*MODES, "context", "scope", "soft", "graph")  # context = hybrid + heading expansion; graph = context after narrowing to the contracts the question names and widening by cross-reference (what Ask does now)
 KS = (1, 3, 5, 10)
 norm = lambda t: " ".join(t.split()).lower()

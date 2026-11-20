@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     OPENAI_MODEL: str = "gpt-4o"
     ASK_SESSION_TOKENS: int = 16_000  # one chat session's context budget (the model's window is 128k, but answers get worse long before that); a full session asks you to start a new one
     ASK_MODEL: str = "gpt-4o-mini"  # grades retrieved clauses, rewrites questions, writes answers on the Ask tab
+    SEARCH_RERANK: bool = False  # re-score hybrid results with a local cross-encoder; on only after tests.eval_qa shows it helps (docs/specs/answer-quality.md)
+    SEARCH_RERANK_MODEL: str = "BAAI/bge-reranker-v2-m3"  # downloaded from Hugging Face on first use (~2.3 GB), then cached
+    SEARCH_RERANK_POOL: int = 30  # how many merged hybrid results the reranker re-scores before keeping the top K
 
     ASK_DEFAULT_MODE: str = "workflow"  # "agent" or "workflow": what Ask uses when the request does not say. Flipped to agent only after tests.eval_answers shows it holds up (docs/specs/agentic-ask.md)
     AGENT_MODEL: str = "openai:gpt-4o-mini"  # "provider:model" for the agent (LangChain init_chat_model); any allow-listed provider works with no code change

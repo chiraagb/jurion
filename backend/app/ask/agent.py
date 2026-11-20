@@ -23,6 +23,7 @@ from app.ask.tools import TOOLS, Ctx, _contracts_text, _tool_objects, chosen, ru
 from app.core.auth import current_user
 from app.core.config import settings
 from app.core.database import AsyncSessionLocal, QuerySession, User, get_db
+from app.core.preferences import DEFAULT as DEFAULT_PREFS, Prefs, of as prefs_of
 from app.core.ratelimit import limit
 
 log = logging.getLogger("jurion")
@@ -201,6 +202,7 @@ async def agent_pipeline(
     *,
     model: str | None = None,
     model_key: str | None = None,
+    prefs: Prefs = DEFAULT_PREFS,
 ) -> AsyncIterator[tuple[str, dict]]:
     """Same (event, data) stream as ask.pipeline, produced by the agent. `key` is the OpenAI key (embeddings, follow-ups); `model_key` is the agent model's own.
     If the agent fails before it starts writing, the workflow answers instead and a `fallback` event says why.
@@ -218,7 +220,8 @@ async def agent_pipeline(
         only_ids=list(only_ids),
         anywhere=anywhere,
         clarify=clarify,
-        suggest=suggest,
+        suggest=suggest and prefs.followups,
+        prefs=prefs,
     )
     streamed = False
     try:
@@ -226,7 +229,7 @@ async def agent_pipeline(
             c.cards = await A.contract_cards(uid)
         except Exception as e:  # no graph: the model can still search every contract
             log.warning("agent contract list skipped: %s", type(e).__name__)
-        c.llm = build_model(spec, model_key or key).bind_tools(_tool_objects(clarify))
+        c.llm = build_model(spec, model_key or key).bind_tools(_tool_objects(clarify, prefs))
         c.answer_llm = (
             build_model(settings.AGENT_ANSWER_MODEL or spec, model_key or key)
             if settings.AGENT_ANSWER_MODEL
@@ -274,6 +277,7 @@ async def agent_pipeline(
             clarify,
             last_scope,
             mem,
+            prefs=prefs,
         ):
             yield ev
 
@@ -288,7 +292,7 @@ async def compare(
     """One question answered by the workflow and the agent at the same time. Events carry `system`; ends with `compared`. Saved as a `compare` session, never as chat memory."""
     key = await A.require_openai_key(db, user.id)
     spec, mkey = await resolve(db, user.id, body.model)
-    uid, question = user.id, body.question.strip()
+    uid, question, prefs = user.id, body.question.strip(), prefs_of(user)
     ev = (
         lambda system, kind, **d: json.dumps({"system": system, "event": kind, **d})
         + "\n"
@@ -317,10 +321,11 @@ async def compare(
                             model=spec,
                             model_key=mkey,
                             suggest=False,
+                            prefs=prefs,
                         )
                         if system == "agent"
                         else A.pipeline(
-                            s, uid, key, question, clarify=False, suggest=False
+                            s, uid, key, question, clarify=False, suggest=False, prefs=prefs
                         )
                     )
                     async for kind, d in gen:

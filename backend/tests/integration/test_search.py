@@ -76,6 +76,31 @@ if __name__ == "__main__":
             assert hy["mode"] == "hybrid" and top["clause_identifier"] == "2", hy
             assert top["vector_rank"] == 1 and top["vector_similarity"] > 0 and top["page_number"] == 1
 
+            # rerank: a fake cross-encoder (no model download) that prefers the termination clause re-orders the results
+            from app.search import rerank
+
+            class Fake:
+                def predict(self, pairs, batch_size=16):
+                    return [9.0 if "TERMINATION" in text else 0.1 for _q, text in pairs]
+
+            async def search(**kw):
+                async with AsyncSessionLocal() as db:
+                    return (await embeddings.hybrid(db, alice.id, "which law governs", "sk-fake", 2, **kw))[0]
+
+            rerank._model = Fake()
+            plain, ranked = c.portal.call(lambda: search(rerank=False)), c.portal.call(lambda: search(rerank=True))
+            assert plain[0]["clause_identifier"] == "2" and "rerank_score" not in plain[0], plain
+            assert ranked[0]["clause_identifier"] == "1" and ranked[0]["rerank_score"] == 9.0 and len(ranked) == 2, ranked
+            assert ranked[0]["vector_rank"] is not None  # the hybrid ranks stay, so the UI can show what moved
+
+            class Broken:
+                def predict(self, *_a, **_k):
+                    raise RuntimeError("model crashed")
+
+            rerank._model = Broken()  # a failing model keeps the hybrid order instead of failing the search
+            assert [h["clause_identifier"] for h in c.portal.call(lambda: search(rerank=True))] == [h["clause_identifier"] for h in plain]
+            rerank._model = None
+
             m = c.post("/embeddings/map", json={"document_id": doc_id, "query": "which law governs"}).json()
             assert len(m["points"]) == 3 and m["dims"] == 1536 and 0 < sum(m["explained"]) <= 1.0001, m
             assert all(abs(p[k]) <= 1.0001 for p in m["points"] for k in "xyz") and len(m["explained"]) == 3 and m["query"]
@@ -97,7 +122,7 @@ if __name__ == "__main__":
             assert c.post(f"/documents/{doc_id}/embed").status_code == 404
             assert c.get(f"/sessions/{hy['session_id']}").status_code == 404 and [x["id"] for x in c.get("/sessions").json()] != [hy["session_id"]]  # sessions are private: bob only has his own search
             assert c.post("/embeddings/map", json={}).json()["points"] == []
-            print("ok: embed, hybrid search, keyword fallback, isolation")
+            print("ok: embed, hybrid search, rerank, keyword fallback, isolation")
         finally:
             app.dependency_overrides.clear()
             c.portal.call(drop, alice)

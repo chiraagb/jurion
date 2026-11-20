@@ -26,4 +26,5 @@ dependencies = [
     "requests>=2.34.2",
     "sqlalchemy[asyncio]>=2.0",
     "tenacity>=9.2.1",
+    "sentence-transformers>=6.3.0",
 ]

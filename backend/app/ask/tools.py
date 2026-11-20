@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.ask import workflow as A
 from app.ask.facts import card_line, contract_options, stem
+from app.core.preferences import DEFAULT as DEFAULT_PREFS, Prefs
 
 LIBRARY_Q = {
     "count": "how many contracts",
@@ -124,7 +125,12 @@ TOOLS = {
 }
 
 
-def _tool_objects(clarify: bool) -> list[StructuredTool]:
+def off(prefs: Prefs) -> set[str]:
+    """Tools the user switched off in settings: the model is not offered them at all."""
+    return {name for name, on in (("follow_references", prefs.widen), ("company_info", prefs.facts)) if not on}
+
+
+def _tool_objects(clarify: bool, prefs: Prefs = DEFAULT_PREFS) -> list[StructuredTool]:
     async def _noop(**_):
         return ""
 
@@ -133,7 +139,7 @@ def _tool_objects(clarify: bool) -> list[StructuredTool]:
             coroutine=_noop, name=n, description=d, args_schema=m
         )
         for n, (m, d) in TOOLS.items()
-        if clarify or n != "ask_user"
+        if (clarify or n != "ask_user") and n not in off(prefs)
     ]
 
 
@@ -149,6 +155,7 @@ class Ctx:
     anywhere: bool
     clarify: bool
     suggest: bool = True  # write follow-up questions after the answer (compare and the evaluation turn it off)
+    prefs: Prefs = DEFAULT_PREFS  # the user's switches (reranker, widening, company facts)
     llm: object = None  # the planning model (tools bound)
     answer_llm: object = None
     cards: list = field(default_factory=list)
@@ -205,7 +212,7 @@ async def run_tool(c: Ctx, name: str, args: dict) -> tuple[str, str, list]:
                 c.cards[i - 1]["id"] for i in a.contracts if 1 <= i <= len(c.cards)
             ]  # numbers map only to the user's own contracts
         hits, _mode, _note = await A.hybrid(
-            c.s, c.uid, a.query, c.key, A.K, doc_ids=ids or None
+            c.s, c.uid, a.query, c.key, A.K, doc_ids=ids or None, rerank=c.prefs.rerank
         )
         await A.expand_thin(c.s, hits)
         for h in hits:
@@ -222,6 +229,8 @@ async def run_tool(c: Ctx, name: str, args: dict) -> tuple[str, str, list]:
             f"{len(hits)} clauses from {len({h['filename'] for h in hits})} contracts",
             [A._brief(h) for h in hits],
         )
+    if name in off(c.prefs):  # never offered, but a model can still name it
+        return f"'{name}' is switched off in settings.", "switched off", []
     if name in ("read_clause", "follow_references"):
         a = (Read if name == "read_clause" else Follow).model_validate(args)
         if not 1 <= a.number <= len(c.cands):

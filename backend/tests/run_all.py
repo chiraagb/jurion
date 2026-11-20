@@ -4,11 +4,16 @@ Needs Postgres (pgvector), Redis and Neo4j running (docker compose up). No OpenA
 import subprocess
 import sys
 import time
+import redis
+from app.core.config import settings
 
-TESTS = ["test_parse", "test_limits", "test_corpus", "test_documents", "test_search", "test_ask", "test_ask_graph", "test_agent", "test_graph", "test_reconcile", "test_party_names", "test_migrations"]
+TESTS = ["test_parse", "test_limits", "test_corpus", "test_documents", "test_search", "test_ask", "test_ask_graph", "test_agent", "test_preferences", "test_graph", "test_reconcile", "test_party_names", "test_migrations"]
 
 failed = []
+limits = redis.Redis.from_url(settings.REDIS_URL)
 for name in TESTS:
+    for k in limits.scan_iter("rl:*:testclient"):  # each suite starts with fresh rate-limit windows: they all share one test client
+        limits.delete(k)
     t0 = time.time()
     run = subprocess.run([sys.executable, "-W", "ignore", "-m", f"tests.integration.{name}"], capture_output=True, text=True)
     lines = [l for l in (run.stdout + run.stderr).strip().splitlines() if l.strip()]

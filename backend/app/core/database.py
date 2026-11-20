@@ -24,6 +24,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(320))
     name: Mapped[str] = mapped_column(String(200), default="")
     picture: Mapped[str] = mapped_column(Text, default="")
+    preferences: Mapped[dict] = mapped_column(JSONB, default=dict, server_default=text("'{}'::jsonb"))  # app/core/preferences.py
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 

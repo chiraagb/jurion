@@ -1,8 +1,9 @@
 import { Fragment, useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import RerankEffect from "./RerankEffect";
 import WorkflowVsAgent from "./WorkflowVsAgent";
 
-type Mode = "vector" | "keyword" | "hybrid" | "context" | "scope" | "soft" | "graph";
+type Mode = "vector" | "keyword" | "hybrid" | "rerank" | "context" | "scope" | "soft" | "graph";
 type Kind = "direct" | "paraphrase" | "broad" | "graph" | "multi" | "none";
 interface Score { "hit@1": number; "hit@3": number; "hit@5": number; "hit@10": number; mrr: number; n: number }
 type Summary = Record<"all" | "direct" | "paraphrase" | "broad" | "graph" | "multi", Partial<Record<Mode, Score>>>;
@@ -20,6 +21,7 @@ const MODES: { id: Mode; label: string; note: string }[] = [
   { id: "vector", label: "Vector only", note: "meaning match" },
   { id: "keyword", label: "Keyword only", note: "Postgres full-text" },
   { id: "hybrid", label: "Hybrid", note: "vector + keyword" },
+  { id: "rerank", label: "Reranked", note: "hybrid re-scored by bge-reranker" },
   { id: "context", label: "Hybrid + context", note: "headings widened" },
   { id: "scope", label: "Hard narrowing", note: "only the contracts the graph picks" },
   { id: "soft", label: "Soft narrowing", note: "picked contracts first, plus the best of all" },
@@ -44,7 +46,7 @@ export default function EvaluationPage() {
     return <p className="rounded-md border border-dashed border-line-strong p-10 text-center text-muted">No evaluation yet. Run <code className="font-mono">uv run python -W ignore -m tests.eval_qa</code> in <code className="font-mono">backend</code>.</p>;
 
   const now = data.retrieval.summary, before = data.baseline?.summary;
-  const metrics = [["hit@1", "Right clause is #1"], ["hit@3", "…in the top 3"], ["hit@5", "…in the top 5"], ["mrr", "Mean reciprocal rank"]] as const;
+  const metrics = [["hit@1", "Right clause is #1"], ["hit@3", "…in the top 3"], ["hit@5", "…in the top 5"], ["hit@10", "…in the top 10"], ["mrr", "Mean reciprocal rank"]] as const;
   const answerable = data.retrieval.rows.filter((r) => r.kind !== "none").length;
   const broad = (s?: Summary, m: Mode = "hybrid") => s?.broad[m];
 
@@ -74,6 +76,8 @@ export default function EvaluationPage() {
           </p>
         </div>
       )}
+
+      <RerankEffect summary={now} />
 
       <GraphEffect rows={data.retrieval.rows} />
 

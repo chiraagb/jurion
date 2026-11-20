@@ -1,5 +1,5 @@
 {
- "ran_at": "2026-11-10T17:25:39.240221+00:00",
+ "ran_at": "2026-11-17T14:47:40.484338+00:00",
  "embedding_model": "text-embedding-3-small",
  "questions": 83,
  "baseline": {
@@ -770,6 +770,14 @@
      "mrr": 0.57,
      "n": 77
     },
+    "rerank": {
+     "hit@1": 0.494,
+     "hit@3": 0.688,
+     "hit@5": 0.766,
+     "hit@10": 0.909,
+     "mrr": 0.618,
+     "n": 77
+    },
     "context": {
      "hit@1": 0.481,
      "hit@3": 0.701,
@@ -779,27 +787,27 @@
      "n": 77
     },
     "scope": {
-     "hit@1": 0.481,
+     "hit@1": 0.468,
      "hit@3": 0.662,
-     "hit@5": 0.727,
+     "hit@5": 0.74,
      "hit@10": 0.857,
-     "mrr": 0.601,
+     "mrr": 0.591,
      "n": 77
     },
     "soft": {
-     "hit@1": 0.481,
+     "hit@1": 0.468,
      "hit@3": 0.662,
-     "hit@5": 0.727,
+     "hit@5": 0.74,
      "hit@10": 0.857,
-     "mrr": 0.605,
+     "mrr": 0.596,
      "n": 77
     },
     "graph": {
-     "hit@1": 0.481,
+     "hit@1": 0.468,
      "hit@3": 0.649,
      "hit@5": 0.727,
-     "hit@10": 0.883,
-     "mrr": 0.6,
+     "hit@10": 0.87,
+     "mrr": 0.592,
      "n": 77
     }
    },
@@ -828,6 +836,14 @@
      "mrr": 0.628,
      "n": 29
     },
+    "rerank": {
+     "hit@1": 0.655,
+     "hit@3": 0.828,
+     "hit@5": 0.897,
+     "hit@10": 0.966,
+     "mrr": 0.757,
+     "n": 29
+    },
     "context": {
      "hit@1": 0.517,
      "hit@3": 0.724,
@@ -838,26 +854,26 @@
     },
     "scope": {
      "hit@1": 0.552,
-     "hit@3": 0.724,
-     "hit@5": 0.793,
-     "hit@10": 0.966,
-     "mrr": 0.674,
+     "hit@3": 0.69,
+     "hit@5": 0.759,
+     "hit@10": 0.931,
+     "mrr": 0.657,
      "n": 29
     },
     "soft": {
      "hit@1": 0.552,
-     "hit@3": 0.724,
-     "hit@5": 0.793,
-     "hit@10": 0.966,
-     "mrr": 0.674,
+     "hit@3": 0.69,
+     "hit@5": 0.759,
+     "hit@10": 0.931,
+     "mrr": 0.66,
      "n": 29
     },
     "graph": {
      "hit@1": 0.552,
-     "hit@3": 0.724,
-     "hit@5": 0.793,
-     "hit@10": 0.966,
-     "mrr": 0.664,
+     "hit@3": 0.69,
+     "hit@5": 0.759,
+     "hit@10": 0.931,
+     "mrr": 0.655,
      "n": 29
     }
    },
@@ -886,6 +902,14 @@
      "mrr": 0.616,
      "n": 32
     },
+    "rerank": {
+     "hit@1": 0.469,
+     "hit@3": 0.656,
+     "hit@5": 0.75,
+     "hit@10": 0.875,
+     "mrr": 0.595,
+     "n": 32
+    },
     "context": {
      "hit@1": 0.5,
      "hit@3": 0.688,
@@ -895,27 +919,27 @@
      "n": 32
     },
     "scope": {
-     "hit@1": 0.5,
-     "hit@3": 0.625,
-     "hit@5": 0.688,
+     "hit@1": 0.469,
+     "hit@3": 0.656,
+     "hit@5": 0.719,
      "hit@10": 0.781,
-     "mrr": 0.585,
+     "mrr": 0.569,
      "n": 32
     },
     "soft": {
-     "hit@1": 0.5,
-     "hit@3": 0.625,
-     "hit@5": 0.688,
+     "hit@1": 0.469,
+     "hit@3": 0.656,
+     "hit@5": 0.719,
      "hit@10": 0.781,
-     "mrr": 0.59,
+     "mrr": 0.578,
      "n": 32
     },
     "graph": {
-     "hit@1": 0.5,
-     "hit@3": 0.625,
-     "hit@5": 0.625,
+     "hit@1": 0.469,
+     "hit@3": 0.656,
+     "hit@5": 0.656,
      "hit@10": 0.781,
-     "mrr": 0.585,
+     "mrr": 0.573,
      "n": 32
     }
    },
@@ -942,6 +966,14 @@
      "hit@5": 0.75,
      "hit@10": 0.75,
      "mrr": 0.163,
+     "n": 4
+    },
+    "rerank": {
+     "hit@1": 0.0,
+     "hit@3": 0.25,
+     "hit@5": 0.25,
+     "hit@10": 0.75,
+     "mrr": 0.142,
      "n": 4
     },
     "context": {
@@ -1002,6 +1034,14 @@
      "mrr": 0.69,
      "n": 6
     },
+    "rerank": {
+     "hit@1": 0.667,
+     "hit@3": 0.833,
+     "hit@5": 0.833,
+     "hit@10": 1.0,
+     "mrr": 0.778,
+     "n": 6
+    },
     "context": {
      "hit@1": 0.5,
      "hit@3": 0.833,
@@ -1060,6 +1100,14 @@
      "mrr": 0.194,
      "n": 6
     },
+    "rerank": {
+     "hit@1": 0.0,
+     "hit@3": 0.333,
+     "hit@5": 0.5,
+     "hit@10": 0.833,
+     "mrr": 0.225,
+     "n": 6
+    },
     "context": {
      "hit@1": 0.0,
      "hit@3": 0.333,
@@ -1071,17 +1119,17 @@
     "scope": {
      "hit@1": 0.0,
      "hit@3": 0.333,
-     "hit@5": 0.5,
-     "hit@10": 0.667,
-     "mrr": 0.224,
+     "hit@5": 0.667,
+     "hit@10": 0.833,
+     "mrr": 0.257,
      "n": 6
     },
     "soft": {
      "hit@1": 0.0,
      "hit@3": 0.333,
-     "hit@5": 0.5,
-     "hit@10": 0.667,
-     "mrr": 0.224,
+     "hit@5": 0.667,
+     "hit@10": 0.833,
+     "mrr": 0.257,
      "n": 6
     },
     "graph": {
@@ -1104,6 +1152,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "rerank": 2,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -1114,7 +1163,9 @@
      "4.2 Renewal. After the initial term this Agr (01-northwind-b)"
     ],
     "widened": [],
-    "scope": []
+    "scope": [
+     "AgapeAtpCorp_20191202_10"
+    ]
    },
    {
     "id": 2,
@@ -1125,6 +1176,7 @@
      "keyword": 1,
      "hybrid": 1,
      "context": 1,
+     "rerank": 1,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -1146,6 +1198,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "rerank": 1,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -1170,6 +1223,7 @@
      "keyword": null,
      "hybrid": null,
      "context": null,
+     "rerank": 10,
      "scope": null,
      "soft": null,
      "graph": null
@@ -1191,6 +1245,7 @@
      "keyword": null,
      "hybrid": 6,
      "context": 6,
+     "rerank": 1,
      "scope": 6,
      "soft": 6,
      "graph": 6
@@ -1212,6 +1267,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "rerank": 2,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -1236,6 +1292,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "rerank": 1,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -1247,8 +1304,7 @@
     ],
     "widened": [],
     "scope": [
-     "AgapeAtpCorp_20191202_10",
-     "NETGEAR,INC_04_21_2003-E"
+     "AgapeAtpCorp_20191202_10"
     ]
    },
    {
@@ -1260,6 +1316,7 @@
      "keyword": 1,
      "hybrid": 1,
      "context": 1,
+     "rerank": 1,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -1283,6 +1340,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "rerank": 1,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -1306,6 +1364,7 @@
      "keyword": null,
      "hybrid": null,
      "context": null,
+     "rerank": 3,
      "scope": 8,
      "soft": 8,
      "graph": 8
@@ -1329,6 +1388,7 @@
      "keyword": null,
      "hybrid": null,
      "context": null,
+     "rerank": null,
      "scope": null,
      "soft": null,
      "graph": null
@@ -1339,9 +1399,7 @@
      "EXHIBIT C POTENTIAL CUSTOMERS (StampscomInc_2)"
     ],
     "widened": [],
-    "scope": [
-     "EFC18326_Rosa_CTA_-_Fina"
-    ]
+    "scope": []
    },
    {
     "id": 12,
@@ -1352,6 +1410,7 @@
      "keyword": null,
      "hybrid": 2,
      "context": 2,
+     "rerank": 1,
      "scope": 2,
      "soft": 2,
      "graph": 2
@@ -1373,6 +1432,7 @@
      "keyword": 1,
      "hybrid": 1,
      "context": 1,
+     "rerank": 1,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -1396,6 +1456,7 @@
      "keyword": null,
      "hybrid": 8,
      "context": 8,
+     "rerank": 4,
      "scope": 8,
      "soft": 8,
      "graph": 8
@@ -1417,6 +1478,7 @@
      "keyword": 4,
      "hybrid": 3,
      "context": 3,
+     "rerank": 1,
      "scope": 3,
      "soft": 3,
      "graph": 3
@@ -1438,6 +1500,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "rerank": 1,
      "scope": null,
      "soft": 11,
      "graph": 11
@@ -1449,8 +1512,7 @@
     ],
     "widened": [],
     "scope": [
-     "01-northwind-brightpath-",
-     "02-northwind-brightpath-"
+     "01-northwind-brightpath-"
     ]
    },
    {
@@ -1462,9 +1524,10 @@
      "keyword": null,
      "hybrid": 2,
      "context": 2,
-     "scope": 2,
-     "soft": 2,
-     "graph": 3
+     "rerank": 1,
+     "scope": null,
+     "soft": 12,
+     "graph": 13
     },
     "top": [
      "4 PRICES, PRICE LIST, TAXES AND PAYMENT (NETGEAR,INC_04)",
@@ -1472,9 +1535,13 @@
      "5 SHIPMENT, CANCELLATION, RETURNS, TITLE,  (NETGEAR,INC_04)"
     ],
     "widened": [
-     "11"
+     "12.2"
     ],
-    "scope": []
+    "scope": [
+     "01-northwind-brightpath-",
+     "02-northwind-brightpath-",
+     "OFGBANCORP_03_28_2007-EX"
+    ]
    },
    {
     "id": 18,
@@ -1485,6 +1552,7 @@
      "keyword": null,
      "hybrid": null,
      "context": null,
+     "rerank": null,
      "scope": null,
      "soft": null,
      "graph": null
@@ -1494,14 +1562,8 @@
      "4 CONFIDENTIALITY AND INVENTIONS (06-brightpath-)",
      "11.1 All Intellectual Property during the pro (VgrabCommunica)"
     ],
-    "widened": [
-     "4",
-     "5.2.1"
-    ],
-    "scope": [
-     "ArmstrongFlooringInc_201",
-     "BIOAMBERINC_04_10_2013-E"
-    ]
+    "widened": [],
+    "scope": []
    },
    {
     "id": 19,
@@ -1512,6 +1574,7 @@
      "keyword": 3,
      "hybrid": 4,
      "context": 4,
+     "rerank": 1,
      "scope": 4,
      "soft": 4,
      "graph": 5
@@ -1535,9 +1598,10 @@
      "keyword": null,
      "hybrid": 2,
      "context": 2,
-     "scope": 2,
-     "soft": 2,
-     "graph": 2
+     "rerank": 1,
+     "scope": null,
+     "soft": 12,
+     "graph": 12
     },
     "top": [
      "7.1 Each party will keep the other's Conﬁden (03-northwind-c)",
@@ -1545,7 +1609,9 @@
      "6.5 The obligations of confidentiality under (master-service)"
     ],
     "widened": [],
-    "scope": []
+    "scope": [
+     "05-cobalt-brightpath-mut"
+    ]
    },
    {
     "id": 21,
@@ -1556,6 +1622,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "rerank": 1,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -1577,6 +1644,7 @@
      "keyword": 1,
      "hybrid": 1,
      "context": 1,
+     "rerank": 1,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -1598,6 +1666,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "rerank": 1,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -1619,6 +1688,7 @@
      "keyword": 2,
      "hybrid": 1,
      "context": 1,
+     "rerank": 2,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -1629,7 +1699,36 @@
      "PREAMBLE Preamble & Recitals (NETGEAR,INC_04)"
     ],
     "widened": [],
-    "scope": []
+    "scope": [
+     "01-northwind-brightpath-",
+     "02-northwind-brightpath-",
+     "03-northwind-cobalt-soft",
+     "04-harborpoint-brightpat",
+     "05-cobalt-brightpath-mut",
+     "06-brightpath-rachel-tan",
+     "AgapeAtpCorp_20191202_10",
+     "ArmstrongFlooringInc_201",
+     "BIOAMBERINC_04_10_2013-E",
+     "BIOAMBERINC_04_10_2013-E",
+     "CORIOINC_07_20_2000-EX-1",
+     "CybergyHoldingsInc_20140",
+     "EFC18326_Rosa_CTA_-_Fina",
+     "ELFBEAUTY,INC_07_02_2020",
+     "FEDERATEDGOVERNMENTINCOM",
+     "FEDERATEDGOVERNMENTINCOM",
+     "FEDERATEDGOVERNMENTINCOM",
+     "HfEnterprisesInc_2019122",
+     "N2KINC_10_16_1997-EX-10.",
+     "NETGEAR,INC_04_21_2003-E",
+     "NETGEAR,INC_04_21_2003-E",
+     "NETGEAR,INC_04_21_2003-E",
+     "OFGBANCORP_03_28_2007-EX",
+     "PerformanceSportsBrandsI",
+     "PhotronicsInc_20171219_1",
+     "StampscomInc_20001114_10",
+     "VgrabCommunicationsInc_2",
+     "master-services-agreemen"
+    ]
    },
    {
     "id": 25,
@@ -1640,6 +1739,7 @@
      "keyword": null,
      "hybrid": 5,
      "context": 5,
+     "rerank": 4,
      "scope": 5,
      "soft": 5,
      "graph": 6
@@ -1663,6 +1763,7 @@
      "keyword": null,
      "hybrid": 2,
      "context": 1,
+     "rerank": 1,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -1686,6 +1787,7 @@
      "keyword": null,
      "hybrid": 4,
      "context": 4,
+     "rerank": 2,
      "scope": 4,
      "soft": 4,
      "graph": 7
@@ -1711,6 +1813,7 @@
      "keyword": null,
      "hybrid": 10,
      "context": 10,
+     "rerank": 2,
      "scope": 10,
      "soft": 10,
      "graph": 10
@@ -1732,6 +1835,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "rerank": 7,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -1753,6 +1857,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "rerank": 1,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -1774,22 +1879,24 @@
      "keyword": null,
      "hybrid": null,
      "context": null,
-     "scope": null,
-     "soft": null,
-     "graph": null
+     "rerank": null,
+     "scope": 3,
+     "soft": 3,
+     "graph": 3
     },
     "top": [
      "4.3 Service Credits. If Cobalt misses the se (03-northwind-c)",
      "2.4.1 In the event Cargill does not achieve a  (BIOAMBERINC_04)",
      "2.4 Missed Milestones. (BIOAMBERINC_04)"
     ],
-    "widened": [
-     "9",
-     "3.2",
-     "12.2"
-    ],
+    "widened": [],
     "scope": [
-     "01-northwind-brightpath-"
+     "01-northwind-brightpath-",
+     "02-northwind-brightpath-",
+     "FEDERATEDGOVERNMENTINCOM",
+     "FEDERATEDGOVERNMENTINCOM",
+     "FEDERATEDGOVERNMENTINCOM",
+     "OFGBANCORP_03_28_2007-EX"
     ]
    },
    {
@@ -1801,6 +1908,7 @@
      "keyword": null,
      "hybrid": null,
      "context": null,
+     "rerank": null,
      "scope": null,
      "soft": null,
      "graph": null
@@ -1810,16 +1918,8 @@
      "18.2 Either party may cancel this Agreement u (CybergyHolding)",
      "5.3 Insolvency. Either party may terminate t (01-northwind-b)"
     ],
-    "widened": [
-     "9",
-     "7",
-     "3.2"
-    ],
-    "scope": [
-     "01-northwind-brightpath-",
-     "02-northwind-brightpath-",
-     "03-northwind-cobalt-soft"
-    ]
+    "widened": [],
+    "scope": []
    },
    {
     "id": 33,
@@ -1830,6 +1930,7 @@
      "keyword": 1,
      "hybrid": 2,
      "context": 2,
+     "rerank": 1,
      "scope": 2,
      "soft": 2,
      "graph": 2
@@ -1853,6 +1954,7 @@
      "keyword": 1,
      "hybrid": 1,
      "context": 1,
+     "rerank": 4,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -1874,6 +1976,7 @@
      "keyword": null,
      "hybrid": null,
      "context": null,
+     "rerank": null,
      "scope": null,
      "soft": null,
      "graph": null
@@ -1895,6 +1998,7 @@
      "keyword": null,
      "hybrid": null,
      "context": null,
+     "rerank": null,
      "scope": null,
      "soft": null,
      "graph": null
@@ -1904,13 +2008,9 @@
      "3.4 Where the Client designates specific ven (master-service)",
      "2.4 Rescheduling and Cancellation (PhotronicsInc_)"
     ],
-    "widened": [
-     "3"
-    ],
+    "widened": [],
     "scope": [
-     "NETGEAR,INC_04_21_2003-E",
-     "NETGEAR,INC_04_21_2003-E",
-     "OFGBANCORP_03_28_2007-EX"
+     "06-brightpath-rachel-tan"
     ]
    },
    {
@@ -1922,6 +2022,7 @@
      "keyword": null,
      "hybrid": null,
      "context": null,
+     "rerank": null,
      "scope": null,
      "soft": null,
      "graph": null
@@ -1943,6 +2044,7 @@
      "keyword": null,
      "hybrid": null,
      "context": null,
+     "rerank": null,
      "scope": null,
      "soft": null,
      "graph": null
@@ -1968,6 +2070,7 @@
      "keyword": 2,
      "hybrid": 5,
      "context": 1,
+     "rerank": 8,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -1989,6 +2092,7 @@
      "keyword": null,
      "hybrid": null,
      "context": 1,
+     "rerank": null,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -2010,6 +2114,7 @@
      "keyword": null,
      "hybrid": 4,
      "context": 2,
+     "rerank": 3,
      "scope": 2,
      "soft": 2,
      "graph": 2
@@ -2020,7 +2125,9 @@
      "3.5 (a) (AgapeAtpCorp_2)"
     ],
     "widened": [],
-    "scope": []
+    "scope": [
+     "AgapeAtpCorp_20191202_10"
+    ]
    },
    {
     "id": 42,
@@ -2031,6 +2138,7 @@
      "keyword": null,
      "hybrid": 5,
      "context": 1,
+     "rerank": 9,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -2052,6 +2160,7 @@
      "keyword": null,
      "hybrid": 2,
      "context": 2,
+     "rerank": 1,
      "scope": 2,
      "soft": 2,
      "graph": 2
@@ -2065,9 +2174,7 @@
      "18",
      "3"
     ],
-    "scope": [
-     "CybergyHoldingsInc_20140"
-    ]
+    "scope": []
    },
    {
     "id": 44,
@@ -2078,6 +2185,7 @@
      "keyword": 1,
      "hybrid": 1,
      "context": 1,
+     "rerank": 1,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -2101,6 +2209,7 @@
      "keyword": 1,
      "hybrid": 2,
      "context": 2,
+     "rerank": 1,
      "scope": 2,
      "soft": 2,
      "graph": 2
@@ -2124,6 +2233,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "rerank": 2,
      "scope": null,
      "soft": 11,
      "graph": 14
@@ -2151,6 +2261,7 @@
      "keyword": null,
      "hybrid": 7,
      "context": 7,
+     "rerank": 6,
      "scope": 6,
      "soft": 6,
      "graph": 9
@@ -2178,6 +2289,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "rerank": 1,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -2201,6 +2313,7 @@
      "keyword": null,
      "hybrid": 6,
      "context": 6,
+     "rerank": 7,
      "scope": 5,
      "soft": 5,
      "graph": 6
@@ -2226,6 +2339,7 @@
      "keyword": null,
      "hybrid": null,
      "context": null,
+     "rerank": null,
      "scope": null,
      "soft": null,
      "graph": 4
@@ -2251,6 +2365,7 @@
      "keyword": null,
      "hybrid": 2,
      "context": 2,
+     "rerank": 2,
      "scope": 2,
      "soft": 2,
      "graph": 2
@@ -2272,6 +2387,7 @@
      "keyword": null,
      "hybrid": null,
      "context": null,
+     "rerank": 8,
      "scope": 7,
      "soft": 7,
      "graph": 4
@@ -2297,6 +2413,7 @@
      "keyword": null,
      "hybrid": 2,
      "context": 2,
+     "rerank": 3,
      "scope": 2,
      "soft": 2,
      "graph": 5
@@ -2324,8 +2441,9 @@
      "keyword": null,
      "hybrid": null,
      "context": null,
-     "scope": null,
-     "soft": null,
+     "rerank": 4,
+     "scope": 5,
+     "soft": 5,
      "graph": 5
     },
     "top": [
@@ -2338,7 +2456,9 @@
      "3",
      "1.4"
     ],
-    "scope": []
+    "scope": [
+     "OFGBANCORP_03_28_2007-EX"
+    ]
    },
    {
     "id": 55,
@@ -2349,6 +2469,7 @@
      "keyword": null,
      "hybrid": 7,
      "context": 7,
+     "rerank": 9,
      "scope": 7,
      "soft": 7,
      "graph": 7
@@ -2372,6 +2493,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "rerank": 1,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -2398,6 +2520,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "rerank": 1,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -2423,6 +2546,7 @@
      "keyword": null,
      "hybrid": 2,
      "context": 2,
+     "rerank": 1,
      "scope": 2,
      "soft": 2,
      "graph": 2
@@ -2446,6 +2570,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "rerank": 2,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -2469,18 +2594,23 @@
      "keyword": null,
      "hybrid": 2,
      "context": 2,
-     "scope": null,
-     "soft": 12,
-     "graph": 12
+     "rerank": 1,
+     "scope": 2,
+     "soft": 2,
+     "graph": 2
     },
     "top": [
      "3 IMPRESSION GUARANTEES (N2KINC_10_16_1)",
      "11 TERMINATION (N2KINC_10_16_1)",
      "4 CONTENT PROVIDED TO EXCITE (N2KINC_10_16_1)"
     ],
-    "widened": [],
+    "widened": [
+     "13",
+     "14",
+     "7"
+    ],
     "scope": [
-     "EFC18326_Rosa_CTA_-_Fina"
+     "N2KINC_10_16_1997-EX-10."
     ]
    },
    {
@@ -2492,6 +2622,7 @@
      "keyword": null,
      "hybrid": 6,
      "context": 6,
+     "rerank": 7,
      "scope": 6,
      "soft": 6,
      "graph": 7
@@ -2515,6 +2646,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "rerank": 1,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -2538,6 +2670,7 @@
      "keyword": 1,
      "hybrid": 1,
      "context": 1,
+     "rerank": 1,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -2563,6 +2696,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "rerank": 1,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -2584,6 +2718,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "rerank": 1,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -2607,6 +2742,7 @@
      "keyword": null,
      "hybrid": 2,
      "context": 2,
+     "rerank": 3,
      "scope": 2,
      "soft": 2,
      "graph": 2
@@ -2630,6 +2766,7 @@
      "keyword": null,
      "hybrid": 2,
      "context": 2,
+     "rerank": 4,
      "scope": 2,
      "soft": 2,
      "graph": 2
@@ -2640,7 +2777,10 @@
      "2.4 Rescheduling and Cancellation (PhotronicsInc_)"
     ],
     "widened": [],
-    "scope": []
+    "scope": [
+     "OFGBANCORP_03_28_2007-EX",
+     "PhotronicsInc_20171219_1"
+    ]
    },
    {
     "id": 68,
@@ -2651,6 +2791,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "rerank": 3,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -2672,9 +2813,10 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
-     "scope": 1,
-     "soft": 1,
-     "graph": 1
+     "rerank": 1,
+     "scope": null,
+     "soft": 11,
+     "graph": 11
     },
     "top": [
      "5.1 Risk of Loss and Title (PhotronicsInc_)",
@@ -2682,7 +2824,10 @@
      "6.6 With respect to any Trademarks notified  (ArmstrongFloor)"
     ],
     "widened": [],
-    "scope": []
+    "scope": [
+     "AgapeAtpCorp_20191202_10",
+     "NETGEAR,INC_04_21_2003-E"
+    ]
    },
    {
     "id": 70,
@@ -2693,6 +2838,7 @@
      "keyword": null,
      "hybrid": null,
      "context": null,
+     "rerank": null,
      "scope": null,
      "soft": null,
      "graph": null
@@ -2716,6 +2862,7 @@
      "keyword": null,
      "hybrid": 3,
      "context": 3,
+     "rerank": 1,
      "scope": 3,
      "soft": 3,
      "graph": 3
@@ -2737,19 +2884,20 @@
      "keyword": null,
      "hybrid": 6,
      "context": 6,
-     "scope": 6,
-     "soft": 6,
-     "graph": 7
+     "rerank": 10,
+     "scope": 3,
+     "soft": 3,
+     "graph": 3
     },
     "top": [
      "10.2 Either Party may terminate this Developm (BIOAMBERINC_04)",
      "18.3 Upon termination or cancellation of this (CybergyHolding)",
      "2.2.1 Either party may terminate this Agreemen (HfEnterprisesI)"
     ],
-    "widened": [
-     "18"
-    ],
-    "scope": []
+    "widened": [],
+    "scope": [
+     "HfEnterprisesInc_2019122"
+    ]
    },
    {
     "id": 73,
@@ -2760,6 +2908,7 @@
      "keyword": null,
      "hybrid": 9,
      "context": 9,
+     "rerank": 4,
      "scope": 6,
      "soft": 6,
      "graph": 7
@@ -2785,6 +2934,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "rerank": 1,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -2795,7 +2945,9 @@
      "4.4 Audit Rights. Corio shall keep true and  (CORIOINC_07_20)"
     ],
     "widened": [],
-    "scope": []
+    "scope": [
+     "CORIOINC_07_20_2000-EX-1"
+    ]
    },
    {
     "id": 75,
@@ -2806,6 +2958,7 @@
      "keyword": 1,
      "hybrid": 1,
      "context": 1,
+     "rerank": 1,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -2831,6 +2984,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "rerank": 1,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -2854,6 +3008,7 @@
      "keyword": null,
      "hybrid": 4,
      "context": 4,
+     "rerank": 7,
      "scope": 4,
      "soft": 4,
      "graph": 5
@@ -2877,6 +3032,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "rerank": 2,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -2900,6 +3056,7 @@
      "keyword": null,
      "hybrid": 1,
      "context": 1,
+     "rerank": 1,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -2923,6 +3080,7 @@
      "keyword": null,
      "hybrid": 2,
      "context": 2,
+     "rerank": 1,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -2946,6 +3104,7 @@
      "keyword": null,
      "hybrid": 3,
      "context": 3,
+     "rerank": 2,
      "scope": 1,
      "soft": 1,
      "graph": 1
@@ -2969,6 +3128,7 @@
      "keyword": null,
      "hybrid": null,
      "context": null,
+     "rerank": null,
      "scope": null,
      "soft": null,
      "graph": null
@@ -2990,6 +3150,7 @@
      "keyword": null,
      "hybrid": null,
      "context": null,
+     "rerank": null,
      "scope": null,
      "soft": null,
      "graph": null
@@ -3003,7 +3164,7 @@
     "scope": []
    }
   ],
-  "ran_at": "2026-11-10T17:25:39.240236+00:00"
+  "ran_at": "2026-11-17T14:47:40.484351+00:00"
  },
  "answers": {
   "summary": {

@@ -12,6 +12,7 @@ from app.core import llm_keys
 from app.core.auth import current_user
 from app.core.config import settings
 from app.core.database import Clause, Document, User, get_db
+from app.core.preferences import of as prefs_of
 from app.core.ratelimit import limit
 from app.ask.sessions import save_session
 
@@ -139,6 +140,7 @@ async def hybrid(
     use_vector: bool = True,
     use_keyword: bool = True,
     doc_ids: list[str] | None = None,
+    rerank: bool | None = None,
 ) -> tuple[list[dict], str, str | None]:
     """Hybrid search over one user's clauses: vector similarity + keyword rank, merged with reciprocal rank fusion.
 
@@ -154,12 +156,14 @@ async def hybrid(
         use_vector: False skips the vector search (the evaluation uses this to measure keyword-only).
         use_keyword: False skips the keyword search (the evaluation uses this to measure vector-only).
         doc_ids: contract ids to search inside (the Ask workflow passes the ones the graph picked); None or empty searches all of the user's contracts.
-        Note: use_vector, use_keyword and doc_ids are keyword-only (they follow the `*`).
+        rerank: re-score the top SEARCH_RERANK_POOL merged results with the cross-encoder (app/search/rerank.py) before
+            cutting to `top`. None follows the SEARCH_RERANK setting (off by default); the evaluation passes True/False to compare.
+        Note: use_vector, use_keyword, doc_ids and rerank are keyword-only (they follow the `*`).
 
     Returns:
         (clauses, mode, note)
         clauses: dicts, best first, each with the clause text, title, page, `vector_rank` and `keyword_rank` (position in that list, None if absent),
-            `vector_similarity` (1 - cosine distance) and the merged `score`.
+            `vector_similarity` (1 - cosine distance), the merged `score`, and `rerank_score` when reranked.
         mode: "hybrid" if the vector search ran, "keyword" if only keywords were used.
         note: why it fell back to keyword (no key, or the embedding call failed), else None; shown under the results.
     """
@@ -248,7 +252,12 @@ async def hybrid(
             h["score"] += 1 / (60 + rank)  # reciprocal rank fusion
             if name == "vector":
                 h["vector_similarity"] = round(1 - r.d, 4)
-    return sorted(hits.values(), key=lambda h: -h["score"])[:top], mode, note
+    merged = sorted(hits.values(), key=lambda h: -h["score"])
+    if settings.SEARCH_RERANK if rerank is None else rerank:
+        from app.search.rerank import rerank as rerank_hits  # imported here: loading it pulls in torch
+
+        return await rerank_hits(q, merged[: settings.SEARCH_RERANK_POOL], top), mode, note
+    return merged[:top], mode, note
 
 
 @router.post("/search")
@@ -259,7 +268,7 @@ async def search(
     _: None = Depends(limit("search", 30, 60, by_user=True)),
 ):
     found, mode, note = await hybrid(
-        db, user.id, body.query.strip(), await openai_key(db, user.id)
+        db, user.id, body.query.strip(), await openai_key(db, user.id), rerank=prefs_of(user).rerank
     )
     results = [
         {
